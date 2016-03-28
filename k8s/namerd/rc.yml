@@ -1,0 +1,39 @@
+kind: ReplicationController
+apiVersion: v1
+metadata:
+  namespace: default
+  name: namerd
+spec:
+  replicas: 1
+  selector:
+    app: namerd
+  template:
+    metadata:
+      labels:
+        app: namerd
+    spec:
+      dnsPolicy: ClusterFirst
+
+      volumes:
+        - name: namerd-config
+          configMap:
+            name: namerd-config
+
+      containers:
+        - name: namerd
+          image: buoyantio/namerd:0.3.0
+          args:
+            - /io.buoyant/namerd/config/config.yml
+            - -com.twitter.finagle.tracing.debugTrace=true
+            - -log.level=DEBUG
+
+          ports:
+            - name: sync
+              containerPort: 4100
+            - name: ctl
+              containerPort: 4180
+
+          volumeMounts:
+            - name: "namerd-config"
+              mountPath: "/io.buoyant/namerd/config"
+              readOnly: true

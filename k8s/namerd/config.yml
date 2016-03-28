@@ -1,0 +1,25 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: namerd-config
+  namespace: default
+data:
+  config.yml: |-
+    admin:
+      port: 9990
+    storage:
+      kind: io.buoyant.namerd.storage.inMemory
+    namers:
+      - kind: io.l5d.experimental.k8s
+        host: kubernetes.default.svc.cluster.local
+        port: 443
+        tls: true
+        tlsWithoutValidation: true
+        authTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    interfaces:
+      - kind: thriftNameInterpreter
+        ip: 0.0.0.0
+        port: 4100
+      - kind: httpController
+        ip: 0.0.0.0
+        port: 4180

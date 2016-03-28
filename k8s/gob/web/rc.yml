@@ -1,0 +1,53 @@
+---
+kind: ReplicationController
+apiVersion: v1
+metadata:
+  namespace: default
+  name: web
+
+spec:
+  replicas: 1
+  selector:
+    app: web
+  template:
+    metadata:
+      labels:
+        app: web
+
+    spec:
+      dnsPolicy: ClusterFirst
+      volumes:
+        - name: linkerd-config
+          configMap:
+            name: linkerd-config
+
+      containers:
+        - name: svc
+          image: gobsvc/web:v0
+          args:
+            - --srv=:8080
+            - --gen-addr=localhost:4180
+            - --word-addr=localhost:4180
+          ports:
+            - name: http
+              containerPort: 8080
+
+        - name: l5d
+          image: buoyantio/linkerd:0.3.0
+          args:
+            - /io.buoyant/linkerd/config/config.yml
+            - -com.twitter.finagle.tracing.debugTrace=true
+            - -log.level=DEBUG
+
+          ports:
+            - name: http-in
+              containerPort: 4080
+            - name: http-out
+              containerPort: 4180
+            - name: admin
+              containerPort: 9990
+
+          volumeMounts:
+            - name: "linkerd-config"
+              mountPath: "/io.buoyant/linkerd/config"
+              readOnly: true
