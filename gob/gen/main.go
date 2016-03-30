@@ -59,11 +59,12 @@ func (svc *GenSvc) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 // Writes to the stream until `limit` writes have been completed or
 // the stream is closed (i.e. because the client disconnects).
 func (svc *GenSvc) generate(text string, limit uint, stream io.Writer) error {
-	if _, err := stream.Write([]byte(text)); err != nil {
+	line := text + " <3 k8s\n"
+	if _, err := stream.Write([]byte(line)); err != nil {
 		return err
 	}
 	doWrite := func() bool {
-		_, err := stream.Write([]byte(" " + text))
+		_, err := stream.Write([]byte(line))
 		return err == nil
 	}
 	if limit == 0 {
