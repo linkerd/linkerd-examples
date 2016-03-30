@@ -3,16 +3,16 @@ kind: ReplicationController
 apiVersion: v1
 metadata:
   namespace: default
-  name: gen
+  name: gen-growthhack
 
 spec:
   replicas: 3
   selector:
-    app: gen
+    app: gen-growthhack
   template:
     metadata:
       labels:
-        app: gen
+        app: gen-growthhack
 
     spec:
       dnsPolicy: ClusterFirst
@@ -23,7 +23,7 @@ spec:
 
       containers:
         - name: svc
-          image: gobsvc/gen:v0
+          image: gobsvc/gen:growthhack
           args:
             - "--srv=:8080"
           ports:

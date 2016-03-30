@@ -1,3 +1,4 @@
 /srv         => /io.l5d.k8s/default/http;
 /host        => /srv;
 /http/1.1/*  => /host;
+/host/gen    => 1 * /srv/gen-growthhack & 9 * /srv/gen
