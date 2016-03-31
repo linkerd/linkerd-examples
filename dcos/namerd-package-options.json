@@ -1,0 +1,14 @@
+{
+  "namerd": {
+    "admin-port": 9001,
+    "config-filename": "namerd-dcos-gob.yaml",
+    "config-uri": "https://s3.amazonaws.com/buoyant-dcos",
+    "cpus": 0.25,
+    "http-port": 4180,
+    "instances": 1,
+    "mem": 256.0,
+    "name": "namerd",
+    "resource-role": "slave_public",
+    "thrift-port": 4100
+  }
+}
