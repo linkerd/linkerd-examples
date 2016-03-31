@@ -1,0 +1,33 @@
+{
+  "id": "/word",
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "buoyantio/gobs-project:wordsvc",
+      "forcePullImage": false,
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 0,
+          "hostPort": 0,
+          "servicePort": 0,
+          "protocol": "tcp"
+        }
+      ]
+    }
+  },
+  "healthChecks": [
+    {
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "path": "/"
+    }
+  ],
+  "cmd": "/usr/bin/wordsvc --srv=:$PORT0",
+  "cpus": 0.25,
+  "mem": 256.0,
+  "uris": [
+    "file:///etc/docker.tar.gz"
+  ]
+}

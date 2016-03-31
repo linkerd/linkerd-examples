@@ -40,6 +40,16 @@ func (svc *GenSvc) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+	case "/health":
+		switch req.Method {
+		case "GET":
+			return
+
+		default:
+			rspw.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
 	default:
 		rspw.WriteHeader(http.StatusNotFound)
 		return

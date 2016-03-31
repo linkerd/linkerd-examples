@@ -1,0 +1,33 @@
+{
+  "id": "/web",
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "buoyantio/gobs-project:websvc",
+      "forcePullImage": false,
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 0,
+          "hostPort": 0,
+          "servicePort": 0,
+          "protocol": "tcp"
+        }
+      ]
+    }
+  },
+  "healthChecks": [
+    {
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "path": "/"
+    }
+  ],
+  "cmd": "/usr/bin/websvc --srv=:$PORT0 --gen-addr=$HOST:4140 --word-addr=$HOST:4140",
+  "cpus": 0.25,
+  "mem": 256.0,
+  "uris": [
+    "file:///etc/docker.tar.gz"
+  ]
+}
