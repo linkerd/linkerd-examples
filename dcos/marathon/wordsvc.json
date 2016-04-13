@@ -24,7 +24,7 @@
       "path": "/"
     }
   ],
-  "cmd": "/usr/bin/wordsvc --srv=:$PORT0",
+  "cmd": "/usr/bin/gobwordsvc --srv=:$PORT0",
   "cpus": 0.25,
   "mem": 256.0,
   "uris": [
