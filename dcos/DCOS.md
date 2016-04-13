@@ -44,7 +44,7 @@ integrated with the linkerd DC/OS package.
 
 ### linkerd/namerd Package Install
 
-For the sake of this demonstration, assume $PUBLIC_URL is set to a public-facing mesos node.
+For the sake of this demonstration, assume $PUBLIC_URL is set to a public-facing DC/OS node.
 
 ```bash
 export PUBLIC_URL=http://example.com
@@ -80,18 +80,32 @@ dcos marathon app add dcos/marathon/websvc.json
 
 ## Confirm it all works
 
-### View namerd dtabs
+### Set up namerctl
+
+`namerctl` is utility for interacting with the namerd API from the commandline
+
+```
+:; go install github.com/buoyantio/namerctl
+:; namerctl -h
+```
+
+For the sake of this demonstration, assume namerd's API is serving on port 4180 of the public-facing DC/OS node.
 
 ```bash
-curl $PUBLIC_URL:4180/api/1/dtabs/default
+export NAMERD_URL=$PUBLIC_URL:4180
+```
+
+### View namerd dtabs
+
+
+```bash
+namerctl --base-url=$NAMERD_URL dtab get default
 ```
 
 ### Update namerd dtabs
 
 ```bash
-ETAG=`curl -i $PUBLIC_URL:4180/api/1/dtabs/default|grep -Fi ETag: | awk {'print $2'} | sed -e 's/[[:cntrl:]]//'`
-curl -vX PUT -d @dcos/namerd.dtab --header "Content-Type: application/dtab" --header "If-Match: $ETAG" $PUBLIC_URL:4180/api/1/dtabs/default
-curl $PUBLIC_URL:4180/api/1/dtabs/default
+namerctl --base-url=$NAMERD_URL dtab update default dcos/namerd.dtab
 ```
 
 ### Test Gob app
