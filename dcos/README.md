@@ -50,7 +50,7 @@ For the sake of this demonstration, assume $PUBLIC_URL is set to a public-facing
 export PUBLIC_URL=http://example.com
 ```
 
-Upload you DC/OS config to a publicly accessible URL.
+Upload your DC/OS config to a publicly accessible URL.
 
 ```bash
 aws s3 cp dcos/linkerd-dcos-gob.yaml s3://buoyant-dcos --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
