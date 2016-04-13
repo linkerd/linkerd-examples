@@ -264,7 +264,7 @@ To do so, the _reqz_ package can easily be launched as a one-off task
 with:
 
 ```
-:; kubectl run --image=gcr.io/gobs-project/reqz:v0 reqz -- "http://$GOB_HOST/gob?limit=10&text=buoyant"
+:; kubectl run --image=gobsvc/reqz:v0 reqz -- "http://$GOB_HOST/gob?limit=10&text=buoyant"
 deployment "reqz" created
 ```
 
