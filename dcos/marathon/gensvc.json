@@ -24,7 +24,7 @@
       "path": "/health"
     }
   ],
-  "cmd": "/usr/bin/gensvc --srv=:$PORT0",
+  "cmd": "/usr/bin/gobgensvc --srv=:$PORT0",
   "cpus": 0.25,
   "mem": 256.0,
   "uris": [
