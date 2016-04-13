@@ -80,15 +80,6 @@ Add the linkerd universe repo to DC/OS
 dcos package repo add linkerd https://github.com/buoyantio/universe/archive/siggy/linkerd.zip
 ```
 
-Initialize Zookeeper path
-
-`namerd-dcos-gob.yaml` specifies a `storage/pathPrefix` for zk storage. Create this path in preparation for namerd installation.
-
-```bash
-ssh core@$PUBLIC_URL -L 2181:$PUBLIC_URL:2181 -N
-zkCli -server localhost:2181 create /dtabs null
-```
-
 Install the packages, via command line, or the DC/OS UI
 
 ```bash
@@ -106,11 +97,10 @@ dcos marathon app add dcos/marathon/websvc.json
 
 ## Confirm it all works
 
-### Initialize namerd dtabs
+### View namerd dtabs
 
 ```bash
-curl -vX POST -d @dcos/namerd.dtab --header "Content-Type: application/dtab" $PUBLIC_URL:4180/api/1/dtabs/default
-open $PUBLIC_URL:4180/api/1/dtabs/default
+curl $PUBLIC_URL:4180/api/1/dtabs/default
 ```
 
 ### Update namerd dtabs
@@ -118,7 +108,7 @@ open $PUBLIC_URL:4180/api/1/dtabs/default
 ```bash
 ETAG=`curl -i $PUBLIC_URL:4180/api/1/dtabs/default|grep -Fi ETag: | awk {'print $2'} | sed -e 's/[[:cntrl:]]//'`
 curl -vX PUT -d @dcos/namerd.dtab --header "Content-Type: application/dtab" --header "If-Match: $ETAG" $PUBLIC_URL:4180/api/1/dtabs/default
-open $PUBLIC_URL:4180/api/1/dtabs/default
+curl $PUBLIC_URL:4180/api/1/dtabs/default
 ```
 
 ### Test Gob app
