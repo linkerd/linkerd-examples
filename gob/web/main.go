@@ -77,7 +77,7 @@ func (gob *GobWeb) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 		case "GET":
 			rspw.Header().Set("content-type", "text/plain")
 			if err = HelpTemplate.Execute(rspw, &helpCtx{req.Host}); err != nil {
-				fmt.Fprintf(os.Stderr, "template error: %s", err.Error())
+				fmt.Fprintf(os.Stderr, "template error: %s\n", err.Error())
 				return
 			}
 			return
@@ -90,7 +90,6 @@ func (gob *GobWeb) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 	case "/gob":
 		switch req.Method {
 		case "GET":
-
 			params := req.URL.Query()
 			text := params.Get("text")
 			if text == "" {
@@ -110,12 +109,12 @@ func (gob *GobWeb) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 			limit := uint(0)
 			limitstr := params.Get("limit")
 			if limitstr != "" {
-				limit64, err := strconv.ParseUint(limitstr, 10, 32)
+				limit32, err := strconv.ParseUint(limitstr, 10, 32)
 				if err != nil {
 					rspw.WriteHeader(http.StatusBadRequest)
 					return
 				}
-				limit = uint(limit64)
+				limit = uint(limit32)
 			}
 
 			stream, err := gob.genSvc.Gen(ctx, text, limit)

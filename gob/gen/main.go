@@ -73,7 +73,8 @@ func (svc *GenSvc) generate(text string, limit uint, stream io.Writer) error {
 			}
 		}
 	} else {
-		for i := uint(0); i != limit; i++ {
+		// start at 1 because we've already written 1
+		for i := uint(1); i != limit; i++ {
 			if ok := doWrite(); !ok {
 				break
 			}

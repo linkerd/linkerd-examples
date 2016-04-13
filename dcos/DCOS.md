@@ -1,24 +1,7 @@
 # Gob's Web Service on DC/OS
 
-This documents the steps required to build and deploy Gob on DC/OS, integrated with the linkerd DC/OS package.
-
-All commands are run from the root of this repo.
-
-## Build Images
-
-```bash
-docker build -t buoyantio/gobs-project:gensvc -f gob/Dockerfile-gensvc .
-docker build -t buoyantio/gobs-project:websvc -f gob/Dockerfile-websvc .
-docker build -t buoyantio/gobs-project:wordsvc -f gob/Dockerfile-wordsvc .
-```
-
-## Push Images
-
-```bash
-docker push buoyantio/gobs-project:gensvc
-docker push buoyantio/gobs-project:websvc
-docker push buoyantio/gobs-project:wordsvc
-```
+This documents the steps required to build and deploy Gob on DC/OS,
+integrated with the linkerd DC/OS package.
 
 ## Linkerd/Namerd Package Install
 

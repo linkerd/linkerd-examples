@@ -1,5 +1,0 @@
-FROM library/golang:1.6.0
-RUN ["mkdir", "-p", "/src"]
-COPY gob/websvc.go /src/
-RUN ["go", "build", "-o", "/usr/bin/websvc", "/src/websvc.go"]
-ENTRYPOINT ["/usr/bin/websvc"]

@@ -4,7 +4,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "buoyantio/gobs-project:gensvc",
+      "image": "gobsvc/gen:v0",
       "forcePullImage": false,
       "network": "BRIDGE",
       "portMappings": [

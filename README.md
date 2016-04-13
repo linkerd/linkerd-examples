@@ -2,7 +2,9 @@
 
 **Goals**
 
-- Illustrate how to use linkerd in kubernetes
+- Illustrate how to use linkerd and namerd in production-like environments
+    - [DC/OS](dcos/README.md)
+    - [kubernetes](k8s/README.md)
 - Have some fun
 
 **Non-goals**
@@ -10,9 +12,7 @@
 - Implement a useful application
 - Provide exemplary Go code
 
-## The Application ##
-
-Welcome to Gob's Microservice!
+## The Application: Gob's Microservice ##
 
 ![gob](https://media.giphy.com/media/qJxFuXXWpkdEI/giphy.gif)
 
@@ -22,9 +22,9 @@ microservice web application that can be run at scale!
 
 This application consists of several components:
 
-- _websvc_ -- Gob's frontend -- serves plaintext
-- _wordsvc_ -- chooses a word for _web_ when one isn't provided
-- _gensvc_ -- given a word and a limit, generates a stream of text
+- _web_ -- Gob's frontend -- serves plaintext
+- _word_ -- chooses a word for _web_ when one isn't provided
+- _gen_ -- given a word and a limit, generates a stream of text
 
 The web service is fairly simple (and entirely plaintext):
 
@@ -41,9 +41,15 @@ You can tell me what to say with:
   localhost:8080/gob?text=WHAT_TO_SAY&limit=NUMBER
 ```
 
-_websvc_ may call both _wordsvc_ and _gensvc_ to satisfy a request.  
+_web_ may call both _word_ and _gen_ to satisfy a request.
 
-_wordsvc_ and _gensvc_ implement RPC-ish interfaces with HTTP and JSON.
+_word_ and _gen_ implement RPC-ish interfaces with HTTP and JSON.
 
 All three services are implemented in Go with no shared code.  They
 may be built and run independently.
+
+If you want to run these programs locally, you'll need to install
+[Go 1.6 or later](https://golang.org/dl).  However, we have already
+published Docker images to [https://hub.docker.com/u/gobsvc/], so all
+you'll really need to do is to set up a client for
+[dc/os](./dcos/README.md) or [kubernetes](./k8s/README.md).
