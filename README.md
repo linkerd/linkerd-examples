@@ -1,4 +1,4 @@
-# Linkerd Examples #
+# linkerd examples #
 
 **Goals**
 
