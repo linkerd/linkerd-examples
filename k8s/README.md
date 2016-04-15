@@ -28,6 +28,7 @@ interact with the namerd API from the commandline. If you have
 as:
 
 ```
+:; go get github.com/buoyantio/namerctl
 :; go install github.com/buoyantio/namerctl
 :; namerctl -h
 Find more information at https://linkerd.io
@@ -78,7 +79,7 @@ namerd-0j88e   1/1       Running   0          2s
 It may take some time to provision external IPs, so if we list our
 services immediately the EXTERNAL-IP is not set for _namerd-ctl_:
 ```
-:; kubectl get svc                        
+:; kubectl get svc
 NAME          CLUSTER-IP     EXTERNAL-IP   PORT(S)           AGE
 kubernetes    10.3.240.1     <none>        443/TCP           1m
 namerd-ctl    10.3.255.61                  80/TCP,9990/TCP   7s
@@ -275,7 +276,7 @@ Now we can update our dtab to send a controlled 1/20th of requests to
 canary the new service:
 
 ```
-:; cat k8s/namerd/default.dtab 
+:; cat k8s/namerd/default.dtab
 /srv        =>   /io.l5d.k8s/default/http;
 /host       =>   /srv;
 /method     =>   /$/io.buoyant.http.anyMethodPfx/host;
@@ -284,7 +285,7 @@ canary the new service:
 ```
 
 ```
-:; namerctl --base-url=$NAMERCTL_BASE_URL dtab update default k8s/namerd/default.dtab
+:; namerctl dtab update default k8s/namerd/default.dtab
 ```
 
 And we see a small 5% of traffic go to the new service.  If we don't
@@ -303,7 +304,7 @@ For example, the following will send 20% of requests through the new service
 /host/gen   =>   1 * /srv/gen-growthhack & 4 * /srv/gen
 ```
 ```
-:; namerctl --base-url=$NAMERCTL_BASE_URL update default k8s/namerd/default.dtab
+:; namerctl dtab update default k8s/namerd/default.dtab
 ```
 
 Next, we bring it to equal 50% with:
@@ -319,7 +320,7 @@ original service, so we still have a safety net:
 /host/gen   =>   /srv/gen-growthhack | /srv/gen
 ```
 ```
-:; namerctl --base-url=$NAMERCTL_BASE_URL update default k8s/namerd/default.dtab
+:; namerctl dtab update default k8s/namerd/default.dtab
 ```
 
 Should the _gen-growthhack_ service suddenly disappear--because we
