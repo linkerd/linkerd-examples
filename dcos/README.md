@@ -57,12 +57,6 @@ aws s3 cp dcos/linkerd-dcos-gob.yaml s3://buoyant-dcos --grants read=uri=http://
 aws s3 cp dcos/namerd-dcos-gob.yaml s3://buoyant-dcos --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
 ```
 
-Add the linkerd universe repo to DC/OS
-
-```bash
-dcos package repo add linkerd https://github.com/buoyantio/universe/archive/siggy/linkerd.zip
-```
-
 Install the packages, via command line, or the DC/OS UI
 
 ```bash
