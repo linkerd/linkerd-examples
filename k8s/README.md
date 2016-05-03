@@ -103,10 +103,9 @@ Table (Dtab) that describes our default routing policy:
 :; namerctl dtab create default k8s/namerd/default.dtab
 :; namerctl dtab get default
 # version AAAAAAAAAAE=
-/srv       => /io.l5d.k8s/default/http ;
-/host      => /srv ;
-/method    => /$/io.buoyant.http.anyMethodPfx/host ;
-/http/1.1  => /method ;
+/srv         => /io.l5d.k8s/default/http ;
+/host        => /srv ;
+/http/1.1/*  => /host ;
 ```
 
 A delegation table describes how named requests,

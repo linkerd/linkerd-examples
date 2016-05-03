@@ -31,7 +31,7 @@ spec:
               containerPort: 8080
 
         - name: l5d
-          image: buoyantio/linkerd:0.3.1
+          image: buoyantio/linkerd:0.4.0
           args:
             - "/io.buoyant/linkerd/config/config.yml"
 
