@@ -14,6 +14,7 @@ data:
           - port: 4080
             ip: 0.0.0.0
         baseDtab: /http/1.1 => /$/inet/127.1/8080
+        timeoutMs: 1000
       - protocol: http
         label: out
         servers:
@@ -21,3 +22,6 @@ data:
         interpreter:
           kind: io.l5d.namerd
           dst: /$/inet/namerd-sync.default.svc.cluster.local/4100
+        timeoutMs: 1000
+        responseClassifier:
+          kind: retryableRead5XX
