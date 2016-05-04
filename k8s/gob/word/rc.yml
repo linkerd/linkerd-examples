@@ -3,16 +3,16 @@ kind: ReplicationController
 apiVersion: v1
 metadata:
   namespace: default
-  name: word
+  name: word-growthhack
 
 spec:
   replicas: 3
   selector:
-    app: word
+    app: word-growthhack
   template:
     metadata:
       labels:
-        app: word
+        app: word-growthhack
 
     spec:
       dnsPolicy: ClusterFirst
@@ -23,7 +23,7 @@ spec:
 
       containers:
         - name: svc
-          image: gobsvc/word:v0
+          image: gobsvc/word:growthhack
           args:
             - "--srv=:8080"
           ports:
