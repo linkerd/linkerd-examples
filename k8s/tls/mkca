@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -eu
+
+cd -P "$(dirname "${BASH_SOURCE[0]}")"
+mkdir -p ca/certs ca/keys ca/reqs
+chmod 700 ca
+touch ca/index.txt
+touch ca/index.txt.attr
+
+# generate the root CA key & req
+openssl req \
+        -config openssl.cfg \
+        -new \
+        -newkey rsa:2048 \
+        -subj '/C=US/CN=linkerd-examples CA' \
+        -keyout ca/key.pem \
+        -out ca/req.pem >/dev/null
+
+echo 01 >ca/serial
+openssl ca \
+        -out ca/cert.pem \
+        -days 365 \
+        -keyfile ca/key.pem \
+        -selfsign \
+        -config openssl.cfg \
+        -infiles ca/req.pem >/dev/null

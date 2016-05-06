@@ -1,3 +1,5 @@
-/srv         => /io.l5d.k8s/default/http;
-/host        => /srv;
+/srv         => /io.l5d.k8s/default/https;
 /http/1.1/*  => /host;
+/host/web    => /srv/web-v0;
+/host/word   => /srv/word-v0;
+/host/gen    => /srv/gen-v0;

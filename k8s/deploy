@@ -1,0 +1,149 @@
+#!/bin/sh
+
+set -eu
+
+service="${1:-}"
+if [ -z "${service:-}" ]; then
+  echo "usage: ./deploy service [label] [namespace]" >&2
+  exit 64
+fi
+
+label="${2:-v0}"
+namespace="${3:-default}"
+name="${service}-${label}"
+
+case "$service" in
+"web")
+  replicas=1
+  args=$(cat <<EOF
+            - --srv=:8080
+            - --gen-addr=localhost:4180
+            - --word-addr=localhost:4180
+EOF
+)
+
+  svc=$(cat <<EOF
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: "${namespace}"
+  name: "${name}"
+spec:
+  selector:
+    app: "${name}"
+
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      targetPort: 4080
+    - name: https
+      port: 443
+      targetPort: 4043
+    - name: admin
+      port: 9990
+EOF
+)
+
+  ;;
+
+*)
+  replicas=3
+  args=$(cat <<EOF
+            - --srv=:8080
+EOF
+)
+
+  svc=$(cat <<EOF
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: "${namespace}"
+  name: "${name}"
+spec:
+  selector:
+    app: "${name}"
+
+  clusterIP: None
+  ports:
+    - name: http
+      port: 4080
+  ports:
+    - name: https
+      port: 4043
+EOF
+)
+
+  ;;
+esac
+
+certs=$(./tls/mksecret $name $namespace)
+
+rc=$(cat <<EOF
+---
+kind: ReplicationController
+apiVersion: v1
+metadata:
+  namespace: ${namespace}
+  name: "${name}"
+
+spec:
+  replicas: ${replicas}
+  selector:
+    app: "${name}"
+  template:
+    metadata:
+      labels:
+        app: "${name}"
+
+    spec:
+      dnsPolicy: ClusterFirst
+      volumes:
+        - name: linkerd-config
+          configMap:
+            name: linkerd-config
+        - name: certs
+          secret:
+            secretName: "${name}-certs"
+
+      containers:
+        - name: svc
+          image: "gobsvc/${service}:${label}"
+          args:
+${args}
+          ports:
+            - name: http
+              containerPort: 8080
+
+        - name: l5d
+          image: buoyantio/linkerd:0.4.0
+          args:
+            - /io.buoyant/linkerd/config/config.yml
+            - -com.twitter.finagle.tracing.debugTrace=true
+            - -log.level=DEBUG
+
+          ports:
+            - name: https-in
+              containerPort: 4043
+            - name: http-in
+              containerPort: 4080
+            - name: http-out
+              containerPort: 4180
+            - name: admin
+              containerPort: 9990
+
+          volumeMounts:
+            - name: certs
+              mountPath: /io.buoyant/linkerd/certs
+              readOnly: true
+            - name: linkerd-config
+              mountPath: /io.buoyant/linkerd/config
+              readOnly: true
+EOF
+)
+
+echo "$certs"
+echo "$rc"
+echo "$svc"

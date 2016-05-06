@@ -13,11 +13,23 @@ data:
         servers:
           - port: 4080
             ip: 0.0.0.0
+          - port: 4043
+            ip: 0.0.0.0
+            tls:
+              certPath: /io.buoyant/linkerd/certs/cert.pem
+              keyPath: /io.buoyant/linkerd/certs/key.pem
         baseDtab: /http/1.1 => /$/inet/127.1/8080
       - protocol: http
         label: out
         servers:
           - port: 4180
+        client:
+          tls:
+            kind: io.l5d.clientTls.boundPath
+            caCertPath: /io.buoyant/linkerd/certs/cacert.pem
+            names:
+              - prefix: "/io.l5d.k8s/{ns}/*/{svc}"
+                commonNamePattern: "{svc}.{ns}"
         interpreter:
           kind: io.l5d.namerd
           dst: /$/inet/namerd-sync.default.svc.cluster.local/4100
