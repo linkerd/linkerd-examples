@@ -11,11 +11,9 @@ data:
       kind: io.buoyant.namerd.storage.inMemory
     namers:
       - kind: io.l5d.experimental.k8s
-        host: kubernetes.default.svc.cluster.local
-        port: 443
-        tls: true
-        tlsWithoutValidation: true
-        authTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+        host: 127.0.0.1
+        port: 8001
+        tls: false
     interfaces:
       - kind: thriftNameInterpreter
         ip: 0.0.0.0
