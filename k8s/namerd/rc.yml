@@ -37,3 +37,9 @@ spec:
             - name: "namerd-config"
               mountPath: "/io.buoyant/namerd/config"
               readOnly: true
+        - name: kubectl
+          image: gcr.io/google_containers/kubectl:v0.18.0-120-gaeb4ac55ad12b1-dirty
+          args:
+          - "proxy"
+          - "-p"
+          - "8001"
