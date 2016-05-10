@@ -13,7 +13,6 @@ data:
       - kind: io.l5d.experimental.k8s
         host: 127.0.0.1
         port: 8001
-        tls: false
     interfaces:
       - kind: thriftNameInterpreter
         ip: 0.0.0.0

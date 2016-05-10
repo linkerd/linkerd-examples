@@ -21,7 +21,7 @@ spec:
 
       containers:
         - name: namerd
-          image: buoyantio/namerd:0.4.0
+          image: buoyantio/namerd:0.5.0
           args:
             - /io.buoyant/namerd/config/config.yml
             - -com.twitter.finagle.tracing.debugTrace=true
