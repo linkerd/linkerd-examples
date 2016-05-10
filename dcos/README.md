@@ -86,20 +86,20 @@ dcos marathon app add dcos/marathon/websvc.json
 For the sake of this demonstration, assume namerd's API is serving on port 4180 of the public-facing DC/OS node.
 
 ```bash
-export NAMERD_URL=$PUBLIC_URL:4180
+export NAMERCTL_BASE_URL=$PUBLIC_URL:4180
 ```
 
 ### View namerd dtabs
 
 
 ```bash
-namerctl --base-url=$NAMERD_URL dtab get default
+namerctl dtab get default
 ```
 
 ### Update namerd dtabs
 
 ```bash
-namerctl --base-url=$NAMERD_URL dtab update default dcos/namerd.dtab
+namerctl dtab update default dcos/namerd.dtab
 ```
 
 ### Test Gob app
