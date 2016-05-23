@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package gobsvc.gen;
+
+service GenSvc {
+  rpc Gen (GenRequest) returns (stream GenResponse) {}
+}
+
+message GenRequest {
+  string text = 1;
+}
+
+message GenResponse {
+  string text = 1;
+}
