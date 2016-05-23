@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package gen;
+package proto;
 
 service GenSvc {
   rpc Gen (GenRequest) returns (stream GenResponse) {}

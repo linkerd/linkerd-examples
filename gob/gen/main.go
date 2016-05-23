@@ -6,43 +6,35 @@ import (
 	"net"
 	"os"
 
-	pb "github.com/buoyantio/linkerd-examples/gob/proto/gen"
+	pb "github.com/buoyantio/linkerd-examples/gob/proto"
 	"google.golang.org/grpc"
 )
 
 type genSvc struct{}
 
 func (s *genSvc) Gen(req *pb.GenRequest, stream pb.GenSvc_GenServer) error {
+	if err := stream.Send(&pb.GenResponse{req.Text}); err != nil {
+		return err
+	}
+	doWrite := func() bool {
+		err := stream.Send(&pb.GenResponse{" " + req.Text})
+		return err == nil
+	}
+	if req.Limit == 0 {
+		for {
+			if ok := doWrite(); !ok {
+				break
+			}
+		}
+	} else {
+		for i := uint(1); i != uint(req.Limit); i++ {
+			if ok := doWrite(); !ok {
+				break
+			}
+		}
+	}
 	return nil
 }
-
-// Writes to the stream until `limit` writes have been completed or
-// the stream is closed (i.e. because the client disconnects).
-
-// func (svc *GenSvc) generate(text string, limit uint, stream io.Writer) error {
-// 	if _, err := stream.Write([]byte(text)); err != nil {
-// 		return err
-// 	}
-// 	doWrite := func() bool {
-// 		_, err := stream.Write([]byte(" " + text))
-// 		return err == nil
-// 	}
-// 	if limit == 0 {
-// 		for {
-// 			if ok := doWrite(); !ok {
-// 				break
-// 			}
-// 		}
-// 	} else {
-// 		// start at 1 because we've already written 1
-// 		for i := uint(1); i != limit; i++ {
-// 			if ok := doWrite(); !ok {
-// 				break
-// 			}
-// 		}
-// 	}
-// 	return nil
-// }
 
 func dieIf(err error) {
 	if err == nil {

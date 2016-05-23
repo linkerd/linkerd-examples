@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package word;
+package proto;
 
 service WordSvc {
   rpc GetWord (WordRequest) returns (WordResponse) {}

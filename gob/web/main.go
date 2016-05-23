@@ -1,57 +1,28 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
-	"io"
-	"io/ioutil"
+	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"strconv"
-	"strings"
 	"text/template"
+
+	pb "github.com/buoyantio/linkerd-examples/gob/proto"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 )
 
 type (
 	GobWeb struct {
-		genSvc  GenSvc
-		wordSvc WordSvc
+		genSvc  pb.GenSvcClient
+		wordSvc pb.WordSvcClient
 	}
 
-	// A generic client for a downstream service
-	Client struct {
-		Name      string
-		dstScheme string
-		dstAddr   string
-		client    *http.Client
-	}
-
-	contextHeaders map[string][]string
-
-	wordSvc struct{ Client }
-	WordSvc interface {
-		Word(ctx contextHeaders) (string, error)
-	}
-
-	genSvc struct{ Client }
-	GenSvc interface {
-		Gen(ctx contextHeaders, text string, limit uint) (io.ReadCloser, error)
-	}
-	// Used
 	helpCtx struct {
 		Host string
 	}
-
-	genReq struct {
-		Text  string
-		Limit uint
-	}
-
-	wordRsp struct{ Word string }
 )
 
 // Default text for / and /help endpoints
@@ -69,7 +40,7 @@ You can tell me what to say with:
 // Gob's Web service
 func (gob *GobWeb) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 	var err error
-	ctx := getContextHeaders(req)
+	// ctx := getContextHeaders(req)
 
 	switch req.URL.Path {
 	case "/", "/help":
@@ -90,15 +61,17 @@ func (gob *GobWeb) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 	case "/gob":
 		switch req.Method {
 		case "GET":
+			ctx := context.Background()
 			params := req.URL.Query()
 			text := params.Get("text")
 			if text == "" {
-				text, err = gob.wordSvc.Word(ctx)
+				rsp, err := gob.wordSvc.GetWord(ctx, &pb.WordRequest{})
 				if err != nil {
 					fmt.Println("wordsvc error: " + err.Error())
 					rspw.WriteHeader(http.StatusInternalServerError)
 					return
 				}
+				text = rsp.Word
 			}
 			if text == "" {
 				fmt.Println("could not load text")
@@ -117,7 +90,7 @@ func (gob *GobWeb) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 				limit = uint(limit32)
 			}
 
-			stream, err := gob.genSvc.Gen(ctx, text, limit)
+			stream, err := gob.genSvc.Gen(ctx, &pb.GenRequest{text, int32(limit)})
 			if err != nil {
 				fmt.Println("error generating: " + err.Error())
 				rspw.WriteHeader(http.StatusInternalServerError)
@@ -126,8 +99,17 @@ func (gob *GobWeb) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 
 			rspw.Header().Set("content-type", "text/plain")
 			rspw.WriteHeader(http.StatusOK)
-			io.Copy(rspw, stream)
-			stream.Close()
+
+			streaming := true
+			for streaming {
+				rsp, err := stream.Recv()
+				if err != nil {
+					fmt.Println("streaming error: " + err.Error())
+					streaming = false
+				} else {
+					rspw.Write([]byte(rsp.Text))
+				}
+			}
 			return
 
 		default:
@@ -140,127 +122,17 @@ func (gob *GobWeb) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 	}
 }
 
-//
-// Client commonalities
-//
-
-// Client helper for sending downstream requests:
-// - overrides the HTTP scheme
-// - overrides the destination address
-// - overrides the Host header
-// - sets context headers (for routing and tracing)
-func (svc *Client) request(
-	ctx contextHeaders,
-	method string,
-	u *url.URL,
-	body io.Reader,
-) (*http.Response, error) {
-	u.Scheme = svc.dstScheme
-	u.Host = svc.dstAddr
-	req, err := http.NewRequest(method, u.String(), body)
-	if err != nil {
-		return nil, err
-	}
-	ctx.applyTo(req)
-	req.Host = svc.Name
-	return svc.client.Do(req)
-}
-
-//
-// XXX in the real word this would be a `context.Context`, but we're
-// minimizing dependencies for this example.
-//
-
-// extract router-specific headers to support dynamic routing & tracing
-func getContextHeaders(req *http.Request) contextHeaders {
-	headers := make(map[string][]string)
-	for k, values := range req.Header {
-		prefixed := func(s string) bool { return strings.HasPrefix(k, s) }
-		if prefixed("L5d-") || prefixed("Dtab-") || prefixed("X-Dtab-") {
-			headers[k] = values
-		}
-	}
-	return headers
-}
-
-func (ctx contextHeaders) applyTo(req *http.Request) {
-	for k, values := range ctx {
-		for _, v := range values {
-			req.Header.Add(k, v)
-		}
-	}
-}
-
-//
-// gensvc: generates a stream of data given a word
-
-// Make a client to gensvc
-func MakeGenSvc(scheme, addr string) GenSvc {
-	return &genSvc{Client{"gen", scheme, addr, &http.Client{}}}
-}
-
-func (svc *genSvc) Gen(
-	ctx contextHeaders,
-	text string,
-	limit uint,
-) (io.ReadCloser, error) {
-	if text == "" {
-		return nil, errors.New("no text specified")
-	}
-
-	body, err := json.Marshal(&genReq{text, limit})
-	if err != nil {
-		return nil, err
-	}
-
-	rsp, err := svc.request(ctx, "POST", &url.URL{}, bytes.NewReader(body))
-	if err != nil {
-		return nil, err
-	}
-
-	switch rsp.StatusCode {
-	case http.StatusOK:
-		return rsp.Body, nil
-
-	default:
-		io.Copy(ioutil.Discard, rsp.Body)
-		rsp.Body.Close()
-		return nil, errors.New(fmt.Sprintf("unexpected response: %d", rsp.StatusCode))
-	}
-}
-
-//
-// wordsvc: generates words to use when none are specified
-//
-
-// Make a client to wordsvc
-func MakeWordSvc(scheme, addr string) WordSvc {
-	return &wordSvc{Client{"word", scheme, addr, &http.Client{}}}
-}
-
-// Satisfy WordSvc with a Client
-func (svc *wordSvc) Word(ctx contextHeaders) (string, error) {
-	rsp, err := svc.request(ctx, "GET", &url.URL{}, nil)
-	if err != nil {
-		return "", err
-	}
-
-	switch rsp.StatusCode {
-	case http.StatusOK:
-		var word wordRsp
-		if err := json.NewDecoder(rsp.Body).Decode(&word); err != nil {
-			return "", err
-		}
-		io.Copy(ioutil.Discard, rsp.Body)
-		rsp.Body.Close()
-		return word.Word, nil
-
-	default:
-		io.Copy(ioutil.Discard, rsp.Body)
-		rsp.Body.Close()
-		return "", errors.New(fmt.Sprintf("unexpected response: %d", rsp.StatusCode))
-	}
-}
+// // extract router-specific headers to support dynamic routing & tracing
+// func getContextHeaders(req *http.Request, ctx *context.Context) *context.Context {
+// 	headers := make(map[string][]string)
+// 	for k, values := range req.Header {
+// 		prefixed := func(s string) bool { return strings.HasPrefix(k, s) }
+// 		if prefixed("L5d-") || prefixed("Dtab-") || prefixed("X-Dtab-") {
+// 			headers[k] = values
+// 		}
+// 	}
+// 	return headers
+// }
 
 //
 // main
@@ -283,11 +155,25 @@ func main() {
 		dieIf(fmt.Errorf("expecting zero arguments but got %d", flag.NArg()))
 	}
 
+	genConn, err := grpc.Dial(*genAddr, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer genConn.Close()
+	genClient := pb.NewGenSvcClient(genConn)
+
+	wordConn, err := grpc.Dial(*wordAddr, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer wordConn.Close()
+	wordClient := pb.NewWordSvcClient(wordConn)
+
 	server := &http.Server{
 		Addr: *addr,
 		Handler: &GobWeb{
-			genSvc:  MakeGenSvc("http", *genAddr),
-			wordSvc: MakeWordSvc("http", *wordAddr),
+			genSvc:  genClient,
+			wordSvc: wordClient,
 		},
 	}
 	dieIf(server.ListenAndServe())
