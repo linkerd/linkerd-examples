@@ -7,11 +7,13 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"text/template"
 
 	pb "github.com/buoyantio/linkerd-examples/gob/proto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 type (
@@ -40,7 +42,7 @@ You can tell me what to say with:
 // Gob's Web service
 func (gob *GobWeb) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 	var err error
-	// ctx := getContextHeaders(req)
+	ctx := getContext(req)
 
 	switch req.URL.Path {
 	case "/", "/help":
@@ -61,7 +63,6 @@ func (gob *GobWeb) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 	case "/gob":
 		switch req.Method {
 		case "GET":
-			ctx := context.Background()
 			params := req.URL.Query()
 			text := params.Get("text")
 			if text == "" {
@@ -122,17 +123,21 @@ func (gob *GobWeb) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// // extract router-specific headers to support dynamic routing & tracing
-// func getContextHeaders(req *http.Request, ctx *context.Context) *context.Context {
-// 	headers := make(map[string][]string)
-// 	for k, values := range req.Header {
-// 		prefixed := func(s string) bool { return strings.HasPrefix(k, s) }
-// 		if prefixed("L5d-") || prefixed("Dtab-") || prefixed("X-Dtab-") {
-// 			headers[k] = values
-// 		}
-// 	}
-// 	return headers
-// }
+// extract router-specific headers to support dynamic routing & tracing
+func getContext(req *http.Request) context.Context {
+	headers := make(map[string]string)
+	for k, values := range req.Header {
+		prefixed := func(s string) bool { return strings.HasPrefix(k, s) }
+		if prefixed("L5d-") || prefixed("Dtab-") || prefixed("X-Dtab-") {
+			if len(values) > 0 {
+				headers[k] = values[0]
+			}
+		}
+	}
+	md := metadata.New(headers)
+	ctx := metadata.NewContext(context.Background(), md)
+	return ctx
+}
 
 //
 // main
