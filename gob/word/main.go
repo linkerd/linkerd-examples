@@ -1,55 +1,30 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"math/rand"
-	"net/http"
+	"net"
 	"os"
+
+	pb "github.com/buoyantio/linkerd-examples/gob/proto/word"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 )
 
-type (
-	WordSvc struct {
-		words []string
-	}
-
-	wordRsp struct{ Word string }
-)
-
-// the wordsvc api picks a cool word at random
-func (svc *WordSvc) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
-	switch req.URL.Path {
-	case "/":
-		switch req.Method {
-		case "GET":
-			word := svc.randomWord()
-			if word == "" {
-				rspw.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-			body, err := json.Marshal(&wordRsp{word})
-			if err != nil {
-				rspw.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			rspw.WriteHeader(http.StatusOK)
-			rspw.Write(body)
-			return
-
-		default:
-			rspw.WriteHeader(http.StatusMethodNotAllowed)
-			return
-		}
-
-	default:
-		rspw.WriteHeader(http.StatusNotFound)
-		return
-	}
+type wordSvc struct {
+	words []string
 }
 
-func (svc *WordSvc) randomWord() string {
+func (svc *wordSvc) GetWord(ctx context.Context, in *pb.WordRequest) (*pb.WordResponse, error) {
+	word := svc.randomWord()
+	if word == "" {
+		return nil, fmt.Errorf("empty word")
+	}
+	return &pb.WordResponse{word}, nil
+}
+
+func (svc *wordSvc) randomWord() string {
 	n := len(svc.words)
 	switch n {
 	case 0:
@@ -78,21 +53,24 @@ func main() {
 		dieIf(fmt.Errorf("expecting zero arguments but got %d", flag.NArg()))
 	}
 
+	lis, err := net.Listen("tcp", *addr)
+	dieIf(err)
+
 	//
 	// Setup Http server
 	//
-	server := &http.Server{
-		Addr: *addr,
-		Handler: &WordSvc{
-			words: []string{
-				"banana",
-				"bees",
-				"cmon",
-				"gob",
-				"illusion",
-				"same",
-			},
+	svc := &wordSvc{
+		words: []string{
+			"banana",
+			"bees",
+			"cmon",
+			"gob",
+			"illusion",
+			"same",
 		},
 	}
-	dieIf(server.ListenAndServe())
+
+	s := grpc.NewServer()
+	pb.RegisterWordSvcServer(s, svc)
+	s.Serve(lis)
 }

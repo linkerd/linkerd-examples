@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package gobsvc.gen;
+package gen;
 
 service GenSvc {
   rpc Gen (GenRequest) returns (stream GenResponse) {}
@@ -8,6 +8,7 @@ service GenSvc {
 
 message GenRequest {
   string text = 1;
+  int32 limit = 2;
 }
 
 message GenResponse {
