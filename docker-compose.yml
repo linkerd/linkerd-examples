@@ -1,0 +1,32 @@
+version: '2'
+
+services:
+  web:
+    build: gob/web
+    container_name: web
+    ports: ["8080:8080"]
+    command: -gen-addr=linkerd:4140 -word-addr=linkerd:4140
+
+  gen:
+    build: gob/gen
+    container_name: gen
+    ports: ["8181:8181"]
+
+  word:
+    build: gob/word
+    container_name: word
+    ports: ["8282:8282"]
+
+  linkerd:
+    image: buoyantio/linkerd:0.5.0-SNAPSHOT
+    container_name: linkerd
+    ports: ["4140:4140", "9990:9990"]
+    volumes: ["./config:/io.buoyant/linkerd/config:ro"]
+    command: /io.buoyant/linkerd/config/linkerd.yml
+
+  namerd:
+    image: buoyantio/namerd:0.5.0-SNAPSHOT
+    container_name: namerd
+    ports: ["4100:4100", "4180:4180", "9991:9991"]
+    volumes: ["./config:/io.buoyant/linkerd/config:ro"]
+    command: /io.buoyant/linkerd/config/namerd.yml

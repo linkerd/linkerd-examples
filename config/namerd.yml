@@ -1,0 +1,19 @@
+admin:
+  port: 9991
+
+namers: []
+storage:
+  kind: io.l5d.inMemory
+  namespaces:
+    default: |
+      /host       => /$/inet/web/8080;
+      /host/gen   => /$/inet/gen/8181;
+      /host/word  => /$/inet/word/8282;
+      /http/1.1/* => /host;
+interfaces:
+- kind: io.l5d.thriftNameInterpreter
+  ip: 0.0.0.0
+  port: 4100
+- kind: io.l5d.httpController
+  ip: 0.0.0.0
+  port: 4180
