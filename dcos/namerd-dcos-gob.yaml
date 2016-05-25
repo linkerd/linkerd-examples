@@ -3,8 +3,9 @@ admin:
 storage:
   kind: io.l5d.zk
   experimental: true
-  hosts:
-  - master.mesos:2181
+  zkAddrs:
+  - host: master.mesos
+    port: 2181
   pathPrefix: /dtabs
   sessionTimeoutMs: 10000
 namers:
