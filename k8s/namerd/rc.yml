@@ -21,11 +21,12 @@ spec:
 
       containers:
         - name: namerd
-          image: buoyantio/namerd:0.5.0
+          image: buoyantio/namerd:0.6.0
           args:
             - /io.buoyant/namerd/config/config.yml
             - -com.twitter.finagle.tracing.debugTrace=true
             - -log.level=DEBUG
+          imagePullPolicy: Always
 
           ports:
             - name: sync
@@ -38,8 +39,9 @@ spec:
               mountPath: "/io.buoyant/namerd/config"
               readOnly: true
         - name: kubectl
-          image: gcr.io/google_containers/kubectl:v0.18.0-120-gaeb4ac55ad12b1-dirty
+          image: buoyantio/kubectl:1.2.3
           args:
           - "proxy"
           - "-p"
           - "8001"
+          imagePullPolicy: Always
