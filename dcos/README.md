@@ -57,12 +57,16 @@ aws s3 cp dcos/linkerd-dcos-gob.yaml s3://buoyant-dcos --grants read=uri=http://
 aws s3 cp dcos/namerd-dcos-gob.yaml s3://buoyant-dcos --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
 ```
 
-Install the packages, via command line, or the DC/OS UI
+Install linkerd and namerd packages via the DC/OS UI. Specify settings consistent with `linkerd-package-options.json` and `namerd-package-options.json`, respectively.
+
+Alternatively, you may install them via the command line with:
 
 ```bash
 dcos package install linkerd --options=dcos/linkerd-package-options.json
 dcos package install namerd --options=dcos/namerd-package-options.json
 ```
+
+Note that DC/OS packages installed via the command line do not have `-default` appended to their marathon names, so in `linkerd-dcos-gob.yaml`, replace `namerd-default` with `namerd`.
 
 ## Gob Deploy
 
