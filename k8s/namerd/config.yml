@@ -8,15 +8,15 @@ data:
     admin:
       port: 9990
     storage:
-      kind: io.buoyant.namerd.storage.inMemory
+      kind: io.l5d.inMemory
     namers:
-      - kind: io.l5d.experimental.k8s
+      - kind: io.l5d.k8s
         host: 127.0.0.1
         port: 8001
     interfaces:
-      - kind: thriftNameInterpreter
+      - kind: io.l5d.thriftNameInterpreter
         ip: 0.0.0.0
         port: 4100
-      - kind: httpController
+      - kind: io.l5d.httpController
         ip: 0.0.0.0
         port: 4180
