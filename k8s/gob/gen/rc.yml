@@ -2,17 +2,17 @@
 kind: ReplicationController
 apiVersion: v1
 metadata:
-  namespace: default
-  name: gen-growthhack
+  namespace: growthhack
+  name: gen
 
 spec:
   replicas: 3
   selector:
-    app: gen-growthhack
+    app: gen
   template:
     metadata:
       labels:
-        app: gen-growthhack
+        app: gen
 
     spec:
       dnsPolicy: ClusterFirst
