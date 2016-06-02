@@ -1,6 +1,14 @@
+# Use the marathon API for service discovery.
 /srv         => /#/io.l5d.marathon ;
+
+# All requests with an unknown Host go to the "web" service.
 /http/1.0    => /srv/web ;
 /host/*      => /srv/web ;
+
+# By default, try to lookup each Host header in service discovery.
 /host        => /srv     ;
 /http/1.1/*  => /host    ;
-# /host/word   => /srv/word-growthhack | /srv/word ;
+
+# DEMOTIME! Ease traffic onto the new versions of a service.
+# /host/gen    => 2 * /srv/gen-growthhack  & 8 * /srv/gen ;
+# /host/word   => 1 * /srv/word-growthhack & 9 * /srv/word ;
