@@ -3,3 +3,4 @@
 /host/*      => /srv/web ;
 /host        => /srv     ;
 /http/1.1/*  => /host    ;
+# /host/word   => /srv/word-growthhack | /srv/word ;

@@ -1,10 +1,10 @@
 {
-  "id": "/gen",
-  "instances": 1,
+  "id": "/word-growthhack",
+  "instances": 3,
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "gobsvc/gen:v0",
+      "image": "gobsvc/word:growthhack",
       "forcePullImage": false,
       "network": "BRIDGE",
       "portMappings": [
@@ -21,10 +21,10 @@
     {
       "protocol": "HTTP",
       "portIndex": 0,
-      "path": "/health"
+      "path": "/"
     }
   ],
-  "cmd": "/usr/bin/gobgensvc --srv=:$PORT0",
+  "cmd": "/usr/bin/gobwordsvc --srv=:$PORT0",
   "cpus": 0.25,
   "mem": 256.0,
   "uris": [

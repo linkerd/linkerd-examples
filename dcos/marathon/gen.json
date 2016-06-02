@@ -1,10 +1,10 @@
 {
-  "id": "/web",
-  "instances": 1,
+  "id": "/gen",
+  "instances": 3,
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "gobsvc/web:v0",
+      "image": "gobsvc/gen:v0",
       "forcePullImage": false,
       "network": "BRIDGE",
       "portMappings": [
@@ -21,10 +21,10 @@
     {
       "protocol": "HTTP",
       "portIndex": 0,
-      "path": "/"
+      "path": "/health"
     }
   ],
-  "cmd": "/usr/bin/gobwebsvc --srv=:$PORT0 --gen-addr=$HOST:4140 --word-addr=$HOST:4140",
+  "cmd": "/usr/bin/gobgensvc --srv=:$PORT0",
   "cpus": 0.25,
   "mem": 256.0,
   "uris": [

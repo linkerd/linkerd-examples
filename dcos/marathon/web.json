@@ -1,0 +1,34 @@
+{
+  "id": "/web",
+  "instances": 1,
+  "acceptedResourceRoles": [ "slave_public" ],
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "gobsvc/web:v0",
+      "forcePullImage": false,
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 0,
+          "hostPort": 0,
+          "servicePort": 0,
+          "protocol": "tcp"
+        }
+      ]
+    }
+  },
+  "healthChecks": [
+    {
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "path": "/"
+    }
+  ],
+  "cmd": "/usr/bin/gobwebsvc --srv=:$PORT0 --gen-addr=$HOST:4140 --word-addr=$HOST:4140",
+  "cpus": 0.25,
+  "mem": 256.0,
+  "uris": [
+    "file:///etc/docker.tar.gz"
+  ]
+}
