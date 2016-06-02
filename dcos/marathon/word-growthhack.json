@@ -23,7 +23,7 @@
       "protocol": "TCP",
       "gracePeriodSeconds": 300,
       "intervalSeconds": 60,
-      "timeoutSeconds": 20,
+      "timeoutSeconds": 20
     }
   ],
   "cmd": "/usr/bin/gobwordsvc --srv=:$PORT0",
