@@ -19,9 +19,11 @@
   },
   "healthChecks": [
     {
-      "protocol": "HTTP",
       "portIndex": 0,
-      "path": "/"
+      "protocol": "TCP",
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
     }
   ],
   "cmd": "/usr/bin/gobwordsvc --srv=:$PORT0",
