@@ -1,0 +1,28 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: linkerd-config
+data:
+  config.yml: |-
+    # The Kubernetes namer (io.l5d.k8s) queries the Kubernetes master API
+    # for a list of pods with a given name.
+    namers:
+    - kind: io.l5d.k8s
+      experimental: true
+      # kubectl proxy forwards localhost:8001 to the Kubernetes master API
+      host: localhost
+      port: 8001
+    routers:
+    - protocol: http
+      # Incoming requests to linkerd with a Host header of "hello" get assigned
+      # a name like /http/1.1/GET/hello.  This dtab transforms that into
+      # /#/io.l5d.k8s/default/service/hello which indicates that the kubernetes
+      # namer should query the API for ports named "service" on pods in the
+      # "default" namespace named "hello".  linkerd will then load balance over
+      # those pods.
+      baseDtab: |
+        /http/1.1/* => /#/io.l5d.k8s/default/service
+      servers:
+      - ip: 0.0.0.0
+        port: 4140
