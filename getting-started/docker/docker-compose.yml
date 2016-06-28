@@ -1,0 +1,23 @@
+version: '2'
+
+services:
+  # an nginx service serving static content
+  hello:
+    image: nginx
+    # mount the www directory as the static content to serve
+    volumes:
+    - ./www:/usr/share/nginx/html:ro
+
+  # linkerd
+  l5d:
+    image: buoyantio/linkerd:0.6.0
+    ports:
+    - "4140:4140"
+    - "9990:9990"
+    # we must mount the config file and the disco directory
+    volumes:
+    - ./linkerd.yaml:/io.buoyant/linkerd.yaml:ro
+    - ./disco:/io.buoyant/disco
+    command: >
+      /io.buoyant/linkerd.yaml
+

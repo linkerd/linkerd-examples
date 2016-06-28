@@ -1,0 +1,22 @@
+---
+kind: ReplicationController
+apiVersion: v1
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        command: ["/bin/sh", "-c"]
+        args: ["echo 'Hello, linkerd!' > /usr/share/nginx/html/index.html && nginx -g \"daemon off;\""]
+        ports:
+        - name: service
+          containerPort: 80
