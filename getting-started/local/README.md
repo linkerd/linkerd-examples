@@ -12,8 +12,8 @@ Start by cloning this repo and downloading linkerd:
 ```
 git clone https://github.com/BuoyantIO/linkerd-examples.git
 cd linkerd-examples/getting-started/local
-curl -sLO https://github.com/BuoyantIO/linkerd/releases/download/0.6.0/linkerd-0.6.0-exec
-chmod +x linkerd-0.6.0-exec
+curl -sLO https://github.com/BuoyantIO/linkerd/releases/download/0.7.0/linkerd-0.7.0-exec
+chmod +x linkerd-0.7.0-exec
 ```
 
 ## Start the python service and linkerd
@@ -22,7 +22,7 @@ We start a simple python http service on port 8888 and linkerd on port 4140
 
 ```
 python3 -m http.server 8888 &
-./linkerd-0.6.0-exec linkerd.yaml &
+./linkerd-0.7.0-exec linkerd.yaml &
 ```
 
 `linkerd.yaml` is a config file that controls linkerd's behavior:

@@ -33,7 +33,7 @@ spec:
               containerPort: 8080
 
         - name: l5d
-          image: buoyantio/linkerd:0.6.0
+          image: buoyantio/linkerd:0.7.0
           args:
             - /io.buoyant/linkerd/config/config.yml
             - -com.twitter.finagle.tracing.debugTrace=true
