@@ -14,7 +14,7 @@ Start by cloning this repo and pulling the nginx and linkerd docker images:
 git clone https://github.com/BuoyantIO/linkerd-examples.git
 cd linkerd-examples/getting-started/docker
 docker pull nginx
-docker pull buoyantio/linkerd:0.6.0
+docker pull buoyantio/linkerd:0.7.0
 ```
 
 ## Start nginx and linkerd
