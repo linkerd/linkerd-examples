@@ -24,8 +24,8 @@ service is what allows linkerd to discover the nginx pods and load balance over
 them.
 
 ```
-kubectl -f apply nginx-rc.yml
-kubectl -f apply nginx-svc.yml
+kubectl apply -f nginx-rc.yml
+kubectl apply -f nginx-svc.yml
 ```
 
 ## Starting linkerd
