@@ -14,7 +14,7 @@ configured to talk to your DC/OS cluster.
 
 ```
 git clone https://github.com/BuoyantIO/linkerd-examples.git
-cd linkerd-examples/getting-started/k8s
+cd linkerd-examples/getting-started/dcos
 dcos config show
 ```
 
