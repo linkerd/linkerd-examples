@@ -8,7 +8,7 @@
     "instances": 1,
     "mem": 256.0,
     "name": "namerd",
-    "resource-role": "slave_public",
+    "resource-roles": "\"slave_public\"",
     "thrift-port": 4100
   }
 }

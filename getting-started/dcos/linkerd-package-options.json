@@ -8,6 +8,6 @@
     "mem": 256.0,
     "name": "linkerd-example",
     "routing-port": 4140,
-    "resource-role": "slave_public"
+    "resource-roles": "\"slave_public\""
   }
 }

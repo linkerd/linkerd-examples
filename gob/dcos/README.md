@@ -26,7 +26,7 @@ integrated with the linkerd DC/OS package.
 - `thrift-port` - thrift interface port, must match:
   - `interfaces/thriftNameInterpreter` port specified in `namerd-dcos-gob.yaml`
   - `router/interpreter/dst` port specified in `linkerd-dcos-gob.yaml`
-- `resource-role` - the role to run namerd instances on.
+- `resource-roles` - the roles to run namerd instances on.
 
 
 ### linkerd Config
