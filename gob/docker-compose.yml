@@ -2,18 +2,18 @@ version: '2'
 
 services:
   web:
-    build: gob/web
+    build: src/web
     container_name: web
     ports: ["8080:8080"]
     command: -gen-addr=linkerd:4140 -word-addr=linkerd:4140
 
   gen:
-    build: gob/gen
+    build: src/gen
     container_name: gen
     ports: ["8181:8181"]
 
   word:
-    build: gob/word
+    build: src/word
     container_name: word
     ports: ["8282:8282"]
 
