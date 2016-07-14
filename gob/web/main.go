@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -104,7 +105,9 @@ func (gob *GobWeb) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 			streaming := true
 			for streaming {
 				rsp, err := stream.Recv()
-				if err != nil {
+				if err == io.EOF {
+					streaming = false
+				} else if err != nil {
 					fmt.Println("streaming error: " + err.Error())
 					streaming = false
 				} else {
