@@ -1,0 +1,13 @@
+{
+  "linkerd": {
+    "admin-port": 9990,
+    "config-filename": "linkerd.yaml",
+    "config-uri": "https://raw.githubusercontent.com/BuoyantIO/linkerd-examples/master/getting-started/dcos",
+    "cpus": 0.25,
+    "instances": 1,
+    "mem": 256.0,
+    "name": "linkerd-example",
+    "routing-port": 4140,
+    "resource-roles": "\"slave_public\""
+  }
+}

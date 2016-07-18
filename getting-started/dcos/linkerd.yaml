@@ -1,0 +1,22 @@
+# The Marathon namer (io.l5d.marathon) queries the Marathon master
+# for a list of addresses for a given app.
+namers:
+- kind:         io.l5d.marathon
+  experimental: true
+  prefix:       /io.l5d.marathon
+  host:         marathon.mesos
+  port:         8080
+routers:
+- protocol: http
+  # Incoming requests to linkerd with a Host header of "hello" get assigned
+  # a name like /http/1.1/GET/hello.  This dtab transforms that into
+  # /#/io.l5d.marathon/hello which indicates that the marathon namer should
+  # query the API for addresses for the app named "hello".  linkerd will then
+  # load balance over those addresses.
+  baseDtab: |
+    /http/1.1/* => /#/io.l5d.marathon
+  servers:
+  - port: 4140
+    ip: 0.0.0.0
+admin:
+  port: 9990

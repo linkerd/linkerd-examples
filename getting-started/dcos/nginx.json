@@ -1,0 +1,30 @@
+{
+  "id": "nginx",
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "nginx",
+      "forcePullImage": false,
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 0,
+          "servicePort": 0,
+          "protocol": "tcp"
+        }
+      ]
+    }
+  },
+  "healthChecks": [
+    {
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "path": "/"
+    }
+  ],
+  "cmd": "echo 'Hello, linkerd!' > /usr/share/nginx/html/index.html && nginx -g \"daemon off;\"",
+  "cpus": 0.25,
+  "mem": 256.0
+}
