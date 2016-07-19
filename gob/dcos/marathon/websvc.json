@@ -26,8 +26,5 @@
   ],
   "cmd": "/usr/bin/gobwebsvc --srv=:$PORT0 --gen-addr=$HOST:4140 --word-addr=$HOST:4140",
   "cpus": 0.25,
-  "mem": 256.0,
-  "uris": [
-    "file:///etc/docker.tar.gz"
-  ]
+  "mem": 256.0
 }
