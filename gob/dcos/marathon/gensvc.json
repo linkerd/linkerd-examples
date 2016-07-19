@@ -26,8 +26,5 @@
   ],
   "cmd": "/usr/bin/gobgensvc --srv=:$PORT0",
   "cpus": 0.25,
-  "mem": 256.0,
-  "uris": [
-    "file:///etc/docker.tar.gz"
-  ]
+  "mem": 256.0
 }
