@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 )
 
 type (
@@ -125,6 +126,15 @@ func (gob *GobWeb) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 			}
 
 			rspw.Header().Set("content-type", "text/plain")
+			latency_param := params.Get("latency")
+			if latency_param != "" {
+				latency, err := time.ParseDuration(latency_param)
+				if err != nil {
+					rspw.WriteHeader(http.StatusBadRequest)
+					return
+				}
+				time.Sleep(latency)
+			}
 			rspw.WriteHeader(http.StatusOK)
 			io.Copy(rspw, stream)
 			stream.Close()
