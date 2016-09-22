@@ -14,8 +14,8 @@ hello -> linkerd (outgoing) -> linkerd (incoming) -> world
 
 ## Building
 
-Start by building the Docker image for the hello world application and pushing
-it to a repository that your Kubernetes cluster can access.
+The Docker image for the hello and world serivces can be found at
+`buoyantio/helloworld:latest`.  You can also build the image yourself by running
 
 ```
 cd helloworld
@@ -26,8 +26,7 @@ docker push <helloworld image name>
 ## Deploying
 
 Deploy the hello and world python services, as well as the linkerd daemonset
-to the helloworld Kubernetes namespace.  You will need to substitute the name
-of your helloworld Docker image into `hello-rc.yml` and `world-rc.yml`.
+to the helloworld Kubernetes namespace.
 
 ```
 kubectl create ns helloworld
