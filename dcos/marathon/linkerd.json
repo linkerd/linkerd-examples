@@ -1,0 +1,57 @@
+{
+  "id": "linkerd",
+  "instances": 4,
+  "cpus": 0.25,
+  "mem": 256.0,
+  "acceptedResourceRoles": ["*", "slave_public"],
+  "constraints": [["hostname", "UNIQUE"]],
+  "maintainer": "hello@buoyant.io",
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "buoyantio/linkerd:nightly",
+      "forcePullImage": true,
+      "network": "BRIDGE",
+      "privileged": true,
+      "portMappings": [
+        {
+          "containerPort": 9990,
+          "hostPort": 9990,
+          "servicePort": 0,
+          "protocol": "tcp"
+        },
+        {
+          "containerPort": 4140,
+          "hostPort": 4140,
+          "servicePort": 0,
+          "protocol": "tcp"
+        }
+      ]
+    }
+  },
+  "healthChecks": [
+    {
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "path": "/admin/ping"
+    }
+  ],
+  "args": [
+    "/mnt/mesos/sandbox/linkerd-dcos.yml",
+    "-com.twitter.finagle.tracing.debugTrace=true",
+    "-log.level=DEBUG"
+  ],
+  "requirePorts":true,
+  "ports": [
+    9990,
+    4140
+  ],
+  "uris": [
+    "https://gist.githubusercontent.com/olix0r/999e8b00b29b3ce0e0cdc0039b22808e/raw/c0d727620050c8cfc3e300b4b231844513a0c529/linkerd-dcos.yml"
+  ],
+  "labels": {
+    "DCOS_SERVICE_NAME": "linkerd",
+    "DCOS_SERVICE_SCHEME": "http",
+    "DCOS_SERVICE_PORT_INDEX": "0"
+  }
+}
