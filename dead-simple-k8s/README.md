@@ -15,13 +15,13 @@ kubectl apply -f hello-world.yml
 ## Test Requests
 
 ```bash
-http_proxy=$(kubectl get svc | grep l5d | awk '{ print $3 }'):4140 curl -s http://hello
-http_proxy=$(kubectl get svc | grep l5d | awk '{ print $3 }'):4140 curl -s http://world
+http_proxy=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):4140 curl -s http://hello
+http_proxy=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):4140 curl -s http://world
 ```
 
 ## Deploy linkerd-viz
 
 ```bash
 kubectl apply -f linkerd-viz.yml
-open http://$(kubectl get svc | grep linkerd-viz | awk '{ print $3 }')
+open http://$(kubectl get svc linkerd-viz -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
 ```
