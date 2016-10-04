@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -14,6 +13,7 @@ import (
 	pb "github.com/buoyantio/linkerd-examples/gob/proto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -155,25 +155,40 @@ func dieIf(err error) {
 }
 
 func main() {
+	caCertFile := flag.String("cacert", "", "path to PEM-formatted CA certificate")
 	addr := flag.String("srv", ":8080", "TCP address to listen on (in host:port form)")
 	genAddr := flag.String("gen-addr", "localhost:8181", "Address of the gen service")
+	genName := flag.String("gen-name", "", "Common name of gen service")
 	wordAddr := flag.String("word-addr", "localhost:8282", "Address of the word service")
+	wordName := flag.String("word-name", "", "Common name of word service")
 	flag.Parse()
 	if flag.NArg() != 0 {
 		dieIf(fmt.Errorf("expecting zero arguments but got %d", flag.NArg()))
 	}
 
-	genConn, err := grpc.Dial(*genAddr, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+	var genCreds grpc.DialOption
+	if *caCertFile == "" {
+		genCreds = grpc.WithInsecure()
+	} else {
+		creds, err := credentials.NewClientTLSFromFile(*caCertFile, *genName)
+		dieIf(err)
+		genCreds = grpc.WithTransportCredentials(creds)
 	}
+	genConn, err := grpc.Dial(*genAddr, genCreds)
+	dieIf(err)
 	defer genConn.Close()
 	genClient := pb.NewGenSvcClient(genConn)
 
-	wordConn, err := grpc.Dial(*wordAddr, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+	var wordCreds grpc.DialOption
+	if *caCertFile == "" {
+		wordCreds = grpc.WithInsecure()
+	} else {
+		creds, err := credentials.NewClientTLSFromFile(*caCertFile, *wordName)
+		dieIf(err)
+		wordCreds = grpc.WithTransportCredentials(creds)
 	}
+	wordConn, err := grpc.Dial(*wordAddr, wordCreds)
+	dieIf(err)
 	defer wordConn.Close()
 	wordClient := pb.NewWordSvcClient(wordConn)
 
