@@ -6,6 +6,12 @@
 kubectl apply -f linkerd.yml
 ```
 
+### View linkerd admin page
+
+```bash
+open http://$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):9990
+```
+
 ## Deploy Hello World
 
 ```bash
