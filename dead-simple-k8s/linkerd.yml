@@ -65,7 +65,6 @@ spec:
       containers:
       - name: l5d
         image: buoyantio/linkerd:0.8.1
-        imagePullPolicy: Always
         env:
         - name: POD_IP
           valueFrom:
@@ -88,7 +87,7 @@ spec:
           mountPath: "/io.buoyant/linkerd/config"
           readOnly: true
       - name: kubectl
-        image: buoyantio/kubectl:1.2.3
+        image: buoyantio/kubectl:v1.4.0
         args:
         - "proxy"
         - "-p"
@@ -109,4 +108,3 @@ spec:
     port: 4141
   - name: admin
     port: 9990
-
