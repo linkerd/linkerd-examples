@@ -28,8 +28,21 @@ Deploy the hello and world python services, linkerd daemonset, and linkerd-viz
 to the default Kubernetes namespace.
 
 ```bash
-kubectl apply -f k8s/
+kubectl apply -f k8s/linkerd.yml
+kubectl apply -f k8s/linkerd-viz.yml
+kubectl apply -f k8s/hello-world.yml
 ```
+
+If you are running on Kubernetes 1.4 or later, you can alternatively run:
+
+```bash
+kubectl apply -f k8s/linkerd.yml
+kubectl apply -f k8s/linkerd-viz.yml
+kubectl apply -f k8s/hello-world-1_4.yml
+```
+
+The difference being that `k8s/hello-world-1_4.yml` makes use a Kubernetes
+feature only available in Kubernetes 1.4 and later.
 
 # Verifying
 
