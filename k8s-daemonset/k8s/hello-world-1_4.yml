@@ -1,0 +1,101 @@
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: hello
+spec:
+  replicas: 3
+  selector:
+    app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.0.1
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        command:
+        - "/bin/bash"
+        - "-c"
+        - "HTTP_PROXY=$(NODE_NAME):4140 python hello.py"
+        ports:
+        - name: service
+          containerPort: 7777
+      - name: kubectl
+        image: buoyantio/kubectl:v1.4.0
+        args:
+        - proxy
+        - "-p"
+        - "8001"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello
+spec:
+  selector:
+    app: hello
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 7777
+  - name: external
+    port: 80
+    targetPort: 7777
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: world
+spec:
+  replicas: 3
+  selector:
+    app: world
+  template:
+    metadata:
+      labels:
+        app: world
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.0.1
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        command:
+        - "/bin/bash"
+        - "-c"
+        - "HTTP_PROXY=$(NODE_NAME):4140 python world.py"
+        ports:
+        - name: service
+          containerPort: 7778
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: world
+spec:
+  selector:
+    app: world
+  clusterIP: None
+  ports:
+  - name: http
+    port: 7778
