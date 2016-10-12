@@ -13,5 +13,7 @@ routers:
   servers:
   - port: 4140
     ip: 0.0.0.0
-  baseDtab: "/http/1.1/*=>/#/io.l5d.marathon"
+  baseDtab: >-
+    /marathonId => /#/io.l5d.marathon;
+    /http/1.1/* => /$/io.buoyant.http.domainToPathPfx/marathonId;
   label: linkerd_proxy
