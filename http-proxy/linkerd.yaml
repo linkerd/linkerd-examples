@@ -1,0 +1,6 @@
+routers:
+- protocol: http
+  baseDtab: /http/1.1/*/webapp => /$/inet/127.1/8888
+  servers:
+  - ip: 0.0.0.0
+    port: 4140
