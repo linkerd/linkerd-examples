@@ -4,7 +4,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "gobsvc/gen:v0",
+      "image": "gobsvc/gen:growthhack",
       "forcePullImage": false,
       "network": "BRIDGE",
       "portMappings": [
