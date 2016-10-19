@@ -14,7 +14,7 @@ data:
           - port: 4180
         interpreter:
           kind: io.l5d.namerd
-          dst: /$/inet/namerd-sync.default.svc.cluster.local/4100
+          dst: /$/inet/namerd-sync.sb-jenkins-test.svc.cluster.local/4100
         timeoutMs: 1000
         responseClassifier:
           kind: io.l5d.retryableRead5XX

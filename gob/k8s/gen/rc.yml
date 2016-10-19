@@ -6,7 +6,7 @@ metadata:
   name: gen
 
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     app: gen
   template:
@@ -23,7 +23,7 @@ spec:
 
       containers:
         - name: svc
-          image: gobsvc/gen:growthhack
+          image: gobsvc/gen:v0
           args:
             - "--srv=:8080"
           ports:
