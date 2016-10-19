@@ -3,16 +3,16 @@ kind: ReplicationController
 apiVersion: v1
 metadata:
   namespace: sb-jenkins-test
-  name: gen
+  name: gen-v1
 
 spec:
   replicas: 1
   selector:
-    app: gen
+    app: gen-v1
   template:
     metadata:
       labels:
-        app: gen
+        app: gen-v1
 
     spec:
       dnsPolicy: ClusterFirst
