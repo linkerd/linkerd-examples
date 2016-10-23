@@ -85,7 +85,7 @@ this case we set the Host header to `nginx` so that the request is routed to the
 nginx service.
 
 ```
-curl -H "Host: hello" <linkerd external ip>:4140
+curl -H "Host: nginx" <linkerd external ip>:4140
 ```
 
 ## Admin dashboard
