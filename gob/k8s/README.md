@@ -130,13 +130,13 @@ configmap "linkerd-config" configured
 Each of Gob's microservices is deployed as a separate
 ReplicaController and Service:
 ```
-:; kubectl apply -f k8s/gob/gen
+:; kubectl apply -f k8s/gen
 replicationcontroller "gen" created
 service "gen" created
-:; kubectl apply -f k8s/gob/word
+:; kubectl apply -f k8s/word
 replicationcontroller "word" created
 service "word" created
-:; kubectl apply -f k8s/gob/web 
+:; kubectl apply -f k8s/web 
 replicationcontroller "web" created
 service "web" created
 ```
@@ -172,7 +172,7 @@ We have exposed a linkerd admin page for our _web_ frontend as a service!
 
 We can curl the site, and it works, using all 3 of gob's services:
 ```
-:; curl -s "$GOB_HOST/gob?limit=10" 
+:; curl -s "$GOB_HOST/gob?text=gob&limit=10" 
 gob gob gob gob gob gob gob gob gob gob
 ```
 
@@ -223,14 +223,14 @@ We'll deploy the _gen-growthhack_ pod and service (so that it can be
 distinguished from the prior version):
 
 ```
-:; kubectl apply -f k8s/gob/gen
+:; kubectl apply -f k8s/gob/gen-growthhack
 replicationcontroller "gen-growthhack" created
 service "gen-growthhack" created
 ```
 
 This doesn't change what users see---they still see the prior version:
 ```
-:; curl -s "$GOB_HOST/gob?limit=10" 
+:; curl -s "$GOB_HOST/gob?text=gob&limit=10" 
 gob gob gob gob gob gob gob gob gob gob
 ```
 
@@ -238,7 +238,7 @@ We can test out our staged service (without altering the web service
 at all), by adding a delegation (routing rule) to a request.  For example:
 
 ```
-:; curl -H 'Dtab-local: /host/gen => /srv/gen-growthhack' "$GOB_HOST/gob?limit=10"
+:; curl -H 'Dtab-local: /host/gen => /srv/gen-growthhack' "$GOB_HOST/gob?text=gob&limit=10"
 bees <3 k8s
 bees <3 k8s
 bees <3 k8s
@@ -268,7 +268,7 @@ with:
 deployment "reqz" created
 ```
 
-Going to the admin page (at `$GOB_HOST:9990/dashboard`), we should see
+Going to the admin page (at `$GOB_HOST:9990/`), we should see
 a few hundred requests per second on the site.
 
 Now we can update our dtab to send a controlled 1/20th of requests to
@@ -276,11 +276,10 @@ canary the new service:
 
 ```
 :; cat k8s/namerd/default.dtab
-/srv        =>   /io.l5d.k8s/default/http;
-/host       =>   /srv;
-/method     =>   /$/io.buoyant.http.anyMethodPfx/host;
-/http/1.1   =>   /method;
-/host/gen   =>   1 * /srv/gen-growthhack & 19 * /srv/gen
+/srv         => /#/io.l5d.k8s/default/http;
+/host        => /srv;
+/http/1.1/*  => /host;
+/host/gen    => 1 * /srv/gen-growthhack & 19 * /srv/gen
 ```
 
 ```
@@ -329,8 +328,9 @@ to the old version.
 You can simulate this with:
 
 ```
-:; kubectl delete svc/gen-growthhack
+:; kubectl delete -f k8s/gen-growthhack
 service "gen-growthhack" deleted
+replicationcontroller "gen-growthhack" deleted
 ```
 
 ## Summary ##
