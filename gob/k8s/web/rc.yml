@@ -33,11 +33,9 @@ spec:
               containerPort: 8080
 
         - name: l5d
-          image: buoyantio/linkerd:0.7.0
+          image: buoyantio/linkerd:0.8.2
           args:
             - /io.buoyant/linkerd/config/config.yml
-            - -com.twitter.finagle.tracing.debugTrace=true
-            - -log.level=DEBUG
 
           ports:
             - name: http-in
