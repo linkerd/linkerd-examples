@@ -17,13 +17,10 @@ data:
     routers:
     - protocol: http
       label: outgoing
-      baseDtab: |
-        /srv        => /#/io.l5d.k8s/default/http;
-        /host       => /srv;
-        /http/*/*   => /host;
-        /host/world => /srv/world-v1;
       interpreter:
-        kind: default
+        kind: io.l5d.namerd
+        dst: /$/inet/namerd.default.svc.cluster.local/4100
+        namespace: outgoing
         transformers:
         - kind: io.l5d.k8s.daemonset
           namespace: default
@@ -32,11 +29,6 @@ data:
       servers:
       - port: 4140
         ip: 0.0.0.0
-      client:
-        tls:
-          kind: io.l5d.static
-          caCertPath: /io.buoyant/linkerd/certs/cacertificate.pem
-          commonName: linkerd
 
     - protocol: http
       label: incoming
@@ -51,9 +43,21 @@ data:
       servers:
       - port: 4141
         ip: 0.0.0.0
-        tls:
-          certPath: /io.buoyant/linkerd/certs/certificate.pem
-          keyPath: /io.buoyant/linkerd/certs/key.pem
+
+    - protocol: http
+      label: external
+      interpreter:
+        kind: io.l5d.namerd
+        dst: /$/inet/namerd.default.svc.cluster.local/4100
+        namespace: external
+        transformers:
+        - kind: io.l5d.k8s.daemonset
+          namespace: default
+          port: incoming
+          service: l5d
+      servers:
+      - port: 4142
+        ip: 0.0.0.0
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet
@@ -71,9 +75,6 @@ spec:
       - name: l5d-config
         configMap:
           name: "l5d-config"
-      - name: certificates
-        secret:
-          secretName: certificates
       containers:
       - name: l5d
         image: buoyantio/linkerd:0.8.2
@@ -91,15 +92,15 @@ spec:
         - name: outgoing
           containerPort: 4140
           hostPort: 4140
+        - name: external
+          containerPort: 4142
+          hostPort: 4142
         - name: admin
           containerPort: 9990
           hostPort: 9990
         volumeMounts:
         - name: "l5d-config"
           mountPath: "/io.buoyant/linkerd/config"
-          readOnly: true
-        - name: "certificates"
-          mountPath: "/io.buoyant/linkerd/certs"
           readOnly: true
 
       - name: kubectl
@@ -118,6 +119,9 @@ spec:
     app: l5d
   type: LoadBalancer
   ports:
+  - name: external
+    port: 80
+    targetPort: 4142
   - name: outgoing
     port: 4140
   - name: incoming

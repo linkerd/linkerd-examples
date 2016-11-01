@@ -1,0 +1,93 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: namerd-config
+data:
+  config.yml: |-
+    admin:
+      port: 9990
+
+    namers:
+    - kind: io.l5d.k8s
+      experimental: true
+      host: localhost
+      port: 8001
+
+    storage:
+      kind: io.l5d.inMemory
+      namespaces:
+        outgoing: |
+          /srv        => /#/io.l5d.k8s/default/http;
+          /host       => /srv;
+          /tmp        => /srv;
+          /http/*/*   => /host;
+          /host/world => /srv/world-v1;
+        external: |
+          /host       => /#/io.l5d.k8s/default/http/hello;
+          /http       => /host;
+
+    interfaces:
+    - kind: io.l5d.thriftNameInterpreter
+      ip: 0.0.0.0
+      port: 4100
+    - kind: io.l5d.httpController
+      ip: 0.0.0.0
+      port: 4180
+---
+kind: ReplicationController
+apiVersion: v1
+metadata:
+  name: namerd
+spec:
+  replicas: 1
+  selector:
+    app: namerd
+  template:
+    metadata:
+      labels:
+        app: namerd
+    spec:
+      dnsPolicy: ClusterFirst
+      volumes:
+        - name: namerd-config
+          configMap:
+            name: namerd-config
+      containers:
+        - name: namerd
+          image: buoyantio/namerd:0.8.2
+          args:
+            - /io.buoyant/namerd/config/config.yml
+          ports:
+            - name: thrift
+              containerPort: 4100
+            - name: http
+              containerPort: 4180
+            - name: admin
+              containerPort: 9990
+          volumeMounts:
+            - name: "namerd-config"
+              mountPath: "/io.buoyant/namerd/config"
+              readOnly: true
+        - name: kubectl
+          image: buoyantio/kubectl:v1.4.0
+          args:
+          - "proxy"
+          - "-p"
+          - "8001"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: namerd
+spec:
+  selector:
+    app: namerd
+  type: LoadBalancer
+  ports:
+  - name: thrift
+    port: 4100
+  - name: http
+    port: 4180
+  - name: admin
+    port: 9990
