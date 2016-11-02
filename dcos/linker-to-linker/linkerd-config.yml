@@ -1,3 +1,6 @@
+# linkerd config for linker-to-linker mode
+# routes from port 4140 on source node to 4141 on destination node
+
 admin:
   port: 9990
 

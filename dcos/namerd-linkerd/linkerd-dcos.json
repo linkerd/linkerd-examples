@@ -33,5 +33,5 @@
     }
   ],
   "requirePorts": true,
-  "cmd": "echo \"{\\\"admin\\\":{\\\"port\\\":9990},\\\"namers\\\":[{\\\"kind\\\":\\\"io.l5d.marathon\\\",\\\"host\\\":\\\"marathon.mesos\\\",\\\"port\\\":8080,\\\"prefix\\\":\\\"/io.l5d.marathon\\\",\\\"experimental\\\":true}],\\\"routers\\\":[{\\\"protocol\\\":\\\"http\\\",\\\"servers\\\":[{\\\"port\\\":4140,\\\"ip\\\":\\\"0.0.0.0\\\"}],\\\"baseDtab\\\":\\\"/marathonId=>/#/io.l5d.marathon;/http/1.1/*=>/$/io.buoyant.http.domainToPathPfx/marathonId;\\\",\\\"label\\\":\\\"linkerd_proxy\\\"}]}\"|/io.buoyant/linkerd/0.8.2/bundle-exec -log.level=DEBUG -com.twitter.finagle.tracing.debugTrace=true -- -"
+  "cmd": "echo \"{\\\"admin\\\":{\\\"port\\\":9990},\\\"routers\\\":[{\\\"protocol\\\":\\\"http\\\",\\\"servers\\\":[{\\\"port\\\":4140,\\\"ip\\\":\\\"0.0.0.0\\\"}],\\\"label\\\":\\\"linkerd_proxy\\\",\\\"interpreter\\\":{\\\"kind\\\":\\\"io.l5d.namerd\\\",\\\"dst\\\":\\\"/$/inet/namerd.marathon.mesos/4100\\\"}}]}\"|/io.buoyant/linkerd/0.8.2/bundle-exec -log.level=DEBUG -com.twitter.finagle.tracing.debugTrace=true -- -"
 }

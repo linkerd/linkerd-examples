@@ -1,5 +1,5 @@
-# linkerd config for basic http proxy
-# listens on port 4140, routes via http_proxy or host header
+# linkerd config for basic http proxy plus ingress
+# automatically routes port 4242 to "webapp"
 
 admin:
   port: 9990
@@ -20,3 +20,12 @@ routers:
     /marathonId => /#/io.l5d.marathon;
     /http/1.1/* => /$/io.buoyant.http.domainToPathPfx/marathonId;
   label: linkerd_proxy
+- protocol: http
+  servers:
+  - port: 4242
+    ip: 0.0.0.0
+  baseDtab: >-
+    /marathonId/* => /#/io.l5d.marathon/webapp;
+    /marathonId   => /#/io.l5d.marathon;
+    /http/1.1/*   => /$/io.buoyant.http.domainToPathPfx/marathonId;
+  label: external
