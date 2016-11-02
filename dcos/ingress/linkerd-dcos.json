@@ -1,0 +1,42 @@
+{
+  "id": "linkerd",
+  "instances": 4,
+  "cpus": 0.25,
+  "mem": 256.0,
+  "acceptedResourceRoles": ["*", "slave_public"],
+  "constraints": [["hostname", "UNIQUE"]],
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "buoyantio/linkerd:0.8.2",
+      "network": "HOST",
+      "privileged": true
+    }
+  },
+  "healthChecks": [
+    {
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "path": "/admin/ping"
+    }
+  ],
+  "portDefinitions": [
+    {
+      "port": 9990,
+      "protocol": "tcp",
+      "name": "admin"
+    },
+    {
+      "port": 4140,
+      "protocol": "tcp",
+      "name": "proxy"
+    },
+    {
+      "port": 4242,
+      "protocol": "tcp",
+      "name": "external"
+    }
+  ],
+  "requirePorts": true,
+  "cmd": "echo \"{\\\"admin\\\":{\\\"port\\\":9990},\\\"namers\\\":[{\\\"kind\\\":\\\"io.l5d.marathon\\\",\\\"host\\\":\\\"marathon.mesos\\\",\\\"port\\\":8080,\\\"prefix\\\":\\\"/io.l5d.marathon\\\",\\\"experimental\\\":true}],\\\"routers\\\":[{\\\"protocol\\\":\\\"http\\\",\\\"servers\\\":[{\\\"port\\\":4140,\\\"ip\\\":\\\"0.0.0.0\\\"}],\\\"baseDtab\\\":\\\"/marathonId=>/#/io.l5d.marathon;/http/1.1/*=>/$/io.buoyant.http.domainToPathPfx/marathonId;\\\",\\\"label\\\":\\\"linkerd_proxy\\\"},{\\\"protocol\\\":\\\"http\\\",\\\"servers\\\":[{\\\"port\\\":4242,\\\"ip\\\":\\\"0.0.0.0\\\"}],\\\"baseDtab\\\":\\\"/marathonId/*=>/#/io.l5d.marathon/webapp;/marathonId=>/#/io.l5d.marathon;/http/1.1/*=>/$/io.buoyant.http.domainToPathPfx/marathonId;\\\",\\\"label\\\":\\\"external\\\"}]}\"|/io.buoyant/linkerd/0.8.2/bundle-exec -log.level=DEBUG -com.twitter.finagle.tracing.debugTrace=true -- -"
+}
