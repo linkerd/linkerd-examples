@@ -1,3 +1,4 @@
+# runs linkerd in a daemonset, in linker-to-linker mode
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -15,12 +16,13 @@ data:
       port: 8001
 
     routers:
-
     - protocol: http
       label: outgoing
       baseDtab: |
-        /host     => /#/io.l5d.k8s/default/http;
-        /http/*/* => /host;
+        /srv        => /#/io.l5d.k8s/default/http;
+        /host       => /srv;
+        /http/*/*   => /host;
+        /host/world => /srv/world-v1;
       interpreter:
         kind: default
         transformers:
@@ -64,14 +66,14 @@ spec:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:0.8.1
+        image: buoyantio/linkerd:0.8.2
         env:
         - name: POD_IP
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
         args:
-        - "/io.buoyant/linkerd/config/config.yaml"
+        - /io.buoyant/linkerd/config/config.yaml
         ports:
         - name: incoming
           containerPort: 4141
@@ -86,6 +88,7 @@ spec:
         - name: "l5d-config"
           mountPath: "/io.buoyant/linkerd/config"
           readOnly: true
+
       - name: kubectl
         image: buoyantio/kubectl:v1.4.0
         args:
