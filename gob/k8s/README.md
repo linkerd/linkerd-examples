@@ -136,7 +136,7 @@ service "gen" created
 :; kubectl apply -f k8s/word
 replicationcontroller "word" created
 service "word" created
-:; kubectl apply -f k8s/web 
+:; kubectl apply -f k8s/web
 replicationcontroller "web" created
 service "web" created
 ```
@@ -153,7 +153,7 @@ web       10.3.251.167   146.148.102.218   80/TCP,9990/TCP   1m
 Now, we're able to curl the service!
 
 ```
-:; curl "$GOB_HOST"                                                                    
+:; curl "$GOB_HOST"
 Gob's web service!
 
 Send me a request like:
@@ -172,7 +172,7 @@ We have exposed a linkerd admin page for our _web_ frontend as a service!
 
 We can curl the site, and it works, using all 3 of gob's services:
 ```
-:; curl -s "$GOB_HOST/gob?text=gob&limit=10" 
+:; curl -s "$GOB_HOST/gob?text=gob&limit=10"
 gob gob gob gob gob gob gob gob gob gob
 ```
 
@@ -208,10 +208,7 @@ index fb39a88..2498178 100644
         if limit == 0 {
 ```
 
-_If you check out the
-[`growthhack`](https://github.com/BuoyantIO/linkerd-examples/tree/growthhack)
-branch on this repo, these changes are already ready there.  A docker
-image with these changes is already published to
+_A docker image with these changes is already published to
 [gobsvc/gen:growthhack](https://hub.docker.com/r/gobsvc/gen/tags/)._
 
 #### Staging ####
@@ -223,14 +220,14 @@ We'll deploy the _gen-growthhack_ pod and service (so that it can be
 distinguished from the prior version):
 
 ```
-:; kubectl apply -f k8s/gob/gen-growthhack
+:; kubectl apply -f k8s/gen-growthhack
 replicationcontroller "gen-growthhack" created
 service "gen-growthhack" created
 ```
 
 This doesn't change what users see---they still see the prior version:
 ```
-:; curl -s "$GOB_HOST/gob?text=gob&limit=10" 
+:; curl -s "$GOB_HOST/gob?text=gob&limit=10"
 gob gob gob gob gob gob gob gob gob gob
 ```
 
@@ -328,9 +325,8 @@ to the old version.
 You can simulate this with:
 
 ```
-:; kubectl delete -f k8s/gen-growthhack
+:; kubectl delete svc/gen-growthhack
 service "gen-growthhack" deleted
-replicationcontroller "gen-growthhack" deleted
 ```
 
 ## Summary ##
