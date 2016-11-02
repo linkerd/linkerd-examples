@@ -8,7 +8,6 @@ namers:
 - kind: io.l5d.marathon
   host: marathon.mesos
   port: 8080
-  prefix: "/io.l5d.marathon"
   experimental: true
 
 routers:
@@ -16,7 +15,7 @@ routers:
   servers:
   - port: 4140
     ip: 0.0.0.0
-  baseDtab: >-
+  baseDtab: >- # route based on marathon name
     /marathonId => /#/io.l5d.marathon;
     /http/1.1/* => /$/io.buoyant.http.domainToPathPfx/marathonId;
   label: linkerd_proxy

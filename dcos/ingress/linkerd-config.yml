@@ -1,5 +1,6 @@
 # linkerd config for basic http proxy plus ingress
-# automatically routes port 4242 to "webapp"
+# port 4140 for normal internal requests
+# port 4242 automatically routes to "webapp"
 
 admin:
   port: 9990
@@ -8,7 +9,6 @@ namers:
 - kind: io.l5d.marathon
   host: marathon.mesos
   port: 8080
-  prefix: "/io.l5d.marathon"
   experimental: true
 
 routers:
@@ -16,7 +16,7 @@ routers:
   servers:
   - port: 4140
     ip: 0.0.0.0
-  baseDtab: >-
+  baseDtab: >- # route based on marathon name
     /marathonId => /#/io.l5d.marathon;
     /http/1.1/* => /$/io.buoyant.http.domainToPathPfx/marathonId;
   label: linkerd_proxy
@@ -24,8 +24,6 @@ routers:
   servers:
   - port: 4242
     ip: 0.0.0.0
-  baseDtab: >-
-    /marathonId/* => /#/io.l5d.marathon/webapp;
-    /marathonId   => /#/io.l5d.marathon;
-    /http/1.1/*   => /$/io.buoyant.http.domainToPathPfx/marathonId;
+  baseDtab: >- # force all requests to `webapp`
+    /http/*/*/* => /#/io.l5d.marathon/webapp;
   label: external

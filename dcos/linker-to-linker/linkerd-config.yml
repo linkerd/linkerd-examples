@@ -8,7 +8,6 @@ namers:
 - kind: io.l5d.marathon
   host: marathon.mesos
   port: 8080
-  prefix: "/io.l5d.marathon"
   experimental: true
 
 routers:
@@ -16,13 +15,14 @@ routers:
   servers:
   - port: 4140
     ip: 0.0.0.0
-  baseDtab: >-
+  baseDtab: >- # route based on marathon name
     /marathonId => /#/io.l5d.marathon;
     /http/1.1/* => /$/io.buoyant.http.domainToPathPfx/marathonId;
   label: outgoing
   interpreter:
     kind: default
     transformers:
+    # tranform all outgoing requests to deliver to incoming linkerd port 4141
     - kind: io.l5d.port
       port: 4141
 - protocol: http
@@ -32,9 +32,12 @@ routers:
   label: incoming
   dstPrefix: "/"
   identifier:
+    # look at the `l5d-dst-concrete` header provided by outgoing linkerd,
+    # will contain a concrete name like `/#/io.l5d.marathon/servicename`
     kind: io.l5d.header
     header: l5d-dst-concrete
   interpreter:
     kind: default
     transformers:
+    # filter instances to only include those on this host
     - kind: io.l5d.localhost
