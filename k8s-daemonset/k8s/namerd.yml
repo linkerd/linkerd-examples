@@ -15,17 +15,11 @@ data:
       port: 8001
 
     storage:
-      kind: io.l5d.inMemory
-      namespaces:
-        outgoing: |
-          /srv        => /#/io.l5d.k8s/default/http;
-          /host       => /srv;
-          /tmp        => /srv;
-          /http/*/*   => /host;
-          /host/world => /srv/world-v1;
-        external: |
-          /host       => /#/io.l5d.k8s/default/http/hello;
-          /http       => /host;
+      kind: io.l5d.k8s
+      experimental: true
+      host: localhost
+      port: 8001
+      namespace: default
 
     interfaces:
     - kind: io.l5d.thriftNameInterpreter

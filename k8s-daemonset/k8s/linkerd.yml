@@ -1,3 +1,4 @@
+# runs linkerd in a daemonset, in linker-to-linker mode
 ---
 apiVersion: v1
 kind: ConfigMap

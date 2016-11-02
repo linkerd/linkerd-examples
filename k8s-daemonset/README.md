@@ -43,7 +43,11 @@ ReplicationControllers for both the hello app and the world app.
 
 ### linkerd
 
-Next deploy linkerd, to route requests from the hello app to the world app.
+Next deploy linkerd. There are three different linkerd deployment configurations
+listed below, from simplest to most advanced. Pick which one is best for your
+use case.
+
+#### Daemonsets
 
 For the most basic linkerd DaemonSets configuration, you can run:
 
@@ -51,32 +55,61 @@ For the most basic linkerd DaemonSets configuration, you can run:
 kubectl apply -f k8s/linkerd.yml
 ```
 
-That command will create linkerd's config file as a Kubernetes ConfigMap, and it
-will use that config file to start linkerd as part of a Kubernetes DaemonSet. It
-will also add a Kuberentes Service for granting external access to linkerd.
+That command will create linkerd's config file as a Kubernetes ConfigMap, and
+use the config file to start linkerd as part of a Kubernetes DaemonSet. It will
+also add a Kuberentes Service for granting external access to linkerd.
+
+#### Daemonsets + TLS
 
 For a linkerd configuration that adds TLS to all service-to-service calls, run:
 
 ```bash
+kubectl apply -f k8s/certificates.yml
 kubectl apply -f k8s/linkerd-tls.yml
 ```
 
-Or finally, to run linkerd with routing resolutions handled by namerd, run:
+Those commands will create the TLS certificates as a Kubernetes Secret, and use
+the certificates and the linkerd config to start linkerd as part of a Kubernetes
+DaemonSet and encrypt all traffic between linkerd instances using TLS.
+
+#### Daemonsets + namerd + edge routing
+
+To run linkerd and [namerd](https://linkerd.io/in-depth/namerd/) together, with
+linkerd running in DaemonSets and serving edge traffic, run:
 
 ```bash
 kubectl apply -f k8s/namerd.yml
 kubectl apply -f k8s/linkerd-namerd.yml
 ```
 
-That command will start namerd in your cluster, and configure linkerd to use
-namerd when applying routing rules.
+Those commands will create the namerd config file, start namerd, create the
+linkerd config file, and start linkerd, which will use namerd for routing.
+linkerd will also run an edge router for handling external web traffic.
+
+If this is your first time running namerd in your k8s cluster, then you also
+need to create the namerd namespaces that are required to run the hello world
+app, by running:
+
+```bash
+kubectl run namerctl --image=buoyantio/helloworld:0.0.2 --restart=Never -- "./createNs.sh"
+```
+
+You can verify the namespaces were created with:
+
+```bash
+$ kubectl logs namerctl
+Created external
+Created incoming
+Created outgoing
+```
 
 ### linkerd-viz
 
-And lastly, deploy linkerd-viz by running:
+And lastly, once you have linkerd deployed, you can deploy
+[linkerd-viz](https://github.com/BuoyantIO/linkerd-viz) as well, by running:
 
 ```bash
-kubectl apply -f k8s/linkerd-viz.yml
+curl -s https://raw.githubusercontent.com/BuoyantIO/linkerd-viz/master/k8s/linkerd-viz.yml | kubectl apply -f -
 ```
 
 ## Verifying
@@ -107,7 +140,7 @@ http_proxy=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].i
 If you deployed namerd, then linkerd is also setup to proxy edge requests:
 
 ```bash
-curl $(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+curl http://$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
 ```
 
 ### linkerd-viz dashboard
