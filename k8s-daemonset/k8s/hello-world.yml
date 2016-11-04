@@ -15,7 +15,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
       - name: service
-        image: buoyantio/helloworld:0.0.2
+        image: buoyantio/helloworld:0.0.3
         env:
         - name: POD_NAME
           valueFrom:
@@ -61,25 +61,27 @@ spec:
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: world
+  name: world-v1
 spec:
   replicas: 3
   selector:
-    app: world
+    app: world-v1
   template:
     metadata:
       labels:
-        app: world
+        app: world-v1
     spec:
       dnsPolicy: ClusterFirst
       containers:
       - name: service
-        image: buoyantio/helloworld:0.0.2
+        image: buoyantio/helloworld:0.0.3
         env:
         - name: POD_IP
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
+        - name: TARGET_WORLD
+          value: world
         command:
         - "/bin/bash"
         - "-c"
@@ -94,7 +96,7 @@ metadata:
   name: world-v1
 spec:
   selector:
-    app: world
+    app: world-v1
   clusterIP: None
   ports:
   - name: http
