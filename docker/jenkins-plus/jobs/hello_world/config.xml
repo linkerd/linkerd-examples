@@ -1,0 +1,186 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.8">
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>gitRepo</name>
+          <description>linkerd-examples repo to clone and build</description>
+          <defaultValue>https://github.com/BuoyantIO/linkerd-examples</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>gitBranch</name>
+          <description>branch to build from linkerd-examples repo</description>
+          <defaultValue>master</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>namerdNamespace</name>
+          <description>namerd namespace to which dtab changes will be made</description>
+          <defaultValue>outgoing</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>k8sNamespace</name>
+          <description>kubernetes namespace to which changes will be deployed</description>
+          <defaultValue>default</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+      <triggers/>
+    </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.22">
+    <script>node {
+    def currentVersion = getCurrentVersion()
+    def newVersion = getNextVersion(currentVersion)
+    def frontendIp = kubectl(&quot;get svc l5d -o jsonpath=\&quot;{.status.loadBalancer.ingress[0].ip}\&quot;&quot;).trim()
+    def originalDst = getDst(getDtab())
+
+    stage(&quot;clone&quot;) {
+        git url: gitRepo + &apos;.git&apos;, branch: gitBranch
+    }
+
+    stage(&quot;deploy&quot;) {
+        signalDeploy()
+        def targetWorld = readFile(&apos;k8s-daemonset/helloworld/world.txt&apos;).trim()
+        updateConfig(targetWorld, newVersion)
+        def created = kubectl(&quot;apply -f hello-world.yml&quot;)
+        echo &quot;${created}&quot;
+        sleep 5 // give the instance some time to start
+    }
+
+    stage(&quot;integration testing&quot;) {
+        def dtabOverride = &quot;l5d-dtab: /host/world =&gt; /tmp/${newVersion}&quot;
+        runIntegrationTests(frontendIp, dtabOverride)
+        try {
+            input(
+                message: &quot;Integration tests successful!\nYou can reach the service with:\ncurl -H \&apos;${dtabOverride}\&apos; ${frontendIp}&quot;,
+                ok: &quot;OK, done with manual testing&quot;
+            )
+        } catch(err) {
+            revert(originalDst, newVersion)
+            throw err
+        }
+    }
+
+    stage(&quot;shift traffic (10%)&quot;) {
+        setDst(getDtab(), &quot;1 * /tmp/${newVersion} &amp; 9 * /tmp/${currentVersion}&quot;)
+        try {
+            input(
+                message: &quot;Shifting 10% of traffic. To view, open:\nhttp://${frontendIp}:9990&quot;,
+                ok: &quot;OK, success rates look stable&quot;
+            )
+        } catch(err) {
+            revert(originalDst, newVersion)
+            throw err
+        }
+    }
+
+    stage(&quot;shift traffic (100%)&quot;) {
+        setDst(getDtab(), &quot;/tmp/${newVersion} | /tmp/${currentVersion}&quot;)
+        try {
+            input(
+                message: &quot;Deploy finished. Ready to cleanup?&quot;,
+                ok: &quot;OK, everything looks good&quot;
+            )
+        } catch(err) {
+            revert(originalDst, newVersion)
+            throw err
+        }
+    }
+
+    stage(&quot;cleanup&quot;) {
+        setDst(getDtab(), &quot;/srv/${newVersion}&quot;)
+        sleep 5 // wait for dtab change to propagate
+        kubectl(&quot;delete svc ${currentVersion}&quot;)
+        kubectl(&quot;delete rc ${currentVersion}&quot;)
+    }
+}
+
+def kubectl(cmd) {
+    return sh(script: &quot;kubectl --namespace=${k8sNamespace} ${cmd}&quot;, returnStdout: true)
+}
+
+def getDtab() {
+    return sh(script: &quot;namerctl dtab get ${namerdNamespace} --json&quot;, returnStdout: true)
+}
+
+def setDtab(dtab) {
+    writeFile file: namerdNamespace + &quot;.dtab&quot;, text: dtab
+    return sh(script: &quot;namerctl dtab update ${namerdNamespace} ${namerdNamespace}.dtab --json&quot;, returnStdout: true)
+}
+
+def getDst(jsonResp) {
+    def json = new groovy.json.JsonSlurper().parseText(jsonResp)
+    for (dentry in json.dtab) {
+        if (dentry.prefix == &quot;/host/world&quot;) {
+            return dentry.dst
+        }
+    }
+}
+
+def setDst(jsonResp, dst) {
+    def json = new groovy.json.JsonSlurper().parseText(jsonResp)
+    for (dentry in json.dtab) {
+        if (dentry.prefix == &quot;/host/world&quot;) {
+            dentry.dst = dst
+        }
+    }
+    def str = groovy.json.JsonOutput.toJson(json)
+    json = null // must clear json obj from scope before calling setDtab
+    return setDtab(str)
+}
+
+def signalDeploy() {
+    def jsonResp = getDtab()
+    def dst = getDst(jsonResp)
+    if (dst =~ /^\/tmp/) {
+        error &quot;dtab is already marked as being deployed!&quot;
+    }
+    def resp = setDst(jsonResp, dst.replace(&quot;/srv&quot;, &quot;/tmp&quot;))
+    echo &quot;${resp}&quot;
+}
+
+def getCurrentVersion() {
+    def jsonResp = kubectl(&quot;get svc -o json&quot;)
+    def json = new groovy.json.JsonSlurper().parseText(jsonResp)
+    for (svc in json.items) {
+        if (svc.metadata.name =~ /^world/) {
+            return svc.metadata.name
+        }
+    }
+}
+
+def getNextVersion(currentVersion) {
+    def versionNum = currentVersion.replace(&quot;world-v&quot;, &quot;&quot;).toInteger()
+    return &quot;world-v${versionNum + 1}&quot;
+}
+
+def updateConfig(targetWorld, newVersion) {
+    def config = readFile(&apos;k8s-daemonset/k8s/hello-world.yml&apos;)
+        .replaceAll(&quot;world-v1&quot;, newVersion)
+        .replaceAll(&quot;value: world&quot;, &quot;value: ${targetWorld}&quot;)
+    writeFile file: &quot;hello-world.yml&quot;, text: config
+}
+
+def runIntegrationTests(frontendIp, dtabOverride) {
+    def resp = sh(script: &quot;curl -sL -w &apos;%{http_code}&apos; -o /dev/null  -H &apos;${dtabOverride}&apos; ${frontendIp} 2&gt;&amp;1&quot;, returnStdout: true).trim()
+    if (resp != &quot;200&quot;) {
+        error &quot;could not reach new service&quot;
+    }
+}
+
+def revert(originalDst, newVersion) {
+    echo &quot;reverting traffic back to ${originalDst}&quot;
+    setDst(getDtab(), originalDst)
+    kubectl(&quot;delete svc ${newVersion}&quot;)
+    kubectl(&quot;delete rc ${newVersion}&quot;)
+}
+</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+</flow-definition>
