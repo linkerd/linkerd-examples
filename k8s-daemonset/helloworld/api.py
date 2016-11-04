@@ -1,18 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
+from header_utils import l5d_headers
 import urllib2
-import json
 import os
-import re
-import sys
 
 
 app = Flask(__name__)
 pod_ip = os.getenv("POD_IP")
-
-def l5d_headers():
-    headers = {k:v for k,v in request.headers.iteritems()
-               if re.match('^(l5d-ctx|dtab-local)', k, re.I)}
-    return headers
 
 @app.route("/")
 def api():
