@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    app: nginx
+  template:
+    metadata:
+      name: nginx
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: buoyantio/helloworld:nginx2
+        ports:
+        - containerPort: 80
+        command:
+        - "/bin/bash"
+        - "-c"
+        - nginx -g 'daemon off;'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: nginxservice
+  name: nginxservice
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  selector:
+    app: nginx
+  type: LoadBalancer
