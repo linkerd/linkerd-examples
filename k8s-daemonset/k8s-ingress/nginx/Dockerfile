@@ -5,6 +5,6 @@ RUN apt-get install -y curl
 
 RUN rm /etc/nginx/conf.d/default.conf
 
-ADD nginx/nginx.conf /etc/nginx/
+ADD nginx.conf /etc/nginx/
 
 EXPOSE 80:80
