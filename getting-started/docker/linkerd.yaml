@@ -3,7 +3,7 @@
 # of hostname/port pairs.
 namers:
 - kind: io.l5d.fs
-  rootDir: disco
+  rootDir: /io.buoyant/disco
 
 routers:
 - protocol: http

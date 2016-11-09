@@ -8,48 +8,26 @@ For more information on linkerd, please visit linkerd.io
 
 ## Downloading
 
-Start by cloning this repo and pulling the nginx and linkerd docker images:
+Start by cloning this repo:
 
 ```
 git clone https://github.com/BuoyantIO/linkerd-examples.git
 cd linkerd-examples/getting-started/docker
-docker pull nginx
-docker pull buoyantio/linkerd:0.7.0
 ```
 
 ## Start nginx and linkerd
 
 The included `docker-compose.yml` starts up an nginx service that serves static
-content from the www directory and a linkerd.
+content from the www directory and a linkerd. Running docker-compose will pull
+the required images automatically:
 
 ```
 docker-compose up -d
 ```
 
-`linkerd.yaml` is a config file that controls linkerd's behavior:
-
-```
-# The filesystem namer (io.l5d.fs) watches the disco directory for changes.
-# Each file in this directory represents a concrete name and contains a list
-# of hostname/port pairs.
-namers:
-- kind: io.l5d.fs
-  rootDir: disco
-
-routers:
-- protocol: http
-  # Incoming requests to linkerd with a Host header of "hello" get assigned a
-  # name like /http/1.1/GET/hello.  This dtab transforms that into
-  # /#/io.l5d.fs/hello which indicates that the filesystem namer should be used
-  # and should look for a file named "hello".  linkerd will then load balance
-  # over the entries in that file.
-  baseDtab: |
-    /http/1.1/* => /#/io.l5d.fs
-  servers:
-  - ip: 0.0.0.0
-    port: 4140
-
-```
+When linkerd starts, it loads the [linkerd.yaml](linkerd.yaml) to configure
+a linkerd router that routes traffic to the nginx service, using file-system
+backed service discovery.
 
 ## Send requests
 

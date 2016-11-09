@@ -20,3 +20,16 @@ spec:
         ports:
         - name: service
           containerPort: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx
+spec:
+  selector:
+    app: nginx
+  clusterIP: None
+  ports:
+  - name: service
+    port: 80
+    targetPort: 80
