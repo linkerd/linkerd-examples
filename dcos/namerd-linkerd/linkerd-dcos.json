@@ -8,7 +8,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "buoyantio/linkerd:0.8.2",
+      "image": "buoyantio/linkerd:0.8.3",
       "network": "HOST",
       "privileged": true
     }
@@ -33,5 +33,5 @@
     }
   ],
   "requirePorts": true,
-  "cmd": "echo \"{\\\"admin\\\":{\\\"port\\\":9990},\\\"routers\\\":[{\\\"protocol\\\":\\\"http\\\",\\\"servers\\\":[{\\\"port\\\":4140,\\\"ip\\\":\\\"0.0.0.0\\\"}],\\\"label\\\":\\\"linkerd_proxy\\\",\\\"interpreter\\\":{\\\"kind\\\":\\\"io.l5d.namerd\\\",\\\"dst\\\":\\\"/$/inet/namerd.marathon.mesos/4100\\\"}}]}\"|/io.buoyant/linkerd/0.8.2/bundle-exec -log.level=DEBUG -com.twitter.finagle.tracing.debugTrace=true -- -"
+  "cmd": "echo \"{\\\"admin\\\":{\\\"port\\\":9990},\\\"routers\\\":[{\\\"protocol\\\":\\\"http\\\",\\\"servers\\\":[{\\\"port\\\":4140,\\\"ip\\\":\\\"0.0.0.0\\\"}],\\\"label\\\":\\\"linkerd_proxy\\\",\\\"interpreter\\\":{\\\"kind\\\":\\\"io.l5d.namerd\\\",\\\"dst\\\":\\\"/$/inet/namerd.marathon.mesos/4100\\\"}}]}\"|/io.buoyant/linkerd/0.8.3/bundle-exec -log.level=DEBUG -com.twitter.finagle.tracing.debugTrace=true -- -"
 }
