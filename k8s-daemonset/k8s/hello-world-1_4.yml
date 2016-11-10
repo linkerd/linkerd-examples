@@ -40,7 +40,7 @@ metadata:
 spec:
   selector:
     app: hello
-  type: LoadBalancer
+  type: ClusterIP
   ports:
   - name: http
     port: 7777
