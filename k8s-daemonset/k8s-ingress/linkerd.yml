@@ -24,7 +24,7 @@ data:
         /host            => /$/io.buoyant.http.domainToPath ;
         /http/*/*        => /host ;
       servers:
-      - port: 80
+      - port: 4142
         ip: 0.0.0.0
 
     - protocol: http
@@ -87,8 +87,8 @@ spec:
         - /io.buoyant/linkerd/config/config.yaml
         ports:
         - name: ingress
-          containerPort: 80
-          hostPort: 80
+          containerPort: 4142
+          hostPort: 4142
         - name: incoming
           containerPort: 4141
           hostPort: 4141
@@ -121,7 +121,6 @@ spec:
   ports:
   - name: ingress
     port: 80
-  - name: incoming
-    port: 4141
+    targetPort: 4142
   - name: admin
     port: 9990
