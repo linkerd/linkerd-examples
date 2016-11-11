@@ -15,7 +15,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
       - name: service
-        image: buoyantio/helloworld:test7
+        image: buoyantio/helloworld:0.0.4
         env:
         - name: POD_IP
           valueFrom:
@@ -24,7 +24,7 @@ spec:
         command:
         - "/bin/bash"
         - "-c"
-        - "python api.py"
+        - "HTTP_PROXY=`./hostIP.sh`:4140 python api.py"
         ports:
         - name: service
           containerPort: 7779
