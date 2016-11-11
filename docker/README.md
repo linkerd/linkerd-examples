@@ -14,13 +14,5 @@ https://blog.buoyant.io/2016/11/04/a-service-mesh-for-kubernetes-part-iv-continu
 
 ## NGINX
 
-Builds the [buoyatio/nginx](https://hub.docker.com/r/buoyantio/jenkins-plus/)
-image used in the [Ingress blog post](). This image runs nginx configured as an
-ingress.  For an example of how to use this image in Kuberenetes, see our [blog post](
-https://blog.buoyant.io/2016/11/04/a-service-mesh-for-kubernetes-part-iv-continuous-deployment-via-traffic-shifting/).
-
-## NGINX with nginx-extras installed
-
-Builds the [buoyatio/nginx](https://hub.docker.com/r/buoyantio/jenkins-plus/)
-mentioned in the [Ingress blog post](). This provides nginx with 3rd party
-modules installed.
+Builds the [buoyatio/nginx](https://hub.docker.com/r/buoyantio/nginx/)
+image. This image runs nginx configured as an ingress to our hello world application.
