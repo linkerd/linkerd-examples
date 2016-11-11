@@ -18,7 +18,7 @@ total number of public+private nodes in your cluster.
 dcos marathon app add linkerd-dcos.json
 ```
 
-## Deploy namerd (for namerd-linkerd configuration)
+## Deploy namerd (for configurations that include namerd)
 
 ```bash
 dcos marathon app add namerd-dcos.json

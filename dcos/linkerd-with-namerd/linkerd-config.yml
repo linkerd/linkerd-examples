@@ -1,4 +1,5 @@
-# linkerd config for use with namerd
+# linkerd config for basic http proxy with namerd
+# listens on port 4140, routes via http_proxy or host header
 # all service discovery managed via namerd
 
 admin:
