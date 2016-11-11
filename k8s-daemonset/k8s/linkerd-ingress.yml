@@ -41,6 +41,7 @@ data:
         /host       => /srv;
         /http/*/*   => /host;
         /host/world => /srv/world-v1;
+        /host/hello => /srv/hello;
       interpreter:
         kind: default
         transformers:

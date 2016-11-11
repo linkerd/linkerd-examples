@@ -17,17 +17,31 @@ spec:
       - name: service
         image: buoyantio/helloworld:0.0.4
         env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         - name: POD_IP
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
+        - name: NS
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         command:
         - "/bin/bash"
         - "-c"
-        - "python api.py"
+        - "HTTP_PROXY=`./hostIP.sh`:4140 python api.py"
         ports:
         - name: service
           containerPort: 7779
+      - name: kubectl
+        image: buoyantio/kubectl:v1.4.0
+        args:
+        - proxy
+        - "-p"
+        - "8001"
 ---
 apiVersion: v1
 kind: Service
