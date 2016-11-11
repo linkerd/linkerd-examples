@@ -23,6 +23,13 @@ data:
         /world/hello/api => /#/io.l5d.k8s/default/http/api ;
         /host            => /$/io.buoyant.http.domainToPath ;
         /http/*/*        => /host ;
+      interpreter:
+        kind: default
+        transformers:
+        - kind: io.l5d.k8s.daemonset
+          namespace: default
+          port: incoming
+          service: l5d
       servers:
       - port: 4142
         ip: 0.0.0.0
