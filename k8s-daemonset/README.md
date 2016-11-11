@@ -153,6 +153,5 @@ open http://$(kubectl get svc linkerd-viz -o jsonpath="{.status.loadBalancer.ing
 
 ## Ingress with linkerd
 
-This folder also contains the files supporting our blog post,
-[A Service Mesh for Kubernetes, Part V: Ingress and Edge Routing](https://blog.buoyant.io).
-Please refer to that post for more details.
+This folder also contains files demonstrating the use of linkerd (or linkerd in
+conjunction with nginx) as an ingress controller.
