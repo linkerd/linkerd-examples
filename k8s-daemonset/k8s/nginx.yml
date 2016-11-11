@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: buoyantio/nginx:latest
+        image: buoyantio/nginx:1.11.5
         ports:
         - containerPort: 80
         command:

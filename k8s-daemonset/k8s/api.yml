@@ -24,7 +24,7 @@ spec:
         command:
         - "/bin/bash"
         - "-c"
-        - "HTTP_PROXY=`./hostIP.sh`:4140 python api.py"
+        - "python api.py"
         ports:
         - name: service
           containerPort: 7779
