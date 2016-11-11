@@ -150,3 +150,8 @@ View the linkerd-viz dashboard:
 ```bash
 open http://$(kubectl get svc linkerd-viz -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
 ```
+
+## Ingress with linkerd
+
+This folder also contains files demonstrating the use of linkerd (or linkerd in
+conjunction with nginx) as an ingress controller.

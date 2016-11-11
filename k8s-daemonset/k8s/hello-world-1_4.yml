@@ -15,7 +15,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
       - name: service
-        image: buoyantio/helloworld:0.0.3
+        image: buoyantio/helloworld:0.0.4
         env:
         - name: NODE_NAME
           valueFrom:
@@ -40,7 +40,7 @@ metadata:
 spec:
   selector:
     app: hello
-  type: LoadBalancer
+  type: ClusterIP
   ports:
   - name: http
     port: 7777
@@ -64,7 +64,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
       - name: service
-        image: buoyantio/helloworld:0.0.3
+        image: buoyantio/helloworld:0.0.4
         env:
         - name: POD_IP
           valueFrom:
