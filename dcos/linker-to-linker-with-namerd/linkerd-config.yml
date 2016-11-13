@@ -1,0 +1,37 @@
+# linkerd config for linker-to-linker mode with namerd
+# routes from port 4140 on source node to 4141 on destination node
+# all service discovery managed via namerd
+
+admin:
+  port: 9990
+
+routers:
+- protocol: http
+  servers:
+  - port: 4140
+    ip: 0.0.0.0
+  label: outgoing
+  interpreter:
+    kind: io.l5d.namerd
+    dst: /$/inet/namerd.marathon.mesos/4100
+    transformers:
+    # tranform all outgoing requests to deliver to incoming linkerd port 4141
+    - kind: io.l5d.port
+      port: 4141
+- protocol: http
+  servers:
+  - port: 4141
+    ip: 0.0.0.0
+  label: incoming
+  dstPrefix: "/"
+  identifier:
+    # look at the `l5d-dst-concrete` header provided by outgoing linkerd,
+    # will contain a concrete name like `/#/io.l5d.marathon/servicename`
+    kind: io.l5d.header
+    header: l5d-dst-concrete
+  interpreter:
+    kind: io.l5d.namerd
+    dst: /$/inet/namerd.marathon.mesos/4100
+    transformers:
+    # filter instances to only include those on this host
+    - kind: io.l5d.localhost
