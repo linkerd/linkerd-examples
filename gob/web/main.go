@@ -111,7 +111,11 @@ func (gob *GobWeb) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
 					fmt.Println("streaming error: " + err.Error())
 					streaming = false
 				} else {
-					rspw.Write([]byte(rsp.Text))
+					if _, err := rspw.Write([]byte(rsp.Text)); err != nil {
+						fmt.Println("write error: " + err.Error())
+						streaming = false
+						// XXX Close stream
+					}
 				}
 			}
 			return
