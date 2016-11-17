@@ -13,16 +13,23 @@ to compile nginx and the headers more module from source and does the compilatio
 This image is pre-built and available on docker hub as
 [buoyantio/nginx:1.10.2](https://hub.docker.com/r/buoyantio/nginx/tags/),
 so there should be no need to rebuild it.
-If you would still like to build this, get a copy of the
-[wildcard_in](https://github.com/ghedo/headers-more-nginx-module/tree/wildcard_in)
-branch, ensure those files and this Dockerfile are in the same folder, and build it.
+
+If you would still like to build this image, you'll first need to locally clone
+and check out a custom branch
+([wildcard_in](https://github.com/ghedo/headers-more-nginx-module/tree/wildcard_in))
+of the headers-more-nginx-module repo, as follows:
 
 ```
 $ git clone https://github.com/ghedo/headers-more-nginx-module.git
 $ cd headers-more-nginx-module
 $ git checkout wildcard_in
 $ cd ..
+```
+
+Then, copy that folder into the same place as this Dockerfile, and then build:
+```
 $ cp headers-more-nginx-module <location-of-this-dockerfile>
+$ docker build -t buoyantio/nginx:<tag-name> .
 ```
 
 The dockerfile was based on instructions from
