@@ -23,11 +23,12 @@ case class HelloWorldIdentifier(
 ) extends RoutingFactory.Identifier[Request] {
 
   def apply(req: Request): Future[RequestIdentification[Request]] = {
-      val dst = Dst.Path(Path.Utf8(req.path), baseDtab(), Dtab.local)
+
+      val dst = Dst.Path(prefix, baseDtab(), Dtab.local)
       if (req.headerMap.contains("l5d-hello")) {
         req.headerMap.set ("l5d-hello", "hello")
       }
-
+      System.out.print("FOOOOO BAR")
       Future.value(new IdentifiedRequest[Request](dst, req))
   }
 }
