@@ -6,46 +6,51 @@ metadata:
 data:
   nginx.conf: |-
     worker_processes 1;
+
     events { worker_connections 1024; }
 
     http {
-      sendfile on;
+        sendfile on;
 
-      server {
-        listen 80;
+        server {
+            listen 80;
 
-        # a test endpoint that returns http 200s
-        location / {
-          proxy_pass http://httpstat.us/200;
-          proxy_set_header  X-Real-IP  $remote_addr;
+            # a test endpoint that returns http 200s
+            location / {
+                proxy_pass http://httpstat.us/200;
+                proxy_set_header  X-Real-IP  $remote_addr;
+            }
         }
-      }
 
-      server {
-        listen 80;
-        server_name api.hello.world;
+        server {
 
-        location / {
-          proxy_pass http://l5d.default.svc.cluster.local;
-          proxy_set_header Host $host;
-          proxy_set_header Connection "";
-          proxy_pass_request_headers off;
-          proxy_http_version 1.1;
+            listen 80;
+            server_name api.hello.world;
+
+            location / {
+                proxy_pass http://l5d.default.svc.cluster.local;
+                proxy_set_header Host $host;
+                proxy_set_header Connection "";
+                proxy_http_version 1.1;
+
+                more_clear_input_headers 'l5d-ctx-*' 'l5d-dtab' 'l5d-sample';
+            }
         }
-      }
 
-      server {
-        listen 80;
-        server_name www.hello.world;
+        server {
 
-        location / {
-          proxy_pass http://l5d.default.svc.cluster.local;
-          proxy_set_header Host $host;
-          proxy_set_header Connection "";
-          proxy_pass_request_headers off;
-          proxy_http_version 1.1;
+            listen 80;
+            server_name www.hello.world;
+
+            location / {
+                proxy_pass http://l5d.default.svc.cluster.local;
+                proxy_set_header Host $host;
+                proxy_set_header Connection "";
+                proxy_http_version 1.1;
+
+                more_clear_input_headers 'l5d-ctx-*' 'l5d-dtab' 'l5d-sample';
+            }
         }
-      }
     }
 ---
 apiVersion: v1
@@ -68,13 +73,12 @@ spec:
           name: nginx-config
       containers:
       - name: nginx
-        image: nginx:1.11.5
+        image: buoyantio/nginx:1.10.2
         ports:
         - containerPort: 80
         volumeMounts:
         - name: "nginx-config"
           mountPath: "/etc/nginx"
-          readOnly: true
 ---
 apiVersion: v1
 kind: Service
