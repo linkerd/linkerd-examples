@@ -6,5 +6,5 @@ import io.buoyant.linkerd.IdentifierInitializer
 class HelloWorldIdentifierInitializer extends IdentifierInitializer {
   override def configId: String = "io.buoyant.helloWorldIdentifier"
 
-  override def configClass: Class[_] = return classOf[HelloWorldIdentifier]
+  override def configClass: Class[_] = return classOf[HelloWorldIdentifierConfig]
 }
