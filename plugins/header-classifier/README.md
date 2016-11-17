@@ -7,6 +7,11 @@ the response should be classified as a success or failure and if the request
 should be retried.  A value of "success" means success, a value of "retry" means
 retryable failure, and any other value means non-retryable failure.
 
+# Heloworld Identifier
+
+Helloworld Identifier injects a header with the value set from config, and pass the updated request to next identifier
+
+
 ## Building
 
 This plugin is built with sbt.  Run sbt from the plugins directory.
@@ -26,8 +31,20 @@ router in your linkerd config:
 
 ```
 routers:
-- ...
-  classifier:
+- protocol: http
+  baseDtab: /http/1.1/*/* => /$/inet/localhost/8888
+  responseClassifier:
     kind: io.buoyant.headerClassifier
     headerName: status
+
+  identifier:
+    - kind: io.buoyant.helloWorldIdentifier
+      name: foobar
+    - kind: io.l5d.methodAndHost
+      httpUriInDst: true
+
+  servers:
+  - ip: 0.0.0.0
+    port: 4140
+
 ```

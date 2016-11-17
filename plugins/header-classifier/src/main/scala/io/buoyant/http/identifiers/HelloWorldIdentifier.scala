@@ -1,34 +1,23 @@
 package io.buoyant.http.identifiers
 
-
-
-import com.twitter.finagle.buoyant.Dst
 import com.twitter.finagle.http.Request
 import com.twitter.finagle.{Dtab, Path}
 import com.twitter.util.Future
 import io.buoyant.router.RoutingFactory
-import io.buoyant.router.RoutingFactory.{IdentifiedRequest, RequestIdentification}
+import io.buoyant.router.RoutingFactory.{RequestIdentification, UnidentifiedRequest}
 
-object HelloWorldIdentifier {
-  def mk(
-    prefix: Path,
-    baseDtab: () => Dtab = () => Dtab.base
-  ): RoutingFactory.Identifier[Request] = HelloWorldIdentifier(prefix, "hello", baseDtab)
-}
 
 case class HelloWorldIdentifier(
   prefix: Path,
-  value: String,
+  name: String,
   baseDtab: () => Dtab = () => Dtab.base
 ) extends RoutingFactory.Identifier[Request] {
 
-  def apply(req: Request): Future[RequestIdentification[Request]] = {
+  private[this] val MoveOn =
+    Future.value(new UnidentifiedRequest[Request]("MoveOn to next identifier"))
 
-      val dst = Dst.Path(prefix, baseDtab(), Dtab.local)
-      if (req.headerMap.contains("l5d-hello")) {
-        req.headerMap.set ("l5d-hello", "hello")
-      }
-      System.out.print("FOOOOO BAR")
-      Future.value(new IdentifiedRequest[Request](dst, req))
+  def apply(req: Request): Future[RequestIdentification[Request]] = {
+    req.headerMap.set ("l5d-hello", name)
+    MoveOn
   }
 }

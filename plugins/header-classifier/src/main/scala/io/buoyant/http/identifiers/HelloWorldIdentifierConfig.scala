@@ -9,10 +9,10 @@ import io.buoyant.router.RoutingFactory.Identifier
 
 class HelloWorldIdentifierConfig extends HttpIdentifierConfig{
   /* This public member is populated by the json property of the same name. */
-  var value: String = null
+  var name: String = null
 
   @JsonIgnore
   override def newIdentifier(prefix: Path, baseDtab: () => Dtab): Identifier[Request] = {
-    new HelloWorldIdentifier(prefix, value, baseDtab)
+    new HelloWorldIdentifier(prefix, name, baseDtab)
   }
 }
