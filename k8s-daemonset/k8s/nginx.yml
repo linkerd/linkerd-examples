@@ -10,11 +10,9 @@ data:
     events { worker_connections 1024; }
 
     http {
-
         sendfile on;
 
         server {
-
             listen 80;
 
             # a test endpoint that returns http 200s
@@ -33,7 +31,6 @@ data:
                 proxy_pass http://l5d.default.svc.cluster.local;
                 proxy_set_header Host $host;
                 proxy_set_header Connection "";
-                # proxy_pass_request_headers off;
                 proxy_http_version 1.1;
 
                 more_clear_input_headers 'l5d-ctx-*' 'l5d-dtab' 'l5d-sample';
@@ -49,7 +46,6 @@ data:
                 proxy_pass http://l5d.default.svc.cluster.local;
                 proxy_set_header Host $host;
                 proxy_set_header Connection "";
-
                 proxy_http_version 1.1;
 
                 more_clear_input_headers 'l5d-ctx-*' 'l5d-dtab' 'l5d-sample';
@@ -78,7 +74,6 @@ spec:
       containers:
       - name: nginx
         image: buoyantio/nginx:1.10.2
-        imagePullPolicy: Always
         ports:
         - containerPort: 80
         volumeMounts:
