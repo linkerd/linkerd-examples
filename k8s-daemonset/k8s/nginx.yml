@@ -51,7 +51,7 @@ data:
                 }
 
                 # add a dtab override to get people to our beta, world-v2
-                set $xheader "/fakedtab=>/fakedtab;";
+                set $xheader "";
 
                 if ($cookie_special_employee_cookie ~* "dogfood") {
                   set $xheader "/host/world => /srv/world-v2;";
