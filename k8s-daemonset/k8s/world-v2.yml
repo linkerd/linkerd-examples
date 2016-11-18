@@ -29,7 +29,7 @@ spec:
         - "python world.py"
         ports:
         - name: service
-          containerPort: 7780
+          containerPort: 7778
 ---
 apiVersion: v1
 kind: Service
@@ -41,4 +41,4 @@ spec:
   clusterIP: None
   ports:
   - name: http
-    port: 7780
+    port: 7778
