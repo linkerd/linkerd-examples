@@ -48,7 +48,10 @@ data:
                 proxy_set_header Connection "";
                 proxy_http_version 1.1;
 
-                more_clear_input_headers 'l5d-ctx-*' 'l5d-dtab' 'l5d-sample';
+                # allow 'employees' to perform dtab overrides
+                if ($cookie_special_employee_cookie != "letmein") {
+                  more_clear_input_headers 'l5d-ctx-*' 'l5d-dtab' 'l5d-sample';
+                }
             }
         }
     }
