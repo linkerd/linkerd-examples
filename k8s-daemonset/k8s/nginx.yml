@@ -43,12 +43,27 @@ data:
             server_name www.hello.world;
 
             location / {
+
+
+                # allow 'employees' to perform dtab overrides
+                if ($cookie_special_employee_cookie != "letmein") {
+                  more_clear_input_headers 'l5d-ctx-*' 'l5d-dtab' 'l5d-sample';
+                }
+
+                # add a dtab override to get people to our beta, world-v2
+                set $xheader "";
+
+                if ($cookie_special_employee_cookie ~* "dogfood") {
+                  set $xheader "/host/world => /srv/world-v2;";
+                }
+
+                proxy_set_header 'l5d-dtab' $xheader;
+
+
                 proxy_pass http://l5d.default.svc.cluster.local;
                 proxy_set_header Host $host;
                 proxy_set_header Connection "";
                 proxy_http_version 1.1;
-
-                more_clear_input_headers 'l5d-ctx-*' 'l5d-dtab' 'l5d-sample';
             }
         }
     }
