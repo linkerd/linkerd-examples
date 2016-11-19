@@ -46,9 +46,9 @@ data:
 
 
                 # allow 'employees' to perform dtab overrides
-                if ($cookie_special_employee_cookie != "letmein") {
-                  more_clear_input_headers 'l5d-ctx-*' 'l5d-dtab' 'l5d-sample';
-                }
+                # if ($cookie_special_employee_cookie != "letmein") {
+                #   more_clear_input_headers 'l5d-ctx-*' 'l5d-dtab' 'l5d-sample';
+                # }
 
                 # add a dtab override to get people to our beta, world-v2
                 set $xheader "";
