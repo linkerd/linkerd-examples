@@ -70,7 +70,7 @@ func main() {
 	} else if *certFile == "" {
 		dieIf(fmt.Errorf("key specified with no cert"))
 	} else if *keyFile == "" {
-		dieIf(fmt.Errorf("cert specified with no keey"))
+		dieIf(fmt.Errorf("cert specified with no key"))
 	} else {
 		pair, err := credentials.NewServerTLSFromFile(*certFile, *keyFile)
 		dieIf(err)
