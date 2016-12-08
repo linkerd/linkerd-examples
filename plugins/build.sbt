@@ -6,7 +6,7 @@ def finagle(mod: String) =
   "com.twitter" %% s"finagle-$mod" % "6.34.0"
 
 def linkerd(mod: String) =
-  "io.buoyant" %% s"linkerd-$mod" % "0.7.0"
+  "io.buoyant" %% s"linkerd-$mod" % "0.8.3"
 
 val headerClassifier =
   project.in(file("header-classifier")).
@@ -22,6 +22,7 @@ val headerClassifier =
         finagle("http") % "provided" ::
         twitterUtil("core") % "provided" ::
         linkerd("core") % "provided" ::
+        linkerd("protocol-http") % "provided" ::
         Nil,
       assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
     )
