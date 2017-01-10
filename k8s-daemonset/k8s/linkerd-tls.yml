@@ -78,7 +78,7 @@ spec:
           secretName: certificates
       containers:
       - name: l5d
-        image: buoyantio/linkerd:0.8.3
+        image: buoyantio/linkerd:0.8.5
         env:
         - name: POD_IP
           valueFrom:
