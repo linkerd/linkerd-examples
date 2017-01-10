@@ -5,6 +5,17 @@
 This repo contains subdirectories with various examples for how to use linkerd
 and namerd. Each of the subdirectories is described below.
 
+## Getting started
+
+* [`getting-started/`](getting-started/)
+
+Provides guides for getting linkerd up and running in multiple different
+environments, including local development, docker-compose, DC/OS, and
+Kubernetes. More information:
+
+* [Getting Started: Running with Docker](https://linkerd.io/getting-started/docker/)
+* [Getting Started: Running in Kubernetes](https://linkerd.io/getting-started/k8s/)
+
 ## DC/OS
 
 * [`dcos/`](dcos/)
@@ -21,17 +32,6 @@ information:
 
 Contains files and scripts for building custom Docker images that are used in
 some of the examples in this repo.
-
-## Getting started
-
-* [`getting-started/`](getting-started/)
-
-Provides guides for getting linkerd up and running in multiple different
-environments, including local development, docker-compose, DC/OS, and
-Kubernetes. More information:
-
-* [Getting Started: Running with Docker](https://linkerd.io/getting-started/docker/)
-* [Getting Started: Running in Kubernetes](https://linkerd.io/getting-started/k8s/)
 
 ## Gob's microservice
 
