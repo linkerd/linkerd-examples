@@ -1,0 +1,41 @@
+global:
+  scrape_interval:     5s
+  evaluation_interval: 5s
+scrape_configs:
+  - job_name: 'linkerd'
+    metrics_path: /admin/metrics/prometheus
+    static_configs:
+    - targets:
+      - 'linkerd:9990'
+  - job_name: 'service1'
+    static_configs:
+    - targets:
+      - 'app01:8501'
+      - 'app02:8501'
+      - 'app03:8501'
+      - 'app04:8501'
+      - 'app05:8501'
+  - job_name: 'service2'
+    static_configs:
+    - targets:
+      - 'app06:8501'
+      - 'app07:8501'
+      - 'app08:8501'
+      - 'app09:8501'
+      - 'app10:8501'
+  - job_name: 'service3'
+    static_configs:
+    - targets:
+      - 'app11:8501'
+      - 'app12:8501'
+      - 'app13:8501'
+      - 'app14:8501'
+      - 'app15:8501'
+  - job_name: 'service4'
+    static_configs:
+    - targets:
+      - 'app16:8501'
+      - 'app17:8501'
+      - 'app18:8501'
+      - 'app19:8501'
+      - 'app20:8501'

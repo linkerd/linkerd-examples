@@ -33,6 +33,13 @@ information:
 Contains files and scripts for building custom Docker images that are used in
 some of the examples in this repo.
 
+## Failure accrual demo
+
+* [`failure-accrual/`](failure-accrual/)
+
+Provides a self-contained docker-compose environment that can be used to test
+various failure accrual settings.
+
 ## Gob's microservice
 
 * [`gob/`](gob/)
