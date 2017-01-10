@@ -42,7 +42,7 @@ spec:
     spec:
       containers:
       - name: l5d
-        image: buoyantio/linkerd:0.8.3
+        image: buoyantio/linkerd:0.8.5
         args:
         - "/io.buoyant/linkerd/config/config.yml"
         ports:
