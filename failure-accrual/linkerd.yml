@@ -1,0 +1,60 @@
+namers:
+- kind: io.l5d.fs
+  rootDir: /disco
+
+routers:
+- protocol: http
+  baseDtab: /http => /$/inet/127.1/4141 & /$/inet/127.1/4142 & /$/inet/127.1/4143;
+  client:
+    failureAccrual:
+      kind: none
+  servers:
+  - port: 4140
+    ip: 0.0.0.0
+  responseClassifier:
+    kind: io.l5d.nonRetryable5XX
+
+- protocol: http
+  label: none
+  baseDtab: /http => /#/io.l5d.fs/service1;
+  client:
+    failureAccrual:
+      kind: none
+  servers:
+  - port: 4141
+    ip: 0.0.0.0
+  responseClassifier:
+    kind: io.l5d.nonRetryable5XX
+
+- protocol: http
+  label: io.l5d.consecutiveFailures
+  baseDtab: /http => /#/io.l5d.fs/service2;
+  client:
+    failureAccrual:
+      kind: io.l5d.consecutiveFailures
+      failures: 5
+      backoff:
+        kind: constant
+        ms: 10000
+  servers:
+  - port: 4142
+    ip: 0.0.0.0
+  responseClassifier:
+    kind: io.l5d.nonRetryable5XX
+
+- protocol: http
+  label: io.l5d.successRate
+  baseDtab: /http => /#/io.l5d.fs/service3;
+  client:
+    failureAccrual:
+      kind: io.l5d.successRate
+      successRate: 0.9
+      requests: 20
+      backoff:
+        kind: constant
+        ms: 10000
+  servers:
+  - port: 4143
+    ip: 0.0.0.0
+  responseClassifier:
+    kind: io.l5d.nonRetryable5XX

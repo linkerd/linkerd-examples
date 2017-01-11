@@ -1,0 +1,84 @@
+version: '2'
+
+services:
+  app01:
+    build: .
+
+  app02:
+    build: .
+
+  app03:
+    build: .
+    command: -success-rate=0.6
+
+  app04:
+    build: .
+
+  app05:
+    build: .
+
+  app06:
+    build: .
+
+  app07:
+    build: .
+
+  app08:
+    build: .
+    command: -success-rate=0.6
+
+  app09:
+    build: .
+
+  app10:
+    build: .
+
+  app11:
+    build: .
+
+  app12:
+    build: .
+
+  app13:
+    build: .
+    command: -success-rate=0.6
+
+  app14:
+    build: .
+
+  app15:
+    build: .
+
+  linkerd:
+    image: buoyantio/linkerd:0.8.5
+    ports:
+      - 9990:9990
+    volumes:
+      - ./linkerd.yml:/io/buoyant/linkerd/config.yml:ro
+      - ./disco:/disco
+    command:
+      - "/io/buoyant/linkerd/config.yml"
+
+  prometheus:
+    image: prom/prometheus:v1.0.1
+    volumes:
+      - ./prometheus.yml:/prometheus/prometheus.yml:ro
+    command: >
+      -config.file=/prometheus/prometheus.yml
+      -storage.local.retention=12h
+
+  grafana:
+    build:
+      context: .
+      dockerfile: Dockerfile-grafana
+    ports:
+      - 3000:3000
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+
+  slow_cooker:
+    image: buoyantio/slow_cooker:1.0.1
+    entrypoint: /bin/sh
+    command: >
+      -c 'sleep 15 && slow_cooker -qps 20 -concurrency 15 -interval 5s -totalRequests 10000000 http://linkerd:4140/'
