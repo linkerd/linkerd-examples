@@ -36,10 +36,11 @@ data:
 
     - protocol: http
       label: incoming
-      dstPrefix: /
-      identifier:
-        kind: io.l5d.header
-        header: l5d-dst-concrete
+      baseDtab: |
+        /srv        => /#/io.l5d.k8s/default/http;
+        /host       => /srv;
+        /http/*/*   => /host;
+        /host/world => /srv/world-v1;
       interpreter:
         kind: default
         transformers:

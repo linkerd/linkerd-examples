@@ -28,10 +28,6 @@ data:
 
     - protocol: http
       label: incoming
-      dstPrefix: /
-      identifier:
-        kind: io.l5d.header
-        header: l5d-dst-concrete
       interpreter:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.default.svc.cluster.local/4100
