@@ -31,7 +31,7 @@ data:
       interpreter:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.default.svc.cluster.local/4100
-        namespace: incoming
+        namespace: outgoing
         transformers:
         - kind: io.l5d.k8s.localnode
       servers:
