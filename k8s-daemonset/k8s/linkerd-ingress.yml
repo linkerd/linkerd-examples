@@ -19,10 +19,11 @@ data:
     - protocol: http
       label: ingress
       baseDtab: |
-        /world/hello/www => /#/io.l5d.k8s/default/http/hello ;
-        /world/hello/api => /#/io.l5d.k8s/default/http/api ;
-        /host            => /$/io.buoyant.http.domainToPath ;
-        /http/*/*        => /host ;
+        /srv                    => /#/io.l5d.k8s/default/http ;
+        /domain/world/hello/www => /srv/hello ;
+        /domain/world/hello/api => /srv/api ;
+        /host                   => /$/io.buoyant.http.domainToPathPfx/domain ;
+        /http/*/*               => /host ;
       interpreter:
         kind: default
         transformers:
@@ -37,11 +38,10 @@ data:
     - protocol: http
       label: outgoing
       baseDtab: |
-        /srv        => /#/io.l5d.k8s/default/http;
-        /host       => /srv;
-        /http/*/*   => /host;
-        /host/world => /srv/world-v1;
-        /host/hello => /srv/hello;
+        /srv        => /#/io.l5d.k8s/default/http ;
+        /host       => /srv ;
+        /host/world => /srv/world-v1 ;
+        /http/*/*   => /host ;
       interpreter:
         kind: default
         transformers:
@@ -56,11 +56,13 @@ data:
     - protocol: http
       label: incoming
       baseDtab: |
-        /srv        => /#/io.l5d.k8s/default/http;
-        /host       => /srv;
-        /http/*/*   => /host;
-        /host/world => /srv/world-v1;
-        /host/hello => /srv/hello;
+        /srv                    => /#/io.l5d.k8s/default/http ;
+        /domain/world/hello/www => /srv/hello ;
+        /domain/world/hello/api => /srv/api ;
+        /host                   => /$/io.buoyant.http.domainToPathPfx/domain ;
+        /host                   => /srv ;
+        /host/world             => /srv/world-v1 ;
+        /http/*/*               => /host ;
       interpreter:
         kind: default
         transformers:
