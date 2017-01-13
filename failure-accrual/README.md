@@ -10,8 +10,13 @@ http://blog.buoyant.io/2017/01/13/making-microservices-more-resilient-with-advan
 ## Startup
 
 The [`docker-compose.yml`](docker-compose.yml) file that's included in this
-directory is configured to run the demo, which consists of all of the following
-applications:
+directory is configured to run the demo. Start all of the containers with:
+
+```bash
+$ docker-compose build && docker-compose up -d
+```
+
+That command will build and run all of the following containers:
 
 * **linkerd**: linkerd is configured via the provided [`linkerd.yml`](
 linkerd.yml), which specifies 3 separate routers, running on ports 4141, 4142,
@@ -39,13 +44,6 @@ scrapes all metrics from all processes every 5 seconds.
 * **grafana**: Collected metrics are displayed on a dashboard using [Grafana](
 http://grafana.org/). The grafana container is preconfigured with the failure
 accrual comparison dashboard that is defined in [`grafana.json`](grafana.json).
-
-Using the magic of docker-compose, you can start all of the containers outlined
-above with the following docker-compose commands:
-
-```bash
-$ docker-compose build && docker-compose up -d
-```
 
 ## Dashboards
 
