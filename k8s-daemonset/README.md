@@ -12,8 +12,9 @@ hello -> linkerd (outgoing) -> linkerd (incoming) -> world
 
 ## Building
 
-The Docker image for the hello and world services can be found at
-`buoyantio/helloworld:0.0.1`. You can also build the image yourself by running:
+The Docker image for the hello and world services is [buoyantio/helloword](
+https://hub.docker.com/r/buoyantio/helloworld/). You can also build the image
+yourself by running:
 
 ```bash
 cd helloworld
@@ -82,16 +83,22 @@ kubectl apply -f k8s/namerd.yml
 kubectl apply -f k8s/linkerd-namerd.yml
 ```
 
-Those commands will create the namerd config file, start namerd, create the
-linkerd config file, and start linkerd, which will use namerd for routing.
-linkerd will also run an edge router for handling external web traffic.
+Note: namerd stores dtab with the Kubernetes master via the [ThirdPartyResource
+APIs](https://kubernetes.io/docs/user-guide/thirdpartyresources/), which
+requires a cluster running Kubernetes 1.2+ with the ThirdPartyResource feature
+enabled.
+
+Those commands will create the dtab resource, create the namerd config file,
+start namerd, create the linkerd config file, and start linkerd, which will use
+namerd for routing. linkerd will also run an edge router for handling external
+web traffic.
 
 If this is your first time running namerd in your k8s cluster, then you also
 need to create the namerd namespaces that are required to run the hello world
 app, by running:
 
 ```bash
-kubectl run namerctl --image=buoyantio/helloworld:0.0.2 --restart=Never -- "./createNs.sh"
+kubectl run namerctl --image=buoyantio/helloworld:0.0.5 --restart=Never -- "./createNs.sh"
 ```
 
 You can verify the namespaces were created with:
@@ -99,8 +106,7 @@ You can verify the namespaces were created with:
 ```bash
 $ kubectl logs namerctl
 Created external
-Created incoming
-Created outgoing
+Created internal
 ```
 
 ### linkerd-viz

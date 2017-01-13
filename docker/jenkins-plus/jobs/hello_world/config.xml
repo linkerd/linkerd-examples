@@ -19,7 +19,7 @@
         <hudson.model.StringParameterDefinition>
           <name>namerdNamespace</name>
           <description>namerd namespace to which dtab changes will be made</description>
-          <defaultValue>outgoing</defaultValue>
+          <defaultValue>internal</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>k8sNamespace</name>

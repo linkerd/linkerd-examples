@@ -16,7 +16,7 @@ data:
       interpreter:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.default.svc.cluster.local/4100
-        namespace: outgoing
+        namespace: internal
         transformers:
         - kind: io.l5d.k8s.daemonset
           namespace: default
@@ -31,7 +31,7 @@ data:
       interpreter:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.default.svc.cluster.local/4100
-        namespace: outgoing
+        namespace: internal
         transformers:
         - kind: io.l5d.k8s.localnode
       servers:
@@ -44,11 +44,6 @@ data:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.default.svc.cluster.local/4100
         namespace: external
-        transformers:
-        - kind: io.l5d.k8s.daemonset
-          namespace: default
-          port: incoming
-          service: l5d
       servers:
       - port: 4142
         ip: 0.0.0.0

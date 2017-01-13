@@ -1,4 +1,12 @@
 ---
+kind: ThirdPartyResource
+apiVersion: extensions/v1beta1
+metadata:
+  name: d-tab.l5d.io
+description: stores dtabs used by namerd
+versions:
+  - name: v1alpha1
+---
 kind: ConfigMap
 apiVersion: v1
 metadata:
