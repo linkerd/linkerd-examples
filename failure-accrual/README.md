@@ -5,7 +5,7 @@ can use to test [linkerd's failure accrual settings](
 https://linkerd.io/features/circuit-breaking/#failure-accrual). The results of
 the demo are discussed in much more detail in Buoyant's blog post, [Making
 microservices more resilient with advanced circuit breaking](
-http://blog.buoyant.io/2017/01/13/making-microservices-more-resilient-with-advanced-circuit-breaking/).
+https://blog.buoyant.io/2017/01/13/making-microservices-more-resilient-with-advanced-circuit-breaking/).
 
 ## Startup
 
