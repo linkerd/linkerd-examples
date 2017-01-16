@@ -2,17 +2,17 @@
 kind: ReplicationController
 apiVersion: v1
 metadata:
-  namespace: default
-  name: gen
+  namespace: sb-jenkins-test
+  name: gen-v1
 
 spec:
-  replicas: 3
+  replicas: 1
   selector:
-    app: gen
+    app: gen-v1
   template:
     metadata:
       labels:
-        app: gen
+        app: gen-v1
 
     spec:
       dnsPolicy: ClusterFirst
@@ -23,7 +23,7 @@ spec:
 
       containers:
         - name: svc
-          image: gobsvc/gen:v0
+          image: gobsvc/gen:growthhack
           args:
             - "--srv=:8080"
           ports:

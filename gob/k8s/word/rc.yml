@@ -2,11 +2,11 @@
 kind: ReplicationController
 apiVersion: v1
 metadata:
-  namespace: default
+  namespace: sb-jenkins-test
   name: word
 
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     app: word
   template:
