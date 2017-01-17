@@ -55,9 +55,9 @@ If you want to run these programs locally, you'll need to install
 request:
 
 ```
-$ go run gob/web/main.go &
-$ go run gob/gen/main.go &
-$ go run gob/word/main.go &
+$ go run gob/src/web/main.go &
+$ go run gob/src/gen/main.go &
+$ go run gob/src/word/main.go &
 $ curl -s localhost:8080/gob?limit=1
 banana
 ```
