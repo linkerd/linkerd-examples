@@ -29,13 +29,10 @@ routers:
   servers:
   - port: 4141
     ip: 0.0.0.0
+  baseDtab: >- # route based on marathon name
+    /marathonId => /#/io.l5d.marathon;
+    /http/1.1/* => /$/io.buoyant.http.domainToPathPfx/marathonId;
   label: incoming
-  dstPrefix: "/"
-  identifier:
-    # look at the `l5d-dst-concrete` header provided by outgoing linkerd,
-    # will contain a concrete name like `/#/io.l5d.marathon/servicename`
-    kind: io.l5d.header
-    header: l5d-dst-concrete
   interpreter:
     kind: default
     transformers:

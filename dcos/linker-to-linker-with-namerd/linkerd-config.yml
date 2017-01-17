@@ -24,11 +24,6 @@ routers:
     ip: 0.0.0.0
   label: incoming
   dstPrefix: "/"
-  identifier:
-    # look at the `l5d-dst-concrete` header provided by outgoing linkerd,
-    # will contain a concrete name like `/#/io.l5d.marathon/servicename`
-    kind: io.l5d.header
-    header: l5d-dst-concrete
   interpreter:
     kind: io.l5d.namerd
     dst: /$/inet/namerd.marathon.mesos/4100
