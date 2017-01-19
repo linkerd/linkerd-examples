@@ -21,7 +21,7 @@ spec:
 
       containers:
         - name: namerd
-          image: buoyantio/namerd:0.8.5
+          image: buoyantio/namerd:0.8.6
           args:
             - /io.buoyant/namerd/config/config.yml
           imagePullPolicy: Always
