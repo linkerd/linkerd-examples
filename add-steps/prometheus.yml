@@ -1,0 +1,40 @@
+global:
+  scrape_interval:     5s
+  evaluation_interval: 5s
+scrape_configs:
+  - job_name: 'linkerd'
+    metrics_path: /admin/metrics/prometheus
+    static_configs:
+    - targets:
+      - 'linkerd:9990'
+  - job_name: 'slow_cooker'
+    static_configs:
+    - targets:
+      - 'baseline_slow_cooker:8505'
+      - 'linkerd_slow_cooker:8505'
+  - job_name: 'baseline_apps'
+    static_configs:
+    - targets:
+      - 'baseline_app1:8501'
+      - 'baseline_app2:8501'
+      - 'baseline_app3:8501'
+      - 'baseline_app4:8501'
+      - 'baseline_app5:8501'
+      - 'baseline_app6:8501'
+      - 'baseline_app7:8501'
+      - 'baseline_app8:8501'
+      - 'baseline_app9:8501'
+      - 'baseline_app10:8501'
+  - job_name: 'linkerd_apps'
+    static_configs:
+    - targets:
+      - 'linkerd_app1:8501'
+      - 'linkerd_app2:8501'
+      - 'linkerd_app3:8501'
+      - 'linkerd_app4:8501'
+      - 'linkerd_app5:8501'
+      - 'linkerd_app6:8501'
+      - 'linkerd_app7:8501'
+      - 'linkerd_app8:8501'
+      - 'linkerd_app9:8501'
+      - 'linkerd_app10:8501'
