@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package proto;
+
+service WordSvc {
+  rpc GetWord (WordRequest) returns (WordResponse) {}
+}
+
+message WordRequest {}
+
+message WordResponse {
+  string word = 1;
+}

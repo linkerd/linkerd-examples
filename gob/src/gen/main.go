@@ -1,80 +1,34 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	"io"
-	"net/http"
+	"net"
 	"os"
+
+	pb "github.com/buoyantio/linkerd-examples/gob/proto"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
-type (
-	GenSvc struct{}
+type genSvc struct{}
 
-	genReq struct {
-		Text  string
-		Limit uint
-	}
-)
-
-// gensvc web api
-func (svc *GenSvc) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
-	switch req.URL.Path {
-	case "/":
-		switch req.Method {
-		case "POST":
-			var gen genReq
-			if err := json.NewDecoder(req.Body).Decode(&gen); err != nil {
-				rspw.WriteHeader(http.StatusBadRequest)
-				return
-			}
-			if err := svc.generate(gen.Text, gen.Limit, rspw); err != nil {
-				rspw.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-			return
-
-		default:
-			rspw.WriteHeader(http.StatusMethodNotAllowed)
-			return
-		}
-
-	case "/health":
-		switch req.Method {
-		case "GET":
-			return
-
-		default:
-			rspw.WriteHeader(http.StatusMethodNotAllowed)
-			return
-		}
-
-	default:
-		rspw.WriteHeader(http.StatusNotFound)
-		return
-	}
-}
-
-// Writes to the stream until `limit` writes have been completed or
-// the stream is closed (i.e. because the client disconnects).
-func (svc *GenSvc) generate(text string, limit uint, stream io.Writer) error {
-	if _, err := stream.Write([]byte(text)); err != nil {
+func (s *genSvc) Gen(req *pb.GenRequest, stream pb.GenSvc_GenServer) error {
+	if err := stream.Send(&pb.GenResponse{req.Text}); err != nil {
 		return err
 	}
 	doWrite := func() bool {
-		_, err := stream.Write([]byte(" " + text))
+		err := stream.Send(&pb.GenResponse{" " + req.Text})
 		return err == nil
 	}
-	if limit == 0 {
+	if req.Limit == 0 {
 		for {
 			if ok := doWrite(); !ok {
 				break
 			}
 		}
 	} else {
-		// start at 1 because we've already written 1
-		for i := uint(1); i != limit; i++ {
+		for i := uint(1); i != uint(req.Limit); i++ {
 			if ok := doWrite(); !ok {
 				break
 			}
@@ -93,13 +47,30 @@ func dieIf(err error) {
 
 func main() {
 	addr := flag.String("srv", ":8181", "TCP address to listen on (in host:port form)")
+	certFile := flag.String("cert", "", "Path to PEM-encoded certificate")
+	keyFile := flag.String("key", "", "Path to PEM-encoded secret key")
 	flag.Parse()
 	if flag.NArg() != 0 {
 		dieIf(fmt.Errorf("expecting zero arguments but got %d", flag.NArg()))
 	}
-	server := &http.Server{
-		Addr:    *addr,
-		Handler: &GenSvc{},
+
+	svc := &genSvc{}
+
+	var server *grpc.Server
+	if *keyFile == "" && *certFile == "" {
+		server = grpc.NewServer()
+	} else if *certFile == "" {
+		dieIf(fmt.Errorf("key specified with no cert"))
+	} else if *keyFile == "" {
+		dieIf(fmt.Errorf("cert specified with no keey"))
+	} else {
+		pair, err := credentials.NewServerTLSFromFile(*certFile, *keyFile)
+		dieIf(err)
+		creds := grpc.Creds(pair)
+		server = grpc.NewServer(creds)
 	}
-	dieIf(server.ListenAndServe())
+	lis, err := net.Listen("tcp", *addr)
+	dieIf(err)
+	pb.RegisterGenSvcServer(server, svc)
+	server.Serve(lis)
 }

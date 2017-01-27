@@ -1,55 +1,31 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"math/rand"
-	"net/http"
+	"net"
 	"os"
+
+	pb "github.com/buoyantio/linkerd-examples/gob/proto"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
-type (
-	WordSvc struct {
-		words []string
-	}
-
-	wordRsp struct{ Word string }
-)
-
-// the wordsvc api picks a cool word at random
-func (svc *WordSvc) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
-	switch req.URL.Path {
-	case "/":
-		switch req.Method {
-		case "GET":
-			word := svc.randomWord()
-			if word == "" {
-				rspw.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-			body, err := json.Marshal(&wordRsp{word})
-			if err != nil {
-				rspw.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			rspw.WriteHeader(http.StatusOK)
-			rspw.Write(body)
-			return
-
-		default:
-			rspw.WriteHeader(http.StatusMethodNotAllowed)
-			return
-		}
-
-	default:
-		rspw.WriteHeader(http.StatusNotFound)
-		return
-	}
+type wordSvc struct {
+	words []string
 }
 
-func (svc *WordSvc) randomWord() string {
+func (svc *wordSvc) GetWord(ctx context.Context, in *pb.WordRequest) (*pb.WordResponse, error) {
+	word := svc.randomWord()
+	if word == "" {
+		return nil, fmt.Errorf("empty word")
+	}
+	return &pb.WordResponse{word}, nil
+}
+
+func (svc *wordSvc) randomWord() string {
 	n := len(svc.words)
 	switch n {
 	case 0:
@@ -69,30 +45,40 @@ func dieIf(err error) {
 }
 
 func main() {
-	//
-	// Parse flags
-	//
 	addr := flag.String("srv", ":8282", "TCP address to listen on (in host:port form)")
+	certFile := flag.String("cert", "", "Path to PEM-encoded certificate")
+	keyFile := flag.String("key", "", "Path to PEM-encoded secret key")
 	flag.Parse()
 	if flag.NArg() != 0 {
 		dieIf(fmt.Errorf("expecting zero arguments but got %d", flag.NArg()))
 	}
 
-	//
-	// Setup Http server
-	//
-	server := &http.Server{
-		Addr: *addr,
-		Handler: &WordSvc{
-			words: []string{
-				"banana",
-				"bees",
-				"cmon",
-				"gob",
-				"illusion",
-				"same",
-			},
+	svc := &wordSvc{
+		words: []string{
+			"banana",
+			"bees",
+			"cmon",
+			"gob",
+			"illusion",
+			"same",
 		},
 	}
-	dieIf(server.ListenAndServe())
+
+	var server *grpc.Server
+	if *keyFile == "" && *certFile == "" {
+		server = grpc.NewServer()
+	} else if *certFile == "" {
+		dieIf(fmt.Errorf("key specified with no cert"))
+	} else if *keyFile == "" {
+		dieIf(fmt.Errorf("cert specified with no key"))
+	} else {
+		pair, err := credentials.NewServerTLSFromFile(*certFile, *keyFile)
+		dieIf(err)
+		creds := grpc.Creds(pair)
+		server = grpc.NewServer(creds)
+	}
+	lis, err := net.Listen("tcp", *addr)
+	dieIf(err)
+	pb.RegisterWordSvcServer(server, svc)
+	server.Serve(lis)
 }
