@@ -7,8 +7,9 @@ storage:
   namespaces:
     default: |
       /host       => /$/inet/web/8080;
-      /host/gen   => /$/inet/gen/8181;
-      /host/word  => /$/inet/word/8282;
+      /host/proto.GenSvc   => /$/inet/gen/8181;
+      /host/proto.WordSvc  => /$/inet/word/8282;
+      /h2/*       => /host;
       /http/1.1/* => /host;
 interfaces:
 - kind: io.l5d.thriftNameInterpreter
