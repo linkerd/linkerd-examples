@@ -25,4 +25,4 @@ def set_failure_rate():
     return str(failure_rate)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=7778)
+    app.run(host='0.0.0.0', port=7778, threaded=True)

@@ -14,4 +14,4 @@ def hello():
     return "Hello (" + pod_ip + ") " + urllib2.urlopen(request).read()
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=7777)
+    app.run(host='0.0.0.0', port=7777, threaded=True)
