@@ -32,11 +32,12 @@ Start by deploying the hello and the world apps by running:
 kubectl apply -f k8s/hello-world.yml
 ```
 
-Alternatively, if you are running on Kubernetes 1.4 or later, you can take
-advantage of some newer Kubernetes features, and run:
+The default hello-world.yml config requires Kubernetes 1.4 or later. If you're
+running an older version of Kubernetes, then you can instead use the legacy
+config by running:
 
 ```bash
-kubectl apply -f k8s/hello-world-1_4.yml
+kubectl apply -f k8s/hello-world-legacy.yml
 ```
 
 Either of these commands will create new Kubernetes Services and
