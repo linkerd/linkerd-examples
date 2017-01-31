@@ -1,0 +1,164 @@
+version: '2'
+
+services:
+
+  baseline_app1:
+    build: .
+    networks:
+      default:
+        aliases:
+         - baseline_app
+
+  baseline_app2:
+    build: .
+    command: -latency=10ms
+    networks:
+      default:
+        aliases:
+         - baseline_app
+
+  baseline_app3:
+    build: .
+    command: -latency=20ms
+    networks:
+      default:
+        aliases:
+         - baseline_app
+
+  baseline_app4:
+    build: .
+    command: -latency=40ms
+    networks:
+      default:
+        aliases:
+         - baseline_app
+
+  baseline_app5:
+    build: .
+    command: -latency=80ms
+    networks:
+      default:
+        aliases:
+         - baseline_app
+
+  baseline_app6:
+    build: .
+    command: -latency=160ms
+    networks:
+      default:
+        aliases:
+         - baseline_app
+
+  baseline_app7:
+    build: .
+    command: -latency=320ms
+    networks:
+      default:
+        aliases:
+         - baseline_app
+
+  baseline_app8:
+    build: .
+    command: -latency=640ms
+    networks:
+      default:
+        aliases:
+         - baseline_app
+
+  baseline_app9:
+    build: .
+    command: -latency=1s -success-rate=0.6
+    networks:
+      default:
+        aliases:
+         - baseline_app
+
+  baseline_app10:
+    build: .
+    command: -latency=2s -success-rate=0.4
+    networks:
+      default:
+        aliases:
+         - baseline_app
+
+  linkerd_app1:
+    build: .
+
+  linkerd_app2:
+    build: .
+    command: -latency=10ms
+
+  linkerd_app3:
+    build: .
+    command: -latency=20ms
+
+  linkerd_app4:
+    build: .
+    command: -latency=40ms
+
+  linkerd_app5:
+    build: .
+    command: -latency=80ms
+
+  linkerd_app6:
+    build: .
+    command: -latency=160ms
+
+  linkerd_app7:
+    build: .
+    command: -latency=320ms
+
+  linkerd_app8:
+    build: .
+    command: -latency=640ms
+
+  linkerd_app9:
+    build: .
+    command: -latency=1s -success-rate=0.6
+
+  linkerd_app10:
+    build: .
+    command: -latency=2s -success-rate=0.4
+
+  linkerd:
+    image: buoyantio/linkerd:0.8.6
+    ports:
+      - 4140:4140
+      - 9990:9990
+    volumes:
+      - ./linkerd.yml:/io/buoyant/linkerd/config.yml:ro
+      - ./disco:/disco
+    command:
+      - "/io/buoyant/linkerd/config.yml"
+
+  prometheus:
+    image: prom/prometheus:v1.4.1
+    volumes:
+      - ./prometheus.yml:/prometheus/prometheus.yml:ro
+    command: >
+      -config.file=/prometheus/prometheus.yml
+      -storage.local.retention=12h
+    ports:
+      - 9090:9090
+
+  grafana:
+    build:
+      context: .
+      dockerfile: Dockerfile-grafana
+    ports:
+      - 3000:3000
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+
+  baseline_slow_cooker:
+    image: buoyantio/slow_cooker:1.1.0-golang1.8rc2
+    entrypoint: /bin/sh
+    command: >
+      -c 'sleep 15 && slow_cooker -noreuse -metric-addr :8505 -qps 10 -concurrency 50 -interval 5s -totalRequests 10000000 http://baseline_app:8501'
+
+  linkerd_slow_cooker:
+    image: buoyantio/slow_cooker:1.1.0-golang1.8rc2
+    entrypoint: /bin/sh
+    command: >
+      -c 'sleep 15 && slow_cooker -noreuse -metric-addr :8505 -qps 10 -concurrency 50 -interval 5s -totalRequests 10000000 http://linkerd:4140'
