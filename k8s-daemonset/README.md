@@ -126,13 +126,21 @@ curl -s https://raw.githubusercontent.com/BuoyantIO/linkerd-viz/master/k8s/linke
 View the linkerd admin dashboard:
 
 ```bash
-open http://$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):9990
+L5D_INGRESS_IP=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+open http://$L5D_INGRESS_IP:9990 # on OS X
 ```
+
+Note: Kubernetes deploys loadbalancers asynchronously, which means that there
+can be a lag time from when a service is created to when its external IP is
+available. If the command above fails, make sure that the `EXTERNAL-IP` field in
+the output of `kubectl get svc l5d` is not still in the `<pending>` state. If it
+is, wait until the external IP is available, and then re-run the command.
 
 If you deployed namerd, visit the namerd admin dashboard:
 
 ```bash
-open http://$(kubectl get svc namerd -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):9990
+NAMERD_INGRESS_IP=$(kubectl get svc namerd -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+open http://$NAMERD_INGRESS_IP:9990 # on OS X
 ```
 
 ### Test Requests
@@ -140,14 +148,14 @@ open http://$(kubectl get svc namerd -o jsonpath="{.status.loadBalancer.ingress[
 Send some test requests:
 
 ```bash
-http_proxy=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):4140 curl -s http://hello
-http_proxy=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):4140 curl -s http://world
+http_proxy=$L5D_INGRESS_IP:4140 curl -s http://hello
+http_proxy=$L5D_INGRESS_IP:4140 curl -s http://world
 ```
 
 If you deployed namerd, then linkerd is also setup to proxy edge requests:
 
 ```bash
-curl http://$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+curl http://$L5D_INGRESS_IP
 ```
 
 ### linkerd-viz dashboard
@@ -155,7 +163,8 @@ curl http://$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].
 View the linkerd-viz dashboard:
 
 ```bash
-open http://$(kubectl get svc linkerd-viz -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+L5D_VIZ_IP=$(kubectl get svc linkerd-viz -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+open http://$L5D_VIZ_IP # on OS X
 ```
 
 ## Ingress with linkerd
