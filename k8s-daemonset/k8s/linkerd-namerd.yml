@@ -75,18 +75,15 @@ spec:
         args:
         - /io.buoyant/linkerd/config/config.yaml
         ports:
-        - name: incoming
-          containerPort: 4141
-          hostPort: 4141
         - name: outgoing
           containerPort: 4140
           hostPort: 4140
+        - name: incoming
+          containerPort: 4141
         - name: external
           containerPort: 4142
-          hostPort: 4142
         - name: admin
           containerPort: 9990
-          hostPort: 9990
         volumeMounts:
         - name: "l5d-config"
           mountPath: "/io.buoyant/linkerd/config"

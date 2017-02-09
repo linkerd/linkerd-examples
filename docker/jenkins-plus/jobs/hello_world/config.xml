@@ -36,7 +36,7 @@
     <script>node {
     def currentVersion = getCurrentVersion()
     def newVersion = getNextVersion(currentVersion)
-    def frontendIp = kubectl(&quot;get svc l5d -o jsonpath=\&quot;{.status.loadBalancer.ingress[0].ip}\&quot;&quot;).trim()
+    def frontendIp = kubectl(&quot;get svc l5d -o jsonpath=\&quot;{.status.loadBalancer.ingress[0].*}\&quot;&quot;).trim()
     def originalDst = getDst(getDtab())
 
     stage(&quot;clone&quot;) {
