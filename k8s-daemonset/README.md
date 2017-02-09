@@ -172,8 +172,8 @@ curl -s https://raw.githubusercontent.com/BuoyantIO/linkerd-viz/master/k8s/linke
 View the linkerd admin dashboard:
 
 ```bash
-L5D_INGRESS_IP=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-open http://$L5D_INGRESS_IP:9990 # on OS X
+L5D_INGRESS_LB=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].*}")
+open http://$L5D_INGRESS_LB:9990 # on OS X
 ```
 
 Note: Kubernetes deploys loadbalancers asynchronously, which means that there
@@ -187,8 +187,8 @@ is, wait until the external IP is available, and then re-run the command.
 If you deployed namerd, visit the namerd admin dashboard:
 
 ```bash
-NAMERD_INGRESS_IP=$(kubectl get svc namerd -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-open http://$NAMERD_INGRESS_IP:9990 # on OS X
+NAMERD_INGRESS_LB=$(kubectl get svc namerd -o jsonpath="{.status.loadBalancer.ingress[0].*}")
+open http://$NAMERD_INGRESS_LB:9990 # on OS X
 ```
 
 ### Zipkin
@@ -196,8 +196,8 @@ open http://$NAMERD_INGRESS_IP:9990 # on OS X
 If you deployed zipkin, load the Zipkin UI:
 
 ```bash
-ZIPKIN_IP=$(kubectl get svc zipkin -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-open http://$ZIPKIN_IP # on OS X
+ZIPKIN_LB=$(kubectl get svc zipkin -o jsonpath="{.status.loadBalancer.ingress[0].*}")
+open http://$ZIPKIN_LB # on OS X
 ```
 
 ### Test Requests
@@ -205,22 +205,22 @@ open http://$ZIPKIN_IP # on OS X
 Send some test requests:
 
 ```bash
-http_proxy=$L5D_INGRESS_IP:4140 curl -s http://hello
-http_proxy=$L5D_INGRESS_IP:4140 curl -s http://world
+http_proxy=$L5D_INGRESS_LB:4140 curl -s http://hello
+http_proxy=$L5D_INGRESS_LB:4140 curl -s http://world
 ```
 
 If you deployed namerd, then linkerd is also setup to proxy edge requests:
 
 ```bash
-curl http://$L5D_INGRESS_IP
+curl http://$L5D_INGRESS_LB
 ```
 
 If you deployed NGINX, then you can also use that to initiate requests:
 
 ```bash
-NGINX_IP=$(kubectl get svc nginx -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-curl -H 'Host: www.hello.world' http://$NGINX_IP
-curl -H 'Host: api.hello.world' http://$NGINX_IP
+NGINX_LB=$(kubectl get svc nginx -o jsonpath="{.status.loadBalancer.ingress[0].*}")
+curl -H 'Host: www.hello.world' http://$NGINX_LB
+curl -H 'Host: api.hello.world' http://$NGINX_LB
 ```
 
 ### linkerd-viz dashboard
@@ -228,6 +228,6 @@ curl -H 'Host: api.hello.world' http://$NGINX_IP
 View the linkerd-viz dashboard:
 
 ```bash
-L5D_VIZ_IP=$(kubectl get svc linkerd-viz -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-open http://$L5D_VIZ_IP # on OS X
+L5D_VIZ_LB=$(kubectl get svc linkerd-viz -o jsonpath="{.status.loadBalancer.ingress[0].*}")
+open http://$L5D_VIZ_LB # on OS X
 ```
