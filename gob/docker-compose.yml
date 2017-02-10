@@ -20,7 +20,7 @@ services:
     command: /usr/bin/word
 
   linkerd:
-    image: gcr.io/buoyant-hosted/linkerd:0.8.6-SNAPSHOT
+    image: buoyantio/linkerd:0.8.6
     container_name: linkerd
     ports: ["4142:4142", "4141:4141", "9990:9990"]
     volumes: ["./config:/io.buoyant/linkerd/config:ro"]
