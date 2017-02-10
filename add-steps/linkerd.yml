@@ -1,0 +1,25 @@
+# use the filesystem namer, read from the local /disco directory
+namers:
+- kind: io.l5d.fs
+  rootDir: /disco
+
+routers:
+- protocol: http
+  servers:
+  - port: 4140
+    ip: 0.0.0.0
+  # route all traffic to service identified in service discovery as "app"
+  baseDtab: >-
+    /http/* => /#/io.l5d.fs/app;
+  responseClassifier:
+    kind: io.l5d.retryableRead5XX
+  client:
+    loadBalancer:
+      kind: ewma
+    failureAccrual:
+      kind: io.l5d.successRate
+      successRate: 0.9
+      requests: 20
+      backoff:
+        kind: constant
+        ms: 10000

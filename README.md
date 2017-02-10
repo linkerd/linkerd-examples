@@ -16,6 +16,15 @@ Kubernetes. More information:
 * [Getting Started: Running with Docker](https://linkerd.io/getting-started/docker/)
 * [Getting Started: Running in Kubernetes](https://linkerd.io/getting-started/k8s/)
 
+## Add steps demo
+
+* [`add-steps/`](add-steps/)
+
+Provides a self-contained docker-compose environment that can be used to test
+linkerd's performance. More information:
+
+* [Making Things Faster by Adding More Steps](https://blog.buoyant.io/2017/01/31/making-things-faster-by-adding-more-steps/)
+
 ## DC/OS
 
 * [`dcos/`](dcos/)

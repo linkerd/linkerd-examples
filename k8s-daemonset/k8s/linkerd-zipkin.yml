@@ -1,4 +1,4 @@
-# runs linkerd in a daemonset, in linker-to-linker mode
+# runs linkerd in a daemonset, in linker-to-linker mode, with zipkin tracing
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -14,6 +14,12 @@ data:
       experimental: true
       host: localhost
       port: 8001
+
+    tracers:
+    - kind: io.l5d.zipkin
+      host: zipkin-collector.default.svc.cluster.local
+      port: 9410
+      sampleRate: 1.0
 
     routers:
     - protocol: http
