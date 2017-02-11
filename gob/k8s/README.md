@@ -10,9 +10,9 @@ We you assume you already have some familiarity with
 [linkerd](https://linkerd.io/doc/introduction/) and
 [kubernetes](http://kubernetes.io/docs/user-guide/).
 
-This example should work in any kubernetes cluster.  If you don't have
-one at your disposal, though, it's easy (and free) to try out on
-[Google Container Engine](./GKE.md).
+This example works in the default namespace of any kubernetes cluster.
+If you don't have a cluster at your disposal, though, it's easy (and free)
+to try out on [Google Container Engine](./GKE.md).
 
 Before we start running's Gob's app, let's start by setting up _namerd_.
 

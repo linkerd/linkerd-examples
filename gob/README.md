@@ -43,10 +43,10 @@ You can tell me what to say with:
 
 _web_ may call both _word_ and _gen_ to satisfy a request.
 
-_word_ and _gen_ implement RPC-ish interfaces with HTTP and JSON.
+_word_ and _gen_ implement protobuf over gRPC.
 
-All three services are implemented in Go with no shared code.  They
-may be built and run independently.
+All three services are implemented in Go with no shared code (except
+the generated proto file).  They may be built and run independently.
 
 ### Running locally ###
 
@@ -55,9 +55,10 @@ If you want to run these programs locally, you'll need to install
 request:
 
 ```
-$ go run gob/src/web/main.go &
-$ go run gob/src/gen/main.go &
-$ go run gob/src/word/main.go &
+$ go run src/word/main.go &
+$ go run src/gen/main.go &
+$ go run src/web/main.go &
+
 $ curl -s localhost:8080/gob?limit=1
 banana
 ```
@@ -75,11 +76,11 @@ $ docker-compose build
 $ docker-compose up
 ```
 
-Send a request to linkerd on port 4140, which will be routed to the web service
+Send a request to linkerd on port 4141, which will be routed to the web service
 (assuming you have the `DOCKER_IP` env variable set to your docker IP):
 
 ```
-$ curl -s $DOCKER_IP:4140/gob?limit=1
+$ curl -s $DOCKER_IP:4141/gob?limit=1
 illusion
 ```
 

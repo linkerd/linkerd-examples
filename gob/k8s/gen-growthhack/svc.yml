@@ -10,4 +10,4 @@ spec:
   clusterIP: None
   ports:
     - name: http
-      port: 4080
+      port: 4280

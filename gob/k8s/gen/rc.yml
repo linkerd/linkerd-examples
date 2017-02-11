@@ -23,9 +23,10 @@ spec:
 
       containers:
         - name: svc
-          image: gobsvc/gen:v0
-          args:
-            - "--srv=:8080"
+          image: gcr.io/buoyant-hosted/grpc-gob:0.0.1
+          command:
+            - /usr/bin/gen
+            - --srv=:8080
           ports:
             - name: http
               containerPort: 8080
@@ -36,9 +37,9 @@ spec:
             - "/io.buoyant/linkerd/config/config.yml"
 
           ports:
-            - name: http-in
-              containerPort: 4080
-            - name: http-out
+            - name: grpc-in
+              containerPort: 4280
+            - name: grpc-out
               containerPort: 4180
             - name: admin
               containerPort: 9990
