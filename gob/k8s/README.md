@@ -10,9 +10,9 @@ We you assume you already have some familiarity with
 [linkerd](https://linkerd.io/doc/introduction/) and
 [kubernetes](http://kubernetes.io/docs/user-guide/).
 
-This example should work in any kubernetes cluster.  If you don't have
-one at your disposal, though, it's easy (and free) to try out on
-[Google Container Engine](./GKE.md).
+This example works in the default namespace of any kubernetes cluster.
+If you don't have a cluster at your disposal, though, it's easy (and free)
+to try out on [Google Container Engine](./GKE.md).
 
 Before we start running's Gob's app, let's start by setting up _namerd_.
 
@@ -187,25 +187,25 @@ much greater control, and allows instantaneous roll-back.
 
 So, I branch and fixup my code:
 ```
-diff --git a/gob/gen/main.go b/gob/gen/main.go
-index fb39a88..2498178 100644
---- a/gob/gen/main.go
-+++ b/gob/gen/main.go
-@@ -59,11 +59,12 @@ func (svc *GenSvc) ServeHTTP(rspw http.ResponseWriter, req *http.Request) {
- // Writes to the stream until `limit` writes have been completed or
- // the stream is closed (i.e. because the client disconnects).
- func (svc *GenSvc) generate(text string, limit uint, stream io.Writer) error {
--       if _, err := stream.Write([]byte(text)); err != nil {
-+       line := text + " <3 k8s\n"
-+       if _, err := stream.Write([]byte(line)); err != nil {
+diff --git a/gob/src/gen/main.go b/gob/src/gen/main.go
+index 3b9b762..13c6cd6 100644
+--- a/gob/src/gen/main.go
++++ b/gob/src/gen/main.go
+@@ -14,11 +14,12 @@ import (
+ type genSvc struct{}
+
+ func (s *genSvc) Gen(req *pb.GenRequest, stream pb.GenSvc_GenServer) error {
+-       if err := stream.Send(&pb.GenResponse{req.Text}); err != nil {
++       line := req.Text + " <3 k8s\n"
++       if err := stream.Send(&pb.GenResponse{line}); err != nil {
                 return err
         }
         doWrite := func() bool {
--               _, err := stream.Write([]byte(" " + text))
-+               _, err := stream.Write([]byte(line))
+-               err := stream.Send(&pb.GenResponse{" " + req.Text})
++               err := stream.Send(&pb.GenResponse{line})
                 return err == nil
         }
-        if limit == 0 {
+        if req.Limit == 0 {
 ```
 
 _A docker image with these changes is already published to

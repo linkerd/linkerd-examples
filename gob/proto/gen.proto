@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package proto;
+
+service GenSvc {
+  rpc Gen (GenRequest) returns (stream GenResponse) {}
+}
+
+message GenRequest {
+  string text = 1;
+  int32 limit = 2;
+}
+
+message GenResponse {
+  string text = 1;
+}

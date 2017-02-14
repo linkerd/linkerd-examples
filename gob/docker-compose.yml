@@ -2,25 +2,27 @@ version: '2'
 
 services:
   web:
-    build: src/web
+    build: .
     container_name: web
     ports: ["8080:8080"]
-    command: -gen-addr=linkerd:4140 -word-addr=linkerd:4140
+    command: web -gen-addr=linkerd:4142 -word-addr=linkerd:4142
 
   gen:
-    build: src/gen
+    build: .
     container_name: gen
     ports: ["8181:8181"]
+    command: gen
 
   word:
-    build: src/word
+    build: .
     container_name: word
     ports: ["8282:8282"]
+    command: word
 
   linkerd:
     image: buoyantio/linkerd:0.8.6
     container_name: linkerd
-    ports: ["4140:4140", "9990:9990"]
+    ports: ["4142:4142", "4141:4141", "9990:9990"]
     volumes: ["./config:/io.buoyant/linkerd/config:ro"]
     command: /io.buoyant/linkerd/config/linkerd.yml
 
