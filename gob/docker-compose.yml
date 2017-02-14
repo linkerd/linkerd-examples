@@ -5,19 +5,19 @@ services:
     build: .
     container_name: web
     ports: ["8080:8080"]
-    command: /usr/bin/web -gen-addr=linkerd:4142 -word-addr=linkerd:4142
+    command: web -gen-addr=linkerd:4142 -word-addr=linkerd:4142
 
   gen:
     build: .
     container_name: gen
     ports: ["8181:8181"]
-    command: /usr/bin/gen
+    command: gen
 
   word:
     build: .
     container_name: word
     ports: ["8282:8282"]
-    command: /usr/bin/word
+    command: word
 
   linkerd:
     image: buoyantio/linkerd:0.8.6

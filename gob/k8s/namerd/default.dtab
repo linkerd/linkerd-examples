@@ -1,3 +1,4 @@
-/srv         => /#/io.l5d.k8s/default/http;
-/host        => /srv;
-/http/1.1/*  => /host;
+/srv                => /#/io.l5d.k8s/default/http;
+/srv/proto.GenSvc   => /srv/gen;
+/srv/proto.WordSvc  => /srv/word;
+/grpc               => /srv;

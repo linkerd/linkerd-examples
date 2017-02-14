@@ -23,9 +23,9 @@ spec:
 
       containers:
         - name: svc
-          image: gcr.io/buoyant-hosted/grpc-gob:0.0.1
+          image: gobsvc/gob:0.8.6
           command:
-            - /usr/bin/word
+            - word
             - --srv=:8080
           ports:
             - name: http

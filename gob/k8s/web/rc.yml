@@ -23,9 +23,9 @@ spec:
 
       containers:
         - name: svc
-          image: gcr.io/buoyant-hosted/grpc-gob:0.0.1
+          image: gobsvc/gob:0.8.6
           command:
-            - /usr/bin/web
+            - web
             - --srv=:8080
             - --gen-addr=localhost:4180
             - --word-addr=localhost:4180
