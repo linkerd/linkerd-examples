@@ -1,2 +1,2 @@
 /host       => /#/io.l5d.k8s/default/http/hello;
-/http/*/*/* => /host;
+/svc        => /host;
