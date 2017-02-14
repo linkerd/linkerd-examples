@@ -19,10 +19,10 @@ data:
     routers:
     - protocol: http
       label: outgoing
-      baseDtab: |
+      dtab: |
         /srv        => /#/io.l5d.k8s/default/http;
         /host       => /srv;
-        /http/*/*   => /host;
+        /svc        => /host;
         /host/world => /srv/world-v1;
       interpreter:
         kind: default
@@ -42,10 +42,10 @@ data:
 
     - protocol: http
       label: incoming
-      baseDtab: |
+      dtab: |
         /srv        => /#/io.l5d.k8s/default/http;
         /host       => /srv;
-        /http/*/*   => /host;
+        /svc        => /host;
         /host/world => /srv/world-v1;
       interpreter:
         kind: default
@@ -79,7 +79,7 @@ spec:
           secretName: certificates
       containers:
       - name: l5d
-        image: buoyantio/linkerd:0.8.6
+        image: buoyantio/linkerd:0.9.0-rc1
         env:
         - name: POD_IP
           valueFrom:
