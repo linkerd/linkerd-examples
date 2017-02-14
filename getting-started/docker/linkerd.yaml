@@ -8,12 +8,12 @@ namers:
 routers:
 - protocol: http
   # Incoming requests to linkerd with a Host header of "hello" get assigned a
-  # name like /http/1.1/GET/hello.  This dtab transforms that into
+  # name like /svc/hello.  This dtab transforms that into
   # /#/io.l5d.fs/hello which indicates that the filesystem namer should be used
   # and should look for a file named "hello".  linkerd will then load balance
   # over the entries in that file.
-  baseDtab: |
-    /http/1.1/* => /#/io.l5d.fs
+  dtab: |
+    /svc => /#/io.l5d.fs
   servers:
   - ip: 0.0.0.0
     port: 4140

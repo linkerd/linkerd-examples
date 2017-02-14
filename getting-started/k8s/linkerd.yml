@@ -16,13 +16,13 @@ data:
     routers:
     - protocol: http
       # Incoming requests to linkerd with a Host header of "hello" get assigned
-      # a name like /http/1.1/GET/hello.  This dtab transforms that into
+      # a name like /svc/hello.  This dtab transforms that into
       # /#/io.l5d.k8s/default/service/hello which indicates that the kubernetes
       # namer should query the API for ports named "service" on pods in the
       # "default" namespace named "hello".  linkerd will then load balance over
       # those pods.
-      baseDtab: |
-        /http/1.1/* => /#/io.l5d.k8s/default/service
+      dtab: |
+        /svc => /#/io.l5d.k8s/default/service
       servers:
       - ip: 0.0.0.0
         port: 4140
@@ -42,7 +42,7 @@ spec:
     spec:
       containers:
       - name: l5d
-        image: buoyantio/linkerd:0.8.6
+        image: buoyantio/linkerd:0.9.0-rc1
         args:
         - "/io.buoyant/linkerd/config/config.yml"
         ports:
