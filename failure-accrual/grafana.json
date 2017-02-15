@@ -73,7 +73,7 @@
               "step": 2
             },
             {
-              "expr": "rate(rt:none:dst:id:_:io_l5d_fs:service1:success[10s]) / (rate(rt:none:dst:id:_:io_l5d_fs:service1:failures[10s]) + rate(rt:none:dst:id:_:io_l5d_fs:service1:success[10s]))",
+              "expr": "rate(rt:dst_id:success{rt='none', dst_id='#/io.l5d.fs/service1'}[10s]) / (rate(rt:dst_id:failures{rt='none', dst_id='#/io.l5d.fs/service1'}[10s]) + rate(rt:dst_id:success{rt='none', dst_id='#/io.l5d.fs/service1'}[10s]))",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "success rate",
@@ -82,7 +82,7 @@
               "step": 2
             },
             {
-              "expr": "rate(rt:none:dst:id:_:io_l5d_fs:service1:success[1m]) / (rate(rt:none:dst:id:_:io_l5d_fs:service1:failures[1m]) + rate(rt:none:dst:id:_:io_l5d_fs:service1:success[1m]))",
+              "expr": "rate(rt:dst_id:success{rt='none', dst_id='#/io.l5d.fs/service1'}[1m]) / (rate(rt:dst_id:failures{rt='none', dst_id='#/io.l5d.fs/service1'}[1m]) + rate(rt:dst_id:success{rt='none', dst_id='#/io.l5d.fs/service1'}[1m]))",
               "hide": true,
               "intervalFactor": 2,
               "legendFormat": "success rate smoothed",
@@ -239,7 +239,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rt:none:dst:id:_:io_l5d_fs:service1:failure_accrual:removed_for_ms",
+              "expr": "rt:dst_id:failure_accrual:removed_for_ms{rt='none', dst_id='#/io.l5d.fs/service1'}",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "cumulative remove time",
@@ -347,7 +347,7 @@
               "step": 2
             },
             {
-              "expr": "rate(rt:io_l5d_consecutiveFailures:dst:id:_:io_l5d_fs:service2:success[10s]) / (rate(rt:io_l5d_consecutiveFailures:dst:id:_:io_l5d_fs:service2:failures[10s]) + rate(rt:io_l5d_consecutiveFailures:dst:id:_:io_l5d_fs:service2:success[10s]))",
+              "expr": "rate(rt:dst_id:success{rt='io.l5d.consecutiveFailures', dst_id='#/io.l5d.fs/service2'}[10s]) / (rate(rt:dst_id:failures{rt='io.l5d.consecutiveFailures', dst_id='#/io.l5d.fs/service2'}[10s]) + rate(rt:dst_id:success{rt='io.l5d.consecutiveFailures', dst_id='#/io.l5d.fs/service2'}[10s]))",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "success rate",
@@ -356,7 +356,7 @@
               "step": 2
             },
             {
-              "expr": "rate(rt:io_l5d_consecutiveFailures:dst:id:_:io_l5d_fs:service2:success[1m]) / (rate(rt:io_l5d_consecutiveFailures:dst:id:_:io_l5d_fs:service2:failures[1m]) + rate(rt:io_l5d_consecutiveFailures:dst:id:_:io_l5d_fs:service2:success[1m]))",
+              "expr": "rate(rt:dst_id:success{rt='io.l5d.consecutiveFailures', dst_id='#/io.l5d.fs/service2'}[1m]) / (rate(rt:dst_id:failures{rt='io.l5d.consecutiveFailures', dst_id='#/io.l5d.fs/service2'}[1m]) + rate(rt:dst_id:success{rt='io.l5d.consecutiveFailures', dst_id='#/io.l5d.fs/service2'}[1m]))",
               "hide": true,
               "intervalFactor": 2,
               "legendFormat": "success rate smoothed",
@@ -512,7 +512,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rt:io_l5d_consecutiveFailures:dst:id:_:io_l5d_fs:service2:failure_accrual:removed_for_ms",
+              "expr": "rt:dst_id:failure_accrual:removed_for_ms{rt='io.l5d.consecutiveFailures', dst_id='#/io.l5d.fs/service2'}",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "cumulative removal time",
@@ -620,7 +620,7 @@
               "step": 2
             },
             {
-              "expr": "rate(rt:io_l5d_successRate:dst:id:_:io_l5d_fs:service3:success[10s]) / (rate(rt:io_l5d_successRate:dst:id:_:io_l5d_fs:service3:failures[10s]) + rate(rt:io_l5d_successRate:dst:id:_:io_l5d_fs:service3:success[10s]))",
+              "expr": "rate(rt:dst_id:success{rt='io.l5d.successRate', dst_id='#/io.l5d.fs/service3'}[10s]) / (rate(rt:dst_id:failures{rt='io.l5d.successRate', dst_id='#/io.l5d.fs/service3'}[10s]) + rate(rt:dst_id:success{rt='io.l5d.successRate', dst_id='#/io.l5d.fs/service3'}[10s]))",
               "intervalFactor": 2,
               "legendFormat": "success rate",
               "metric": "",
@@ -628,7 +628,7 @@
               "step": 2
             },
             {
-              "expr": "rate(rt:io_l5d_successRate:dst:id:_:io_l5d_fs:service3:success[1m]) / (rate(rt:io_l5d_successRate:dst:id:_:io_l5d_fs:service3:failures[1m]) + rate(rt:io_l5d_successRate:dst:id:_:io_l5d_fs:service3:success[1m]))",
+              "expr": "rate(rt:dst_id:success{rt='io.l5d.successRate', dst_id='#/io.l5d.fs/service3'}[1m]) / (rate(rt:dst_id:failures{rt='io.l5d.successRate', dst_id='#/io.l5d.fs/service3'}[1m]) + rate(rt:dst_id:success{rt='io.l5d.successRate', dst_id='#/io.l5d.fs/service3'}[1m]))",
               "hide": true,
               "interval": "",
               "intervalFactor": 2,
@@ -786,7 +786,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rt:io_l5d_successRate:dst:id:_:io_l5d_fs:service3:failure_accrual:removed_for_ms",
+              "expr": "rt:dst_id:failure_accrual:removed_for_ms{rt='io.l5d.successRate', dst_id='#/io.l5d.fs/service3'}",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "cumulative removal time",
@@ -881,21 +881,21 @@
               "step": 2
             },
             {
-              "expr": "rate(rt:none:dst:id:_:io_l5d_fs:service1:success[90s]) / (rate(rt:none:dst:id:_:io_l5d_fs:service1:failures[90s]) + rate(rt:none:dst:id:_:io_l5d_fs:service1:success[90s]))",
+              "expr": "rate(rt:dst_id:success{rt='none', dst_id='#/io.l5d.fs/service1'}[90s]) / (rate(rt:dst_id:failures{rt='none', dst_id='#/io.l5d.fs/service1'}[90s]) + rate(rt:dst_id:success{rt='none', dst_id='#/io.l5d.fs/service1'}[90s]))",
               "intervalFactor": 2,
               "legendFormat": "none",
               "refId": "A",
               "step": 2
             },
             {
-              "expr": "rate(rt:io_l5d_consecutiveFailures:dst:id:_:io_l5d_fs:service2:success[90s]) / (rate(rt:io_l5d_consecutiveFailures:dst:id:_:io_l5d_fs:service2:failures[90s]) + rate(rt:io_l5d_consecutiveFailures:dst:id:_:io_l5d_fs:service2:success[90s]))",
+              "expr": "rate(rt:dst_id:success{rt='io.l5d.consecutiveFailures', dst_id='#/io.l5d.fs/service2'}[90s]) / (rate(rt:dst_id:failures{rt='io.l5d.consecutiveFailures', dst_id='#/io.l5d.fs/service2'}[90s]) + rate(rt:dst_id:success{rt='io.l5d.consecutiveFailures', dst_id='#/io.l5d.fs/service2'}[90s]))",
               "intervalFactor": 2,
               "legendFormat": "io.l5d.consecutiveFailures",
               "refId": "B",
               "step": 2
             },
             {
-              "expr": "rate(rt:io_l5d_successRate:dst:id:_:io_l5d_fs:service3:success[90s]) / (rate(rt:io_l5d_successRate:dst:id:_:io_l5d_fs:service3:failures[90s]) + rate(rt:io_l5d_successRate:dst:id:_:io_l5d_fs:service3:success[90s]))",
+              "expr": "rate(rt:dst_id:success{rt='io.l5d.successRate', dst_id='#/io.l5d.fs/service3'}[90s]) / (rate(rt:dst_id:failures{rt='io.l5d.successRate', dst_id='#/io.l5d.fs/service3'}[90s]) + rate(rt:dst_id:success{rt='io.l5d.successRate', dst_id='#/io.l5d.fs/service3'}[90s]))",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "io.l5d.successRate",
@@ -986,7 +986,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rt:none:srv:0_0_0_0:4141:request_latency_ms{stat=\"p99\"}",
+              "expr": "rt:srv:request_latency_ms{rt='none', srv='0.0.0.0/4141', quantile='0.99'}",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "none",
@@ -995,14 +995,14 @@
               "step": 2
             },
             {
-              "expr": "rt:io_l5d_consecutiveFailures:srv:0_0_0_0:4142:request_latency_ms{stat=\"p99\"}",
+              "expr": "rt:srv:request_latency_ms{rt='io.l5d.consecutiveFailures', srv='0.0.0.0/4142', quantile='0.99'}",
               "intervalFactor": 2,
               "legendFormat": "io.l5d.consecutiveFailures",
               "refId": "B",
               "step": 2
             },
             {
-              "expr": "rt:io_l5d_successRate:srv:0_0_0_0:4143:request_latency_ms{stat=\"p99\"}",
+              "expr": "rt:srv:request_latency_ms{rt='io.l5d.successRate', srv='0.0.0.0/4143', quantile='0.99'}",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "io.l5d.successRate",
