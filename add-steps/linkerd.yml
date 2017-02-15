@@ -3,14 +3,17 @@ namers:
 - kind: io.l5d.fs
   rootDir: /disco
 
+telemetry:
+- kind: io.l5d.prometheus
+
 routers:
 - protocol: http
   servers:
   - port: 4140
     ip: 0.0.0.0
   # route all traffic to service identified in service discovery as "app"
-  baseDtab: >-
-    /http/* => /#/io.l5d.fs/app;
+  dtab: >-
+    /svc => /#/io.l5d.fs/app;
   responseClassifier:
     kind: io.l5d.retryableRead5XX
   client:
