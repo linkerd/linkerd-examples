@@ -5,6 +5,9 @@
 admin:
   port: 9990
 
+telemetry:
+- kind: io.l5d.prometheus
+
 routers:
 - protocol: http
   servers:

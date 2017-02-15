@@ -19,10 +19,26 @@ appropriate for your setup. When testing configurations, be sure to set the
 `PUBLIC_NODE` env variable to the external address of the public node in your
 cluster.
 
+### linkerd simple proxy
+
+To deploy the most basic configuration, with linkerd as a proxy running on port
+4140 for inbound requests, run:
+
+```bash
+dcos marathon app add simple-proxy/linkerd-dcos.json
+```
+
+Test this configuration with:
+
+```bash
+$ http_proxy=$PUBLIC_NODE:4140 curl -s http://webapp/hello
+Hello world
+```
+
 ### linkerd ingress configuration
 
-To deploy a basic linkerd configuration with an ingress router running on port
-4142 and an internal router running on port 4140, run:
+To deploy linkerd with an ingress router running on port 4142 and an internal
+router running on port 4140, run:
 
 ```bash
 dcos marathon app add ingress/linkerd-dcos.json
