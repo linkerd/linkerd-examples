@@ -102,19 +102,20 @@ Table (Dtab) that describes our default routing policy:
 :; export NAMERCTL_BASE_URL=http://104.197.215.51
 :; namerctl dtab create default k8s/namerd/default.dtab
 :; namerctl dtab get default
-# version AAAAAAAAAAE=
-/srv         => /io.l5d.k8s/default/http ;
-/host        => /srv ;
-/http/1.1/*  => /host ;
+# version AAAAAAAAAAI=
+/srv                => /#/io.l5d.k8s/default/grpc ;
+/srv/proto.GenSvc   => /srv/gen ;
+/srv/proto.WordSvc  => /srv/word ;
+/grpc               => /srv ;
 ```
 
 A delegation table describes how named requests,
-e.g. _/http/1.1/GET/foosvc/bar_, are routed onto a service discovery
+e.g. _/svc/myService/myMethod_, are routed onto a service discovery
 backend.  In kubernetes, the _io.l5d.k8s_ namer is used to resolve
 names against the kubernetes Endpoints API (which describes Service
 objects).  In this dtab, we discover endpoints in the _default_
-kubernetes namespace with the _http_ port, and use a request's `Host`
-header to map to a Service name.  The linkerd documentation contains a
+kubernetes namespace with the _grpc_ port, and map the name of a protobuf
+service to a kubernetes service. The linkerd documentation contains a
 richer description of [Dtabs](https://linkerd.io/doc/dtabs/).
 
 Now, we're ready to deploy Gob's service.
@@ -209,7 +210,7 @@ index 3b9b762..13c6cd6 100644
 ```
 
 _A docker image with these changes is already published to
-[gobsvc/gen:growthhack](https://hub.docker.com/r/gobsvc/gen/tags/)._
+[gobsvc/gob:0.8.6-growthhack](https://hub.docker.com/r/gobsvc/gob/tags/)._
 
 #### Staging ####
 
@@ -235,7 +236,7 @@ We can test out our staged service (without altering the web service
 at all), by adding a delegation (routing rule) to a request.  For example:
 
 ```
-:; curl -H 'Dtab-local: /host/gen => /srv/gen-growthhack' "$GOB_HOST/gob?text=gob&limit=10"
+:; curl -H 'Dtab-local: /srv/gen => /srv/gen-growthhack' "$GOB_HOST/gob?text=gob&limit=10"
 bees <3 k8s
 bees <3 k8s
 bees <3 k8s
@@ -257,12 +258,11 @@ in production!
 #### Canary ####
 
 For the sake of the demo, we need to generate some load on the site.
-To do so, the _reqz_ package can easily be launched as a one-off task
-with:
+To do so, [slow_cooker](https://github.com/BuoyantIO/slow_cooker) can easily
+be launched as a one-off task with:
 
 ```
-:; kubectl run --image=gobsvc/reqz:v0 reqz -- "http://$GOB_HOST/gob?limit=10&text=buoyant"
-deployment "reqz" created
+:; kubectl run --image=buoyantio/slow_cooker:1.1.0 slow-cooker -- "-qps 200 http://$GOB_HOST/gob?limit=10&text=buoyant"
 ```
 
 Going to the admin page (at `$GOB_HOST:9990/`), we should see
@@ -273,10 +273,11 @@ canary the new service:
 
 ```
 :; cat k8s/namerd/default.dtab
-/srv         => /#/io.l5d.k8s/default/http;
-/host        => /srv;
-/http/1.1/*  => /host;
-/host/gen    => 1 * /srv/gen-growthhack & 19 * /srv/gen
+/srv                => /#/io.l5d.k8s/default/grpc;
+/srv/proto.GenSvc   => /srv/gen;
+/srv/proto.WordSvc  => /srv/word;
+/grpc               => /srv;
+/srv/proto.GenSvc   => 1 * /srv/gen-growthhack & 19 * /srv/gen;
 ```
 
 ```
@@ -296,7 +297,7 @@ traffic onto the new service by updating the Dtab.
 For example, the following will send 20% of requests through the new service
 
 ```
-/host/gen   =>   1 * /srv/gen-growthhack & 4 * /srv/gen
+/srv/proto.GenSvc   => 1 * /srv/gen-growthhack & 4 * /srv/gen;
 ```
 ```
 :; namerctl dtab update default k8s/namerd/default.dtab
@@ -304,7 +305,7 @@ For example, the following will send 20% of requests through the new service
 
 Next, we bring it to equal 50% with:
 ```
-/host/gen   =>   /srv/gen-growthhack & /srv/gen
+/srv/proto.GenSvc   => /srv/gen-growthhack & /srv/gen;
 ```
 
 When we have a sufficient confidence in the new service, we can give
@@ -312,7 +313,7 @@ it 100% of the traffic.  Furthermore, we can enable fallback to the
 original service, so we still have a safety net:
 
 ```
-/host/gen   =>   /srv/gen-growthhack | /srv/gen
+/srv/proto.GenSvc   => /srv/gen-growthhack | /srv/gen;
 ```
 ```
 :; namerctl dtab update default k8s/namerd/default.dtab
