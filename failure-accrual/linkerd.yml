@@ -4,7 +4,7 @@ namers:
 
 routers:
 - protocol: http
-  baseDtab: /http => /$/inet/127.1/4141 & /$/inet/127.1/4142 & /$/inet/127.1/4143;
+  dtab: /svc => /$/inet/127.1/4141 & /$/inet/127.1/4142 & /$/inet/127.1/4143;
   client:
     failureAccrual:
       kind: none
@@ -16,7 +16,7 @@ routers:
 
 - protocol: http
   label: none
-  baseDtab: /http => /#/io.l5d.fs/service1;
+  dtab: /svc => /#/io.l5d.fs/service1;
   client:
     failureAccrual:
       kind: none
@@ -28,7 +28,7 @@ routers:
 
 - protocol: http
   label: io.l5d.consecutiveFailures
-  baseDtab: /http => /#/io.l5d.fs/service2;
+  dtab: /svc => /#/io.l5d.fs/service2;
   client:
     failureAccrual:
       kind: io.l5d.consecutiveFailures
@@ -44,7 +44,7 @@ routers:
 
 - protocol: http
   label: io.l5d.successRate
-  baseDtab: /http => /#/io.l5d.fs/service3;
+  dtab: /svc => /#/io.l5d.fs/service3;
   client:
     failureAccrual:
       kind: io.l5d.successRate
