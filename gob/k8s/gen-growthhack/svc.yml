@@ -9,5 +9,5 @@ spec:
 
   clusterIP: None
   ports:
-    - name: http
-      port: 4280
+    - name: grpc
+      port: 8080

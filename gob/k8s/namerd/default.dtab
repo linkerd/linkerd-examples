@@ -1,4 +1,4 @@
-/srv                => /#/io.l5d.k8s/default/http;
+/srv                => /#/io.l5d.k8s/default/grpc;
 /srv/proto.GenSvc   => /srv/gen;
 /srv/proto.WordSvc  => /srv/word;
 /grpc               => /srv;

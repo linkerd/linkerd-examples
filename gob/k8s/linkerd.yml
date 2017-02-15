@@ -5,27 +5,15 @@ metadata:
   namespace: default
 data:
   config.yml: |-
-    admin:
-      port: 9990
     routers:
     - protocol: http
-      label: in
       servers:
       - port: 4080
         ip: 0.0.0.0
-      baseDtab: /http/1.1 => /$/inet/127.1/8080
+      dtab: /svc => /$/inet/127.1/8080
 
     - protocol: h2
       experimental: true
-      label: incoming
-      servers:
-      - port: 4280
-        ip: 0.0.0.0
-      baseDtab: /h2 => /$/inet/127.1/8080
-
-    - protocol: h2
-      experimental: true
-      label: grpc
       servers:
       - port: 4180
         ip: 0.0.0.0
