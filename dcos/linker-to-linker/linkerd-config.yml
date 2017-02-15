@@ -15,9 +15,9 @@ routers:
   servers:
   - port: 4140
     ip: 0.0.0.0
-  baseDtab: >- # route based on marathon name
+  dtab: >- # route based on marathon name
     /marathonId => /#/io.l5d.marathon;
-    /http/1.1/* => /$/io.buoyant.http.domainToPathPfx/marathonId;
+    /svc        => /$/io.buoyant.http.domainToPathPfx/marathonId;
   label: outgoing
   interpreter:
     kind: default
@@ -29,9 +29,9 @@ routers:
   servers:
   - port: 4141
     ip: 0.0.0.0
-  baseDtab: >- # route based on marathon name
+  dtab: >- # route based on marathon name
     /marathonId => /#/io.l5d.marathon;
-    /http/1.1/* => /$/io.buoyant.http.domainToPathPfx/marathonId;
+    /svc        => /$/io.buoyant.http.domainToPathPfx/marathonId;
   label: incoming
   interpreter:
     kind: default
