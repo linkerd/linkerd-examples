@@ -2,6 +2,9 @@ namers:
 - kind: io.l5d.fs
   rootDir: /disco
 
+telemetry:
+- kind: io.l5d.prometheus
+
 routers:
 - protocol: http
   dtab: /svc => /$/inet/127.1/4141 & /$/inet/127.1/4142 & /$/inet/127.1/4143;
