@@ -1,0 +1,69 @@
+{
+  "id": "/webgroup",
+  "groups": [
+    {
+      "id": "/webgroup/webapp-a",
+      "apps": [
+        {
+          "id": "/webgroup/webapp-a/webapp-a1",
+          "cmd": "/bin/bash -c 'echo \"Hello world\" > hello; python3 -m http.server $PORT0'",
+          "cpus": 0.5,
+          "mem": 64.0,
+          "instances": 2,
+          "container": {
+            "type": "DOCKER",
+            "docker": {
+              "image": "python:3",
+              "network": "BRIDGE",
+              "portMappings": [
+                { "containerPort": 0, "hostPort": 0, "protocol": "tcp" }
+              ]
+            }
+          },
+          "healthChecks": [
+            {
+              "protocol": "HTTP",
+              "portIndex": 0,
+              "path": "/",
+              "gracePeriodSeconds": 5,
+              "intervalSeconds": 20,
+              "maxConsecutiveFailures": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "/webgroup/webapp-b",
+      "apps": [
+        {
+          "id": "/webgroup/webapp-b/webapp-b1",
+          "cmd": "/bin/bash -c 'echo \"Hello world\" > hello; python3 -m http.server $PORT0'",
+          "cpus": 0.5,
+          "mem": 64.0,
+          "instances": 2,
+          "container": {
+            "type": "DOCKER",
+            "docker": {
+              "image": "python:3",
+              "network": "BRIDGE",
+              "portMappings": [
+                { "containerPort": 0, "hostPort": 0, "protocol": "tcp" }
+              ]
+            }
+          },
+          "healthChecks": [
+            {
+              "protocol": "HTTP",
+              "portIndex": 0,
+              "path": "/",
+              "gracePeriodSeconds": 5,
+              "intervalSeconds": 20,
+              "maxConsecutiveFailures": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

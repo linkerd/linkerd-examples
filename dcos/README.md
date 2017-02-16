@@ -43,3 +43,20 @@ Hello world
 $ curl $PUBLIC_NODE:4242/hello
 Hello world
 ```
+
+### Application Groups
+
+Marathon supports an "Application Group" concept, where applications are
+deployed and named using a hierarchical path-based naming structure. Because the
+linkerd config examples documented here all use the `domainToPathPfx` rewriting
+namer, marathon applications within a group are routed by reversing the group
+name into a domain-like name. For example, `webgroup/webapp-a/webapp-a1` becomes `webapp-a1.webapp-a.webgroup`:
+
+```bash
+dcos marathon group add webgroup.json
+```
+
+```bash
+http_proxy=$PUBLIC_NODE:4140 curl webapp-a1.webapp-a.webgroup/hello
+Hello world
+```
