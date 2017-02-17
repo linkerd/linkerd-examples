@@ -85,9 +85,3 @@ Mesh for Kubernetes" series of blog posts. More information:
 Contains sample code for building linkerd plugins. More information:
 
 * [In Depth: Plugins](https://linkerd.io/in-depth/plugin/)
-
-## Reqz
-
-* [`reqz/`](reqz/)
-
-Go script that is used to generate traffic to [Gob's microservice](gob/).
