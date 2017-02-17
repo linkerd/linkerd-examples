@@ -237,16 +237,16 @@ at all), by adding a delegation (routing rule) to a request.  For example:
 
 ```
 :; curl -H 'Dtab-local: /srv/gen => /srv/gen-growthhack' "$GOB_HOST/gob?text=gob&limit=10"
-bees <3 k8s
-bees <3 k8s
-bees <3 k8s
-bees <3 k8s
-bees <3 k8s
-bees <3 k8s
-bees <3 k8s
-bees <3 k8s
-bees <3 k8s
-bees <3 k8s
+gob <3 k8s
+gob <3 k8s
+gob <3 k8s
+gob <3 k8s
+gob <3 k8s
+gob <3 k8s
+gob <3 k8s
+gob <3 k8s
+gob <3 k8s
+gob <3 k8s
 ```
 
 This override says "whenever you refer to the _gen_ service, use
@@ -262,7 +262,7 @@ To do so, [slow_cooker](https://github.com/BuoyantIO/slow_cooker) can easily
 be launched as a one-off task with:
 
 ```
-:; kubectl run --image=buoyantio/slow_cooker:1.1.0 slow-cooker -- "-qps 200 http://$GOB_HOST/gob?limit=10&text=buoyant"
+:; kubectl run --image=buoyantio/slow_cooker:1.1.0 slow-cooker -- "-qps 200" "http://$GOB_HOST/gob?limit=10&text=buoyant"
 ```
 
 Going to the admin page (at `$GOB_HOST:9990/`), we should see
