@@ -12,6 +12,10 @@ integrated with a custom linkerd DC/OS marathon app.
 - linkerd routes all http traffic via port `4140` and all h2 traffic via port `4142`. Services perform RPC calls via localhost:4142.
 - An internet-facing load balancer should route traffic to localhost:4140 on the DC/OS public node, from there linkerd will route to `web`.
 
+`dcos/marathon/linkerd.json` is the the marathon configuration for running a
+linkerd on each node in the cluster. Make sure you update "instances" to reflect
+the total number of public and private nodes in your cluster.
+
 ### Installation
 
 Install them via the command line with:
