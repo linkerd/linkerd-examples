@@ -4,7 +4,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "gobsvc/web:v0",
+      "image": "gobsvc/gob:0.8.6",
       "forcePullImage": false,
       "network": "BRIDGE",
       "portMappings": [
@@ -24,7 +24,7 @@
       "path": "/"
     }
   ],
-  "cmd": "/usr/bin/gobwebsvc --srv=:$PORT0 --gen-addr=$HOST:4140 --word-addr=$HOST:4140",
+  "cmd": "web --srv=:$PORT0 --gen-addr=$HOST:4142 --word-addr=$HOST:4142",
   "cpus": 0.25,
   "mem": 256.0
 }
