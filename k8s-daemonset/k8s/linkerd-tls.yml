@@ -57,6 +57,13 @@ data:
         tls:
           certPath: /io.buoyant/linkerd/certs/certificate.pem
           keyPath: /io.buoyant/linkerd/certs/key.pem
+
+    usage:
+      orgId: linkerd-examples-daemonset-tls
+
+    telemetry:
+    - kind: io.l5d.recentRequests
+      sampleRate: 0.25
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet
@@ -79,7 +86,7 @@ spec:
           secretName: certificates
       containers:
       - name: l5d
-        image: buoyantio/linkerd:0.9.0-rc1
+        image: buoyantio/linkerd:0.9.0-rc2
         env:
         - name: POD_IP
           valueFrom:

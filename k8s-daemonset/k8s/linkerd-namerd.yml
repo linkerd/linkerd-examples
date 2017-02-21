@@ -47,6 +47,13 @@ data:
       servers:
       - port: 4142
         ip: 0.0.0.0
+
+    usage:
+      orgId: linkerd-examples-daemonset-namerd
+
+    telemetry:
+    - kind: io.l5d.recentRequests
+      sampleRate: 0.25
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet
@@ -66,7 +73,7 @@ spec:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:0.9.0-rc1
+        image: buoyantio/linkerd:0.9.0-rc2
         env:
         - name: POD_IP
           valueFrom:
