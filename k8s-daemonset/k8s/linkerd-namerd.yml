@@ -10,6 +10,13 @@ data:
     admin:
       port: 9990
 
+    telemetry:
+    - kind: io.l5d.recentRequests
+      sampleRate: 0.25
+
+    usage:
+      orgId: linkerd-examples-daemonset-namerd
+
     routers:
     - protocol: http
       label: outgoing
@@ -47,13 +54,6 @@ data:
       servers:
       - port: 4142
         ip: 0.0.0.0
-
-    usage:
-      orgId: linkerd-examples-daemonset-namerd
-
-    telemetry:
-    - kind: io.l5d.recentRequests
-      sampleRate: 0.25
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet

@@ -20,6 +20,11 @@ data:
       host: zipkin-collector.default.svc.cluster.local
       port: 9410
       sampleRate: 1.0
+    - kind: io.l5d.recentRequests
+      sampleRate: 0.25
+
+    usage:
+      orgId: linkerd-examples-daemonset-zipkin
 
     routers:
     - protocol: http
@@ -54,13 +59,6 @@ data:
       servers:
       - port: 4141
         ip: 0.0.0.0
-
-    usage:
-      orgId: linkerd-examples-daemonset-zipkin
-
-    telemetry:
-    - kind: io.l5d.recentRequests
-      sampleRate: 0.25
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet

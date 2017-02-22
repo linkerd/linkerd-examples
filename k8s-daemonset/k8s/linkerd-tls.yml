@@ -16,6 +16,13 @@ data:
       host: localhost
       port: 8001
 
+    telemetry:
+    - kind: io.l5d.recentRequests
+      sampleRate: 0.25
+
+    usage:
+      orgId: linkerd-examples-daemonset-tls
+
     routers:
     - protocol: http
       label: outgoing
@@ -57,13 +64,6 @@ data:
         tls:
           certPath: /io.buoyant/linkerd/certs/certificate.pem
           keyPath: /io.buoyant/linkerd/certs/key.pem
-
-    usage:
-      orgId: linkerd-examples-daemonset-tls
-
-    telemetry:
-    - kind: io.l5d.recentRequests
-      sampleRate: 0.25
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet

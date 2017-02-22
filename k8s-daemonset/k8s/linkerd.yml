@@ -15,6 +15,13 @@ data:
       host: localhost
       port: 8001
 
+    telemetry:
+    - kind: io.l5d.recentRequests
+      sampleRate: 0.25
+
+    usage:
+      orgId: linkerd-examples-daemonset
+
     routers:
     - protocol: http
       label: outgoing
@@ -48,13 +55,6 @@ data:
       servers:
       - port: 4141
         ip: 0.0.0.0
-
-    usage:
-      orgId: linkerd-examples-daemonset
-
-    telemetry:
-    - kind: io.l5d.recentRequests
-      sampleRate: 0.25
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet
