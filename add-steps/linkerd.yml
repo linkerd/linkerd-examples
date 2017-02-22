@@ -9,7 +9,7 @@ telemetry:
   sampleRate: 0.25
 
 usage:
-  orgId: linkerd-examples-failure-accrual
+  orgId: linkerd-examples-add-steps
 
 routers:
 - protocol: http
