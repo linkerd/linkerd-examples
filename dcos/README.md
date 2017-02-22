@@ -14,33 +14,105 @@ dcos marathon app add webapp.json
 Note the `linkerd-dcos.json` files assume 4 nodes. Modify this to equal the
 total number of public+private nodes in your cluster.
 
-```bash
-dcos marathon app add linkerd-dcos.json
-```
+Multiple linkerd configurations are described below. Pick the one that's most
+appropriate for your setup. When testing configurations, be sure to set the
+`PUBLIC_NODE` env variable to the external address of the public node in your
+cluster.
 
-## Deploy namerd (for configurations that include namerd)
+### linkerd simple proxy
 
-```bash
-dcos marathon app add namerd-dcos.json
-```
-
-### Test namerd dtab interface
+To deploy the most basic configuration, with linkerd as a proxy running on port
+4140 for inbound requests, run:
 
 ```bash
-curl $PUBLIC_NODE:4180/api/1/dtabs/default
+dcos marathon app add simple-proxy/linkerd-dcos.json
 ```
 
-## Test
+Test this configuration with:
 
 ```bash
 $ http_proxy=$PUBLIC_NODE:4140 curl -s http://webapp/hello
 Hello world
 ```
 
-### Test ingress configuration
+### linkerd ingress configuration
+
+To deploy linkerd with an ingress router running on port 4142 and an internal
+router running on port 4140, run:
+
+```bash
+dcos marathon app add ingress/linkerd-dcos.json
+```
+
+Test this configuration with:
 
 ```bash
 $ curl $PUBLIC_NODE:4242/hello
+Hello world
+```
+
+### linkerd in linker-to-linker mode
+
+To deploy linkerd in linker-to-linker mode, with outgoing traffic served on a
+router running on port 4140, and incoming traffic served on a router running on
+port 4141, run:
+
+```bash
+dcos marathon app add linker-to-linker/linkerd-dcos.json
+```
+
+Test this configuration with:
+
+```bash
+$ http_proxy=$PUBLIC_NODE:4140 curl -s http://webapp/hello
+Hello world
+```
+
+### linkerd with namerd
+
+#### namerd
+
+Start by deploying namerd:
+
+```bash
+dcos marathon app add namerd/namerd-dcos.json
+```
+
+Test the namerd configuration with:
+
+```bash
+$ curl $PUBLIC_NODE:4180/api/1/dtabs/default
+[{"prefix":"/marathonId","dst":"/#/io.l5d.marathon"},{"prefix":"/svc","dst":"/$/io.buoyant.http.domainToPathPfx/marathonId"}]
+```
+
+#### linkerd
+
+Next deploy linkerd configured to talk to namerd when routing requests:
+
+```bash
+dcos marathon app add linkerd-with-namerd/linkerd-dcos.json
+```
+
+Test this configuration with:
+
+```bash
+$ http_proxy=$PUBLIC_NODE:4140 curl -s http://webapp/hello
+Hello world
+```
+
+### linkerd with namerd in linker-to-linker mode
+
+Deploy namerd as described in the previous section. Then deploy linkerd in
+linker-to-linker mode, configured to talk to namerd when routing requests:
+
+```bash
+dcos marathon app add linker-to-linker-with-namerd/linkerd-dcos.json
+```
+
+Test this configuration with:
+
+```bash
+$ http_proxy=$PUBLIC_NODE:4140 curl -s http://webapp/hello
 Hello world
 ```
 

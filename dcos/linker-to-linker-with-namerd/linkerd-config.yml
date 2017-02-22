@@ -5,6 +5,9 @@
 admin:
   port: 9990
 
+telemetry:
+- kind: io.l5d.prometheus
+
 routers:
 - protocol: http
   servers:
@@ -23,7 +26,6 @@ routers:
   - port: 4141
     ip: 0.0.0.0
   label: incoming
-  dstPrefix: "/"
   interpreter:
     kind: io.l5d.namerd
     dst: /$/inet/namerd.marathon.mesos/4100
