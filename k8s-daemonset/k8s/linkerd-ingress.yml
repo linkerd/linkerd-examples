@@ -15,15 +15,22 @@ data:
       host: localhost
       port: 8001
 
+    telemetry:
+    - kind: io.l5d.recentRequests
+      sampleRate: 0.25
+
+    usage:
+      orgId: linkerd-examples-daemonset-ingress
+
     routers:
     - protocol: http
       label: ingress
-      baseDtab: |
+      dtab: |
         /srv                    => /#/io.l5d.k8s/default/http ;
         /domain/world/hello/www => /srv/hello ;
         /domain/world/hello/api => /srv/api ;
         /host                   => /$/io.buoyant.http.domainToPathPfx/domain ;
-        /http/*/*               => /host ;
+        /svc                    => /host ;
       interpreter:
         kind: default
         transformers:
@@ -37,11 +44,11 @@ data:
 
     - protocol: http
       label: outgoing
-      baseDtab: |
+      dtab: |
         /srv        => /#/io.l5d.k8s/default/http ;
         /host       => /srv ;
         /host/world => /srv/world-v1 ;
-        /http/*/*   => /host ;
+        /svc        => /host ;
       interpreter:
         kind: default
         transformers:
@@ -55,14 +62,14 @@ data:
 
     - protocol: http
       label: incoming
-      baseDtab: |
+      dtab: |
         /srv                    => /#/io.l5d.k8s/default/http ;
         /domain/world/hello/www => /srv/hello ;
         /domain/world/hello/api => /srv/api ;
         /host                   => /$/io.buoyant.http.domainToPathPfx/domain ;
         /host                   => /srv ;
         /host/world             => /srv/world-v1 ;
-        /http/*/*               => /host ;
+        /svc                    => /host ;
       interpreter:
         kind: default
         transformers:
@@ -89,7 +96,7 @@ spec:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:0.8.6
+        image: buoyantio/linkerd:0.9.0
         env:
         - name: POD_IP
           valueFrom:
