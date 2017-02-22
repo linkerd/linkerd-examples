@@ -32,13 +32,11 @@ spec:
               containerPort: 8080
 
         - name: l5d
-          image: buoyantio/linkerd:0.8.6
+          image: buoyantio/linkerd:0.9.0
           args:
             - "/io.buoyant/linkerd/config/config.yml"
 
           ports:
-            - name: grpc-in
-              containerPort: 4280
             - name: grpc-out
               containerPort: 4180
             - name: admin

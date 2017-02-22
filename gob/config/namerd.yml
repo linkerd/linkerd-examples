@@ -10,7 +10,7 @@ storage:
       /host/proto.GenSvc  => /$/inet/gen/8181;
       /host/proto.WordSvc => /$/inet/word/8282;
       /grpc               => /host;
-      /http/1.1/*         => /host/web;
+      /svc                => /host/web;
 interfaces:
 - kind: io.l5d.thriftNameInterpreter
   ip: 0.0.0.0
