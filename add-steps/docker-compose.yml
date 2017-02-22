@@ -121,7 +121,7 @@ services:
     command: -latency=2s -success-rate=0.4
 
   linkerd:
-    image: buoyantio/linkerd:0.9.0-rc1
+    image: buoyantio/linkerd:0.9.0
     ports:
       - 4140:4140
       - 9990:9990
