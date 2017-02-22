@@ -4,7 +4,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "gobsvc/gen:v0",
+      "image": "gobsvc/gob:0.8.6",
       "forcePullImage": false,
       "network": "BRIDGE",
       "portMappings": [
@@ -19,12 +19,14 @@
   },
   "healthChecks": [
     {
-      "protocol": "HTTP",
-      "portIndex": 0,
-      "path": "/health"
+      "protocol": "TCP",
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3
     }
   ],
-  "cmd": "/usr/bin/gobgensvc --srv=:$PORT0",
+  "cmd": "gen --srv=:$PORT0",
   "cpus": 0.25,
   "mem": 256.0
 }

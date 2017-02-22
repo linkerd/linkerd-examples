@@ -1,5 +1,5 @@
-/srv         => /#/io.l5d.marathon ;
-/http/1.0    => /srv/web ;
-/host/*      => /srv/web ;
-/host        => /srv     ;
-/http/1.1/*  => /host    ;
+/srv                => /#/io.l5d.marathon ;
+/srv/proto.GenSvc   => /srv/gen;
+/srv/proto.WordSvc  => /srv/word;
+/svc                => /srv/web;
+/grpc               => /srv;

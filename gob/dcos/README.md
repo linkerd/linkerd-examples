@@ -1,72 +1,31 @@
 # Gob's Web Service on DC/OS
 
 This documents the steps required to build and deploy Gob on DC/OS,
-integrated with the linkerd DC/OS package.
+integrated with a custom linkerd DC/OS marathon app.
 
-## Linkerd/Namerd Package Install
+## Linkerd/Namerd Deploy
 
-### DC/OS Package Config
+### Configuration
 
-#### linkerd
+`dcos/linkerd-dcos-gob.yaml` is the linkerd runtime configuration, customized for this Gob example:
 
-`linkerd-package-options.json` is the linkerd DC/OS package install configuration. Package options of note:
+- linkerd routes all http traffic via port `4140` and all h2 traffic via port `4142`. Services perform RPC calls via localhost:4142.
+- An internet-facing load balancer should route traffic to localhost:4140 on the DC/OS public node, from there linkerd will route to `web`.
 
-- `instances` - size of the DC/OS cluster, to ensure linkerd is installed on each node
-- `config-filename` - linkerd runtime configuration filename, appends to `config-uri`
-- `config-uri` - linkerd runtime configuration location, prepends to `config-filename`
-- `routing-port` - port to route rpc calls. must match the `routers/servers/port` specified in `linkerd-dcos-gob.yaml`
+`dcos/marathon/linkerd.json` is the the marathon configuration for running a
+linkerd on each node in the cluster. Make sure you update "instances" to reflect
+the total number of public and private nodes in your cluster.
 
-#### namerd
+### Installation
 
-`namerd-package-options.json` is the namerd DC/OS package install configuration. Package options of note:
-
-- `config-filename` - namerd runtime configuration filename, appends to `config-uri`
-- `config-uri` - namerd runtime configuration location, prepends to `namerd-filename`
-- `http-port` - http control port, must match the `interfaces/httpController` port specified in `namerd-dcos-gob.yaml`
-- `thrift-port` - thrift interface port, must match:
-  - `interfaces/thriftNameInterpreter` port specified in `namerd-dcos-gob.yaml`
-  - `router/interpreter/dst` port specified in `linkerd-dcos-gob.yaml`
-- `resource-roles` - the roles to run namerd instances on.
-
-
-### linkerd Config
-
-`https://s3.amazonaws.com/buoyant-dcos/linkerd-dcos-gob.yaml` is the linkerd runtime configuration, customized for this Gob example:
-
-- linkerd routes all traffic via port `4140`. Services perform all RPC calls via localhost:4140.
-- The `baseDtab` section routes on host headers. Calling the word service looks like this:
-
-    ```bash
-    curl -H "Host: word" localhost:4140
-    ```
-
-- The `baseDtab` section defaults routing to the `web` service. An internet-facing load balancer should route traffic to localhost:4140 on the DC/OS public node, from there linkerd will route to `web`.
-
-### linkerd/namerd Package Install
-
-For the sake of this demonstration, assume $PUBLIC_URL is set to a public-facing DC/OS node.
+Install them via the command line with:
 
 ```bash
-export PUBLIC_URL=http://example.com
+dcos marathon app add dcos/marathon/linkerd.json
+dcos marathon app add dcos/marathon/namerd.json
 ```
 
-Upload your DC/OS config to a publicly accessible URL.
-
-```bash
-aws s3 cp dcos/linkerd-dcos-gob.yaml s3://buoyant-dcos --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
-aws s3 cp dcos/namerd-dcos-gob.yaml s3://buoyant-dcos --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
-```
-
-Install linkerd and namerd packages via the DC/OS UI. Specify settings consistent with `linkerd-package-options.json` and `namerd-package-options.json`, respectively.
-
-Alternatively, you may install them via the command line with:
-
-```bash
-dcos package install linkerd --options=dcos/linkerd-package-options.json
-dcos package install namerd --options=dcos/namerd-package-options.json
-```
-
-Note that DC/OS packages installed via the command line do not have `-default` appended to their marathon names, so in `linkerd-dcos-gob.yaml`, replace `namerd-default` with `namerd`.
+Learn more about deploying a custom linkerd on our (DC/OS getting started guide.)[https://linkerd.io/getting-started/dcos/]
 
 ## Gob Deploy
 
@@ -87,9 +46,12 @@ dcos marathon app add dcos/marathon/websvc.json
 :; namerctl -h
 ```
 
-For the sake of this demonstration, assume namerd's API is serving on port 4180 of the public-facing DC/OS node.
+For the sake of this demonstration, assume $PUBLIC_URL is set to a
+public-facing DC/OS node and namerd's API is serving on port 4180 of the
+public-facing DC/OS node.
 
 ```bash
+export PUBLIC_URL=http://example.com
 export NAMERCTL_BASE_URL=$PUBLIC_URL:4180
 ```
 
