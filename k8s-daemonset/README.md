@@ -107,7 +107,7 @@ need to create the namerd namespaces that are required to run the hello world
 app, by running:
 
 ```bash
-kubectl run namerctl --image=buoyantio/helloworld:0.0.5 --restart=Never -- "./createNs.sh"
+kubectl run namerctl --image=buoyantio/helloworld:0.0.6 --restart=Never -- "./createNs.sh"
 ```
 
 You can verify the namespaces were created with:

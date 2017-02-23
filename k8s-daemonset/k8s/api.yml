@@ -15,7 +15,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
       - name: service
-        image: buoyantio/helloworld:0.0.5
+        image: buoyantio/helloworld:0.0.6
         env:
         - name: POD_NAME
           valueFrom:
