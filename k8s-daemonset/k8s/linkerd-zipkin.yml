@@ -16,6 +16,7 @@ data:
       port: 8001
 
     telemetry:
+    - kind: io.l5d.prometheus
     - kind: io.l5d.zipkin
       host: zipkin-collector.default.svc.cluster.local
       port: 9410
