@@ -11,6 +11,7 @@ data:
       port: 9990
 
     telemetry:
+    - kind: io.l5d.prometheus
     - kind: io.l5d.recentRequests
       sampleRate: 0.25
 
