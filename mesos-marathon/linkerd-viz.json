@@ -1,0 +1,44 @@
+{
+  "id": "linkerd-viz",
+  "instances": 1,
+  "cpus": 1.0,
+  "mem": 512.0,
+  "acceptedResourceRoles": ["*", "slave_public"],
+  "maintainer": "hello@buoyant.io",
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "buoyantio/linkerd-viz:latest",
+      "network": "HOST",
+      "privileged": true
+    }
+  },
+  "args": ["mesos-marathon"],
+  "healthChecks": [
+    {
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "path": "/",
+      "gracePeriodSeconds": 5,
+      "intervalSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
+  ],
+  "portDefinitions": [
+    {
+      "port": 9191,
+      "protocol": "tcp",
+      "name": "stats"
+    },
+    {
+      "port": 3000,
+      "protocol": "tcp",
+      "name": "public"
+    }
+  ],
+  "requirePorts": true,
+  "env": {
+    "PUBLIC_PORT": "3000",
+    "STATS_PORT": "9191"
+  }
+}
