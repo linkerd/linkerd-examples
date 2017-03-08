@@ -71,12 +71,19 @@ through linkerd using the http_proxy environment variable. More information:
 
 * [`k8s-daemonset/`](k8s-daemonset/)
 
-Defines a sample hellow world app and multiple configs for deploying the app
+Defines a sample hello world app and multiple configs for deploying the app
 to Kubernetes in various configurations, in support for Buoyant's "A Service
 Mesh for Kubernetes" series of blog posts. More information:
 
 * [A Service Mesh for Kubernetes, Part I: Top-Line Service Metrics](https://blog.buoyant.io/2016/10/04/a-service-mesh-for-kubernetes-part-i-top-line-service-metrics/)
 * [Getting Started: Running in Kubernetes with DaemonSets](https://linkerd.io/getting-started/k8s-daemonset/)
+
+## Mesos + Marathon
+
+* [`mesos-marathon/`](mesos-marathon/)
+
+Demonstrates running linkerd and a sample hello world app on Mesos and Marathon,
+without DC/OS.
 
 ## Plugins
 
