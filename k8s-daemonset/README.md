@@ -32,9 +32,10 @@ Start by deploying the hello and the world apps by running:
 kubectl apply -f k8s/hello-world.yml
 ```
 
-The default hello-world.yml config requires Kubernetes 1.4 or later. If you're
-running an older version of Kubernetes, then you can instead use the legacy
-config by running:
+Note that this app configuration does not work on [Minikube](
+https://github.com/kubernetes/minikube) or versions of
+Kubernetes older than 1.4. If you are on one of those platforms, then you can
+instead use the legacy app configuration by running:
 
 ```bash
 kubectl apply -f k8s/hello-world-legacy.yml
@@ -92,7 +93,7 @@ kubectl apply -f k8s/namerd.yml
 kubectl apply -f k8s/linkerd-namerd.yml
 ```
 
-Note: namerd stores dtab with the Kubernetes master via the [ThirdPartyResource
+Note: namerd stores dtabs with the Kubernetes master via the [ThirdPartyResource
 APIs](https://kubernetes.io/docs/user-guide/thirdpartyresources/), which
 requires a cluster running Kubernetes 1.2+ with the ThirdPartyResource feature
 enabled.
@@ -167,6 +168,11 @@ curl -s https://raw.githubusercontent.com/BuoyantIO/linkerd-viz/master/k8s/linke
 
 ## Verifying
 
+Use the commands below to test out the app configurations that you deployed in
+the previous section. Note that if you're running on Minikube, the verification
+commands are different, and are covered in the next section,
+[Verifying Minikube](#verifying-minikube).
+
 ### linkerd admin page
 
 View the linkerd admin dashboard:
@@ -184,7 +190,7 @@ is, wait until the external IP is available, and then re-run the command.
 
 ### namerd admin page
 
-If you deployed namerd, visit the namerd admin dashboard:
+If you deployed namerd, view the namerd admin dashboard:
 
 ```bash
 NAMERD_INGRESS_LB=$(kubectl get svc namerd -o jsonpath="{.status.loadBalancer.ingress[0].*}")
@@ -193,7 +199,7 @@ open http://$NAMERD_INGRESS_LB:9990 # on OS X
 
 ### Zipkin
 
-If you deployed zipkin, load the Zipkin UI:
+If you deployed Zipkin, load the Zipkin UI:
 
 ```bash
 ZIPKIN_LB=$(kubectl get svc zipkin -o jsonpath="{.status.loadBalancer.ingress[0].*}")
@@ -230,4 +236,51 @@ View the linkerd-viz dashboard:
 ```bash
 L5D_VIZ_LB=$(kubectl get svc linkerd-viz -o jsonpath="{.status.loadBalancer.ingress[0].*}")
 open http://$L5D_VIZ_LB # on OS X
+```
+
+## Verifying Minikube
+
+If you're not running on Minikube, see the previous [Verifying](#verifying)
+section.
+
+### linkerd admin page
+
+To view the linkerd admin dashboard:
+
+```bash
+minikube service l5d --url | tail -n1 | xargs open # on OS X
+```
+
+### namerd admin page
+
+If you deployed namerd, view the namerd admin dashboard:
+
+```bash
+minikube service namerd --url | tail -n1 | xargs open # on OS X
+```
+
+### Zipkin
+
+If you deployed Zipkin, view the Zipkin UI:
+
+```bash
+minikube service zipkin
+```
+
+### linkerd-viz dashboard
+
+If you deployed linkerd-viz, view the linkerd-viz dashboard:
+
+```bash
+minikube service linkerd-viz --url | head -n1 | xargs open # on OS X
+```
+
+### Test Requests
+
+Send some test requests:
+
+```bash
+L5D_INGRESS_LB=$(minikube service l5d --url | head -n1)
+http_proxy=$L5D_INGRESS_LB curl -s http://hello
+http_proxy=$L5D_INGRESS_LB curl -s http://world
 ```

@@ -50,13 +50,10 @@ metadata:
 spec:
   selector:
     app: hello
-  type: ClusterIP
+  clusterIP: None
   ports:
   - name: http
     port: 7777
-  - name: external
-    port: 80
-    targetPort: 7777
 ---
 apiVersion: v1
 kind: ReplicationController
