@@ -157,6 +157,10 @@ Those commands will start a Zipkin process in your cluster, running with an
 in-memory span store and scribe collector, receiving linkerd tracing data via
 the `io.l5d.zipkin` tracer.
 
+This configuration is covered in more detail in:
+
+* [A Service Mesh for Kubernetes, Part VII: Distributed tracing made easy](https://blog.buoyant.io/2017/03/14/a-service-mesh-for-kubernetes-part-vii-distributed-tracing-made-easy/)
+
 ### linkerd-viz
 
 And lastly, once you have linkerd deployed, you can deploy
