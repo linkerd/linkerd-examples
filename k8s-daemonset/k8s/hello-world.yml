@@ -15,7 +15,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
       - name: service
-        image: buoyantio/helloworld:0.0.6
+        image: buoyantio/helloworld:0.1.0
         env:
         - name: NODE_NAME
           valueFrom:
@@ -27,9 +27,10 @@ spec:
               fieldPath: status.podIP
         - name: http_proxy
           value: $(NODE_NAME):4140
-        command:
-        - "python"
-        - "hello.py"
+        args:
+        - "-addr=:7777"
+        - "-text=Hello"
+        - "-target=world"
         ports:
         - name: service
           containerPort: 7777
@@ -62,7 +63,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
       - name: service
-        image: buoyantio/helloworld:0.0.6
+        image: buoyantio/helloworld:0.1.0
         env:
         - name: POD_IP
           valueFrom:
@@ -70,9 +71,8 @@ spec:
               fieldPath: status.podIP
         - name: TARGET_WORLD
           value: world
-        command:
-        - "python"
-        - "world.py"
+        args:
+        - "-addr=:7778"
         ports:
         - name: service
           containerPort: 7778

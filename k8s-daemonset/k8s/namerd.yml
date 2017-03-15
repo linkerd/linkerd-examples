@@ -57,7 +57,7 @@ spec:
             name: namerd-config
       containers:
         - name: namerd
-          image: buoyantio/namerd:0.9.0
+          image: buoyantio/namerd:0.9.1
           args:
             - /io.buoyant/namerd/config/config.yml
           ports:
@@ -93,3 +93,45 @@ spec:
     port: 4180
   - name: admin
     port: 9990
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: namerctl
+spec:
+  template:
+    metadata:
+      name: namerctl
+    spec:
+      containers:
+      - name: namerctl
+        image: linkerd/namerctl:0.8.6
+        env:
+        - name: NAMERCTL_BASE_URL
+          value: http://namerd.default.svc.cluster.local:4180
+        command:
+        - "/bin/bash"
+        args:
+        - "-c"
+        - |
+          set -e
+          if namerctl dtab get external > /dev/null 2>&1; then
+            echo "external namespace already exists"
+          else
+            echo "
+            /host       => /#/io.l5d.k8s/default/http/hello;
+            /svc/*      => /host;
+            " | namerctl dtab create external -
+          fi
+          if namerctl dtab get internal > /dev/null 2>&1; then
+            echo "internal namespace already exists"
+          else
+            echo "
+            /srv        => /#/io.l5d.k8s/default/http;
+            /host       => /srv;
+            /tmp        => /srv;
+            /svc        => /host;
+            /host/world => /srv/world-v1;
+            " | namerctl dtab create internal -
+          fi
+      restartPolicy: OnFailure
