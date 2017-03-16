@@ -18,7 +18,7 @@ spec:
         - "-text=walrus! koo koo ka choo"
         - "-json"
         ports:
-        - name: http
+        - name: service
           containerPort: 8501
 ---
 apiVersion: v1
@@ -52,7 +52,7 @@ spec:
         - "-text=seal"
         - "-json"
         ports:
-        - name: http
+        - name: service
           containerPort: 8501
 ---
 apiVersion: v1
@@ -86,7 +86,7 @@ spec:
         - "-text=elephant-seal"
         - "-json"
         ports:
-        - name: http
+        - name: service
           containerPort: 8501
 ---
 apiVersion: v1
@@ -120,7 +120,7 @@ spec:
         - "-text=sea-lion"
         - "-json"
         ports:
-        - name: http
+        - name: service
           containerPort: 8501
 ---
 apiVersion: v1
@@ -154,7 +154,7 @@ spec:
         - "-text=fur-seal"
         - "-json"
         ports:
-        - name: http
+        - name: service
           containerPort: 8501
 ---
 apiVersion: v1
