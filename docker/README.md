@@ -5,6 +5,18 @@ are used in our demos.
 
 ## jenkins-plus
 
+* [`helloworld/`](helloworld/)
+
+Builds the [buoyantio/helloworld](https://hub.docker.com/r/buoyantio/helloworld/)
+image, which provides a go script for running the hello and world services.
+These two services function together to make a highly scalable, "hello world"
+microservice (where the hello service, naturally, calls the world service to
+complete its request). For more information, see:
+
+* [A Service Mesh for Kubernetes, Part I: Top-line service metrics](https://blog.buoyant.io/2016/10/04/a-service-mesh-for-kubernetes-part-i-top-line-service-metrics/)
+
+## jenkins-plus
+
 * [`jenkins-plus/`](jenkins-plus/)
 
 Builds the [buoyantio/jenkins-plus](https://hub.docker.com/r/buoyantio/jenkins-plus/)

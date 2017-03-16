@@ -15,7 +15,7 @@ spec:
       dnsPolicy: ClusterFirst
       containers:
       - name: service
-        image: buoyantio/helloworld:0.0.6
+        image: buoyantio/helloworld:0.1.0
         env:
         - name: POD_IP
           valueFrom:
@@ -23,10 +23,8 @@ spec:
               fieldPath: status.podIP
         - name: TARGET_WORLD
           value: earth
-        command:
-        - "/bin/bash"
-        - "-c"
-        - "python world.py"
+        args:
+        - "-addr=:7778"
         ports:
         - name: service
           containerPort: 7778
