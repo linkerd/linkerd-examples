@@ -1,8 +1,9 @@
 # Hello World
 
-This directory contains files for building an the "hello world" microservice,
+This directory contains files for building the "hello world" microservice,
 which consists of a "hello" service that calls a "world" service to complete
-it's request.
+its request. Configs for running these services in Kubernetes live in the
+[`k8s-daemonset/`](../../k8s-daemonset/) directory.
 
 ## Building
 
@@ -17,10 +18,11 @@ Where `<tag-name>` is the tag of the image that you want to build.
 
 ## Usage
 
-See all available configuration options with the `-help` flag:
+The behavior of each server is controlled via command line flags and environment
+variables. The available command line flags are:
 
 ```bash
-$ go run main.go -help
+$ helloworld -help
 Usage of helloworld:
   -addr string
       address to serve on (default ":7777")
@@ -34,8 +36,18 @@ Usage of helloworld:
       target service to call before returning
   -text string
       text to serve (default "Hello")
-exit status 2
 ```
 
-To see a working example in Kubernetes, checkout
-[`hello-world.yml`](../../k8s-daemonset/k8s/hello-world.yml).
+The server also reads a few environment variable that are set as part of our
+Kubernetes configs, as follows:
+
+* `POD_IP`---If the service is running in a Kubernetes pod, setting this
+  environment to the IP address of the pod will alter the response to include
+  the IP after the text string, e.g. `world!` becomes `world (1.2.3.4)!`.
+
+* `TARGET_WORLD`---If set, the value of this environment variable will be used
+  as the text string, overriding the value of the `-text` flag, e.g. running
+  `TARGET_WORLD=foo helloworld -text bar` will return `foo!`, not `bar!`.
+
+To see a working example of the hello and world services configured to run in
+Kubernetes, see [`hello-world.yml`](../../k8s-daemonset/k8s/hello-world.yml).
