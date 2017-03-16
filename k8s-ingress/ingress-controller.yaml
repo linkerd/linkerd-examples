@@ -24,6 +24,7 @@ data:
       servers:
         - port: 80
           ip: 0.0.0.0
+          clearContext: true
       dtab: /svc => /#/io.l5d.k8s
 
     usage:
@@ -35,7 +36,7 @@ metadata:
   name: l5d
   namespace: l5d-system
 spec:
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:
