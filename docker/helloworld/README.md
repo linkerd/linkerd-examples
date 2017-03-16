@@ -41,13 +41,41 @@ Usage of helloworld:
 The server also reads a few environment variable that are set as part of our
 Kubernetes configs, as follows:
 
-* `POD_IP`---If the service is running in a Kubernetes pod, setting this
+* `POD_IP`: If the service is running in a Kubernetes pod, setting this
   environment to the IP address of the pod will alter the response to include
   the IP after the text string, e.g. `world!` becomes `world (1.2.3.4)!`.
 
-* `TARGET_WORLD`---If set, the value of this environment variable will be used
+* `TARGET_WORLD`: If set, the value of this environment variable will be used
   as the text string, overriding the value of the `-text` flag, e.g. running
   `TARGET_WORLD=foo helloworld -text bar` will return `foo!`, not `bar!`.
 
 To see a working example of the hello and world services configured to run in
 Kubernetes, see [`hello-world.yml`](../../k8s-daemonset/k8s/hello-world.yml).
+
+## Running locally
+
+Here's a brief example to demonstrate how to run the hello world app locally.
+
+Start by starting the "world" service on port 7778:
+
+```bash
+$ go run *.go -addr :7778 -text world &
+starting http server on :7778
+```
+
+Next bring up the "hello" service on port 7777, and configure it to make an
+additional call to the "world" service running on port 7778:
+
+```bash
+$ go run *.go -addr :7777 -text Hello -target localhost:7778 &
+starting http server on :7778
+```
+
+Send traffic to the "hello" service with:
+
+```bash
+$ curl :7777
+Hello world!!
+```
+
+Hello friend, nice to meet you.
