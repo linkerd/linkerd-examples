@@ -1,0 +1,170 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: walrus
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: walrus
+    spec:
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.1.0
+        args:
+        - "-addr=:8501"
+        - "-text=walrus! koo koo ka choo"
+        - "-json"
+        ports:
+        - name: http
+          containerPort: 8501
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: walrus
+spec:
+  selector:
+    app: walrus
+  clusterIP: None
+  ports:
+  - name: http
+    port: 8501
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: seal
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: seal
+    spec:
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.1.0
+        args:
+        - "-addr=:8501"
+        - "-text=seal"
+        - "-json"
+        ports:
+        - name: http
+          containerPort: 8501
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seal
+spec:
+  selector:
+    app: seal
+  clusterIP: None
+  ports:
+  - name: http
+    port: 8501
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: elephant-seal
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: elephant-seal
+    spec:
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.1.0
+        args:
+        - "-addr=:8501"
+        - "-text=elephant-seal"
+        - "-json"
+        ports:
+        - name: http
+          containerPort: 8501
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elephant-seal
+spec:
+  selector:
+    app: elephant-seal
+  clusterIP: None
+  ports:
+  - name: http
+    port: 8501
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sea-lion
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sea-lion
+    spec:
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.1.0
+        args:
+        - "-addr=:8501"
+        - "-text=sea-lion"
+        - "-json"
+        ports:
+        - name: http
+          containerPort: 8501
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sea-lion
+spec:
+  selector:
+    app: sea-lion
+  clusterIP: None
+  ports:
+  - name: http
+    port: 8501
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: fur-seal
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: fur-seal
+    spec:
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.1.0
+        args:
+        - "-addr=:8501"
+        - "-text=fur-seal"
+        - "-json"
+        ports:
+        - name: http
+          containerPort: 8501
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fur-seal
+spec:
+  selector:
+    app: fur-seal
+  clusterIP: None
+  ports:
+  - name: http
+    port: 8501
