@@ -15,7 +15,7 @@ spec:
         image: buoyantio/helloworld:0.1.0
         args:
         - "-addr=:8501"
-        - "-text=walrus! koo koo ka choo"
+        - "-text=I am the walrus! koo koo ka choo"
         - "-json"
         ports:
         - name: service
@@ -49,7 +49,7 @@ spec:
         image: buoyantio/helloworld:0.1.0
         args:
         - "-addr=:8501"
-        - "-text=seal"
+        - "-text=Hydrurga leptonyx"
         - "-json"
         ports:
         - name: service
@@ -83,7 +83,7 @@ spec:
         image: buoyantio/helloworld:0.1.0
         args:
         - "-addr=:8501"
-        - "-text=elephant-seal"
+        - "-text=Mirounga angustirostris"
         - "-json"
         ports:
         - name: service
@@ -117,7 +117,7 @@ spec:
         image: buoyantio/helloworld:0.1.0
         args:
         - "-addr=:8501"
-        - "-text=sea-lion"
+        - "-text=Zalophus californianus"
         - "-json"
         ports:
         - name: service
@@ -151,7 +151,7 @@ spec:
         image: buoyantio/helloworld:0.1.0
         args:
         - "-addr=:8501"
-        - "-text=fur-seal"
+        - "-text=Arctocephalus pusillus"
         - "-json"
         ports:
         - name: service
