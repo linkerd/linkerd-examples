@@ -4,7 +4,7 @@
 
 This is a sample application to demonstrate how to deploy a linkerd-to-linkerd
 configuration on Kubernetes using DaemonSets. The application consists of two
-python services: hello and world. The hello service calls the world service.
+go services: hello and world. The hello service calls the world service.
 
 ```
 hello -> linkerd (outgoing) -> linkerd (incoming) -> world
@@ -13,14 +13,9 @@ hello -> linkerd (outgoing) -> linkerd (incoming) -> world
 ## Building
 
 The Docker image for the hello and world services is [buoyantio/helloword](
-https://hub.docker.com/r/buoyantio/helloworld/). You can also build the image
-yourself by running:
-
-```bash
-cd helloworld
-docker build -t <helloworld image name> .
-docker push <helloworld image name>
-```
+https://hub.docker.com/r/buoyantio/helloworld/). There are instructions for
+building the image yourself in the [`docker/helloworld`](../docker/helloworld)
+directory.
 
 ## Deploying
 
@@ -99,25 +94,9 @@ requires a cluster running Kubernetes 1.2+ with the ThirdPartyResource feature
 enabled.
 
 Those commands will create the dtab resource, create the namerd config file,
-start namerd, create the linkerd config file, and start linkerd, which will use
-namerd for routing. linkerd will also run an edge router for handling external
-web traffic.
-
-If this is your first time running namerd in your k8s cluster, then you also
-need to create the namerd namespaces that are required to run the hello world
-app, by running:
-
-```bash
-kubectl run namerctl --image=buoyantio/helloworld:0.0.6 --restart=Never -- "./createNs.sh"
-```
-
-You can verify the namespaces were created with:
-
-```bash
-$ kubectl logs namerctl
-Created external
-Created internal
-```
+start namerd, create the "external" and "internal" namespaces in namerd, create
+the linkerd config file, and start linkerd, which will use namerd for routing.
+linkerd will also run an edge router for handling external web traffic.
 
 This configuration is covered in more detail in:
 
@@ -156,6 +135,10 @@ kubectl apply -f k8s/linkerd-zipkin.yml
 Those commands will start a Zipkin process in your cluster, running with an
 in-memory span store and scribe collector, receiving linkerd tracing data via
 the `io.l5d.zipkin` tracer.
+
+This configuration is covered in more detail in:
+
+* [A Service Mesh for Kubernetes, Part VII: Distributed tracing made easy](https://blog.buoyant.io/2017/03/14/a-service-mesh-for-kubernetes-part-vii-distributed-tracing-made-easy/)
 
 ### linkerd-viz
 
