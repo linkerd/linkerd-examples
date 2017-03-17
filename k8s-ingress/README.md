@@ -1,17 +1,14 @@
 # Linkerd as Kubernetes Ingress Controller
 
-This example application demonstrates the basics of using linkerd as an
-ingress controller. It consists of:
-* `ingress-controller.yaml`: A linkerd config and linkerd deployment listening on `hostPort: 80`.
-* `services.yaml`: Deployment and service definitions for a number of seal-related example services.
-* `ingress.yaml`: An ingress resource that defines routing to those services.
+The ingress controller in this example routes external requests through linkerd to various backends using the value of the request's Host header. Hence, by specifying different domains we end up with different results. For the purpose of this demo, the domain names are families of various species of pinnipeds (e.g. carnivora.pinniped.otariidae), and the service responses are genus and species within those families (e.g. Arctocephalus pusillus).
 
 ## Deploy
 
 ### Ingress Controller
 
 ```bash
-$ kubectl apply -f ingress-controller.yaml
+$ kubectl create ns l5d-system
+$ kubectl apply -f ingress-controller.yaml --namespace=l5d-system
 ```
 
 Verify linkerd pods:
