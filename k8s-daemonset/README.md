@@ -267,3 +267,33 @@ L5D_INGRESS_LB=$(minikube service l5d --url | head -n1)
 http_proxy=$L5D_INGRESS_LB curl -s http://hello
 http_proxy=$L5D_INGRESS_LB curl -s http://world
 ```
+
+## gRPC
+
+There's also a gRPC version of the hello world example available. Start by
+deploying linkerd configured to route gRPC requests:
+
+```bash
+kubectl apply -f k8s/linkerd-grpc.yml
+```
+
+Then deploy the hello and world services configured to communicate using gRPC:
+
+```bash
+kubectl apply -f k8s/hello-world-grpc.yml
+```
+
+View the linkerd admin dashboard (may take a few minutes until external IP is
+available):
+
+```bash
+L5D_INGRESS_LB=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].*}")
+open http://$L5D_INGRESS_LB:9990 # on OS X
+```
+
+Send a test request using the `helloworld-client` script, provided by the
+buoyantio/helloworld docker image:
+
+```bash
+docker run --rm --entrypoint=helloworld-client buoyantio/helloworld:0.1.2 -target $L5D_INGRESS_LB:4140
+```

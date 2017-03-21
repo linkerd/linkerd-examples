@@ -16,6 +16,12 @@ $ ./dockerize <tag-name>
 
 Where `<tag-name>` is the tag of the image that you want to build.
 
+To regenerate the protobuf gRPC bindings in the proto directory, run:
+
+```bash
+$ protoc -I ./proto/ ./proto/helloworld.proto --go_out=plugins=grpc:proto
+```
+
 ## Usage
 
 The behavior of each server is controlled via command line flags and environment
