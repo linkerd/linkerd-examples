@@ -33,6 +33,8 @@ data:
       servers:
       - port: 4140
         ip: 0.0.0.0
+      responseClassifier:
+        kind: io.l5d.retryableRead5XX
 
     - protocol: http
       label: incoming
