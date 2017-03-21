@@ -3,7 +3,7 @@
 This directory contains files and scripts for building custom Docker images that
 are used in our demos.
 
-## jenkins-plus
+## helloworld
 
 * [`helloworld/`](helloworld/)
 
