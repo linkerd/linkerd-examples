@@ -47,6 +47,8 @@ data:
           kind: io.l5d.static
           caCertPath: /io.buoyant/linkerd/certs/cacertificate.pem
           commonName: linkerd
+      responseClassifier:
+        kind: io.l5d.retryableRead5XX
 
     - protocol: http
       label: incoming

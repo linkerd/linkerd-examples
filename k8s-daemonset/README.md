@@ -146,7 +146,7 @@ And lastly, once you have linkerd deployed, you can deploy
 [linkerd-viz](https://github.com/BuoyantIO/linkerd-viz) as well, by running:
 
 ```bash
-curl -s https://raw.githubusercontent.com/BuoyantIO/linkerd-viz/master/k8s/linkerd-viz.yml | kubectl apply -f -
+kubectl apply -f https://raw.githubusercontent.com/BuoyantIO/linkerd-viz/master/k8s/linkerd-viz.yml
 ```
 
 ## Verifying
