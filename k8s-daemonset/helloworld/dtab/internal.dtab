@@ -1,5 +1,0 @@
-/srv        => /#/io.l5d.k8s/default/http;
-/host       => /srv;
-/tmp        => /srv;
-/svc        => /host;
-/host/world => /srv/world-v1;
