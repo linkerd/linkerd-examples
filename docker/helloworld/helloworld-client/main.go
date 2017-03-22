@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 
@@ -18,10 +17,12 @@ func dieIf(err error) {
 }
 
 func main() {
-	target := flag.String("target", "localhost:7777", "address of the hello gRPC service")
-	flag.Parse()
+	if len(os.Args) != 2 {
+		dieIf(fmt.Errorf("Usage: helloworld-client <host>:<port>"))
+	}
+	target := os.Args[1]
 
-	conn, err := grpc.Dial(*target, grpc.WithInsecure())
+	conn, err := grpc.Dial(target, grpc.WithInsecure())
 	dieIf(err)
 
 	defer conn.Close()

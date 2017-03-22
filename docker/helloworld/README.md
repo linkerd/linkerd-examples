@@ -114,7 +114,7 @@ starting gRPC server on :7777
 Send traffic to the "hello" service with:
 
 ```bash
-$ go run helloworld-client/main.go -target localhost:7777
+$ go run helloworld-client/main.go localhost:7777
 Hello world!!
 ```
 

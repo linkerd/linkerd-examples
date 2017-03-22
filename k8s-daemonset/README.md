@@ -295,5 +295,5 @@ Send a test request using the `helloworld-client` script, provided by the
 buoyantio/helloworld docker image:
 
 ```bash
-docker run --rm --entrypoint=helloworld-client buoyantio/helloworld:0.1.2 -target $L5D_INGRESS_LB:4140
+docker run --rm --entrypoint=helloworld-client buoyantio/helloworld:0.1.2 $L5D_INGRESS_LB:4140
 ```
