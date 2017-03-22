@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package helloworld;
+
+service Svc {
+  rpc Hello (SvcRequest) returns (SvcResponse) {}
+  rpc World (SvcRequest) returns (SvcResponse) {}
+}
+
+message SvcRequest {}
+
+message SvcResponse {
+  string message = 1;
+}

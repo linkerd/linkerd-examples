@@ -7,6 +7,7 @@ ENV PATH $GOPATH/bin:$PATH
 
 RUN mkdir -p $GOPATH/bin
 COPY ./helloworld $GOPATH/bin
+COPY ./helloworld-client/helloworld-client $GOPATH/bin
 COPY ./hostIP.sh /usr/local/bin
 
 ENTRYPOINT ["helloworld"]
