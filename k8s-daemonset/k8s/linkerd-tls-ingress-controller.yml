@@ -5,9 +5,6 @@ metadata:
   name: l5d-config
 data:
   config.yaml: |-
-    admin:
-      port: 9990
-
     namers:
     - kind: io.l5d.k8s
 
@@ -16,20 +13,24 @@ data:
       identifier:
         kind: io.l5d.http.ingress
       servers:
-        - port: 80
-          ip: 0.0.0.0
-          clearContext: true
+      - port: 443
+        ip: 0.0.0.0
+        clearContext: true
+        tls:
+          certPath: /io.buoyant/linkerd/certs/tls.crt
+          keyPath: /io.buoyant/linkerd/certs/tls.key
       dtab: /svc => /#/io.l5d.k8s
 
     usage:
       orgId: linkerd-examples-ingress
 ---
 apiVersion: extensions/v1beta1
-kind: Deployment
+kind: DaemonSet
 metadata:
+  labels:
+    app: l5d
   name: l5d
 spec:
-  replicas: 1
   template:
     metadata:
       labels:
@@ -39,6 +40,9 @@ spec:
       - name: l5d-config
         configMap:
           name: "l5d-config"
+      - name: certificates
+        secret:
+          secretName: ingress-certs
       containers:
       - name: l5d
         image: buoyantio/linkerd:0.9.1
@@ -50,16 +54,17 @@ spec:
         args:
         - /io.buoyant/linkerd/config/config.yaml
         ports:
-        - name: http
-          containerPort: 80
-          hostPort: 80
         - name: tls
           containerPort: 443
+          hostPort: 443
         - name: admin
           containerPort: 9990
         volumeMounts:
         - name: "l5d-config"
           mountPath: "/io.buoyant/linkerd/config"
+          readOnly: true
+        - name: "certificates"
+          mountPath: "/io.buoyant/linkerd/certs"
           readOnly: true
 
       - name: kubectl
@@ -73,27 +78,9 @@ metadata:
 spec:
   selector:
     app: l5d
-  type: NodePort
+  type: LoadBalancer
   ports:
-  - name: http
-    port: 80
   - name: tls
     port: 443
   - name: admin
     port: 9990
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: l5d-admin
-  annotations:
-    kubernetes.io/ingress.class: "linkerd"
-spec:
-  rules:
-  - host: l5d-admin.local
-    http:
-      paths:
-      - backend:
-          serviceName: l5d
-          servicePort: admin
-
