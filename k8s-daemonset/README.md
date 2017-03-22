@@ -109,7 +109,7 @@ traffic to multiple different backends based on domain, run:
 
 ```bash
 kubectl apply -f k8s/nginx.yml
-kubectl apply -f k8s/linkerd-ingress.yml
+kubectl apply -f k8s/linkerd-nginx.yml
 kubectl apply -f k8s/api.yml
 ```
 
@@ -151,7 +151,8 @@ kubectl apply -f https://raw.githubusercontent.com/BuoyantIO/linkerd-viz/master/
 
 #### Daemonsets + Ingress Controller
 
-To router to external requests using ingress resources, deploy linkerd as an ingress controller, and create an ingress resource:
+To route to external requests using ingress resources, deploy linkerd as an
+ingress controller and create an ingress resource:
 
 ```bash
 kubectl apply -f k8s/linkerd-ingress-controller.yml
