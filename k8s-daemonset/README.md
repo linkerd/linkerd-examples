@@ -109,7 +109,7 @@ traffic to multiple different backends based on domain, run:
 
 ```bash
 kubectl apply -f k8s/nginx.yml
-kubectl apply -f k8s/linkerd-nginx.yml
+kubectl apply -f k8s/linkerd-ingress.yml
 kubectl apply -f k8s/api.yml
 ```
 
