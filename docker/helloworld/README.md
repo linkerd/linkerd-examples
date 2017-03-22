@@ -33,11 +33,13 @@ Usage of helloworld:
   -addr string
       address to serve on (default ":7777")
   -failure-rate float
-      rate of 500 responses to return
+      rate of error responses to return
   -json
-      return json instead of plaintext responses
+      return JSON instead of plaintext responses (HTTP only)
   -latency duration
       time to sleep before processing request
+  -protocol string
+      API protocol: http or grpc (default "http")
   -target string
       target service to call before returning
   -text string
@@ -60,27 +62,59 @@ Kubernetes, see [`hello-world.yml`](../../k8s-daemonset/k8s/hello-world.yml).
 
 ## Running locally
 
-Here's a brief example to demonstrate how to run the hello world app locally.
+Here are brief examples to demonstrate how to run the hello world app locally.
+
+### HTTP
+
+Follow the instructions below to bring up the hello service and the world
+service, communicating with each other via HTTP.
 
 Start by starting the "world" service on port 7778:
 
 ```bash
-$ go run *.go -addr :7778 -text world &
-starting http server on :7778
+$ go run main.go -addr :7778 -text world &
+starting HTTP server on :7778
 ```
 
 Next bring up the "hello" service on port 7777, and configure it to make an
 additional call to the "world" service running on port 7778:
 
 ```bash
-$ go run *.go -addr :7777 -text Hello -target localhost:7778 &
-starting http server on :7778
+$ go run main.go -addr :7777 -text Hello -target localhost:7778 &
+starting HTTP server on :7777
 ```
 
 Send traffic to the "hello" service with:
 
 ```bash
-$ curl :7777
+$ curl localhost:7777
+Hello world!!
+```
+
+### gRPC
+
+Follow the instructions below to bring up the hello service and the world
+service, communicating with each other via gRPC.
+
+Start by starting the "world" service on port 7778:
+
+```bash
+$ go run main.go -addr :7778 -text world -protocol grpc &
+starting gRPC server on :7778
+```
+
+Next bring up the "hello" service on port 7777, and configure it to make an
+additional call to the "world" service running on port 7778:
+
+```bash
+$ go run main.go -addr :7777 -text Hello -target localhost:7778 -protocol grpc &
+starting gRPC server on :7777
+```
+
+Send traffic to the "hello" service with:
+
+```bash
+$ go run helloworld-client/main.go -target localhost:7777
 Hello world!!
 ```
 
