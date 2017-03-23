@@ -149,6 +149,16 @@ And lastly, once you have linkerd deployed, you can deploy
 kubectl apply -f https://raw.githubusercontent.com/BuoyantIO/linkerd-viz/master/k8s/linkerd-viz.yml
 ```
 
+#### Daemonsets + Ingress Controller
+
+To route to external requests using ingress resources, deploy linkerd as an
+ingress controller and create an ingress resource:
+
+```bash
+kubectl apply -f k8s/linkerd-ingress-controller.yml
+kubectl apply -f k8s/hello-world-ingress.yml
+```
+
 ## Verifying
 
 Use the commands below to test out the app configurations that you deployed in
