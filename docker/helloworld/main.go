@@ -12,6 +12,7 @@ import (
 	grpcServer "github.com/buoyantio/linkerd-examples/docker/helloworld/grpc"
 	httpServer "github.com/buoyantio/linkerd-examples/docker/helloworld/http"
 	proto "github.com/buoyantio/linkerd-examples/docker/helloworld/proto"
+	"github.com/buoyantio/linkerd-examples/docker/helloworld/redis"
 	"google.golang.org/grpc"
 )
 
@@ -32,6 +33,7 @@ func main() {
 	failureRate := flag.Float64("failure-rate", 0.0, "rate of error responses to return")
 	json := flag.Bool("json", false, "return JSON instead of plaintext responses (HTTP only)")
 	protocol := flag.String("protocol", "http", "API protocol: http or grpc")
+	redisAddr := flag.String("redis", "", "address of Redis caching server")
 	flag.Parse()
 
 	serverText := *text
@@ -41,13 +43,26 @@ func main() {
 
 	podIp := os.Getenv("POD_IP")
 
+	var redisClient *redis.Client
+	if *redisAddr != "" {
+		redisClient = redis.New(*redisAddr)
+	}
+
 	switch *protocol {
 	case "http":
 		server := &http.Server{
 			Addr:         *addr,
 			ReadTimeout:  5 * time.Second,
 			WriteTimeout: 10 * time.Second,
-			Handler:      httpServer.New(serverText, *target, podIp, *latency, *failureRate, *json),
+			Handler: httpServer.New(
+				serverText,
+				*target,
+				podIp,
+				*latency,
+				*failureRate,
+				*json,
+				redisClient,
+			),
 		}
 
 		fmt.Println("starting HTTP server on", *addr)
@@ -60,7 +75,14 @@ func main() {
 		dieIf(err)
 
 		s := grpc.NewServer()
-		server, err := grpcServer.New(serverText, *target, podIp, *latency, *failureRate)
+		server, err := grpcServer.New(
+			serverText,
+			*target,
+			podIp,
+			*latency,
+			*failureRate,
+			redisClient,
+		)
 		dieIf(err)
 		proto.RegisterSvcServer(s, server)
 

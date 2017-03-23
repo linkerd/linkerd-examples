@@ -6,6 +6,7 @@ import (
 	"time"
 
 	proto "github.com/buoyantio/linkerd-examples/docker/helloworld/proto"
+	"github.com/buoyantio/linkerd-examples/docker/helloworld/redis"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -16,9 +17,10 @@ type Server struct {
 	podIp       string
 	latency     time.Duration
 	failureRate float64
+	redis       *redis.Client
 }
 
-func New(text, target, podIp string, latency time.Duration, failureRate float64) (*Server, error) {
+func New(text, target, podIp string, latency time.Duration, failureRate float64, redisClient *redis.Client) (*Server, error) {
 	var client proto.SvcClient
 	if target != "" {
 		conn, err := grpc.Dial(target, grpc.WithInsecure())
@@ -34,6 +36,7 @@ func New(text, target, podIp string, latency time.Duration, failureRate float64)
 		podIp:       podIp,
 		latency:     latency,
 		failureRate: failureRate,
+		redis:       redisClient,
 	}, nil
 }
 
@@ -46,6 +49,12 @@ func (s *Server) World(ctx context.Context, req *proto.SvcRequest) (*proto.SvcRe
 }
 
 func (s *Server) respond(_ context.Context, _ *proto.SvcRequest) (*proto.SvcResponse, error) {
+	if s.redis != nil {
+		if text, err := s.redis.Get(); err == nil {
+			return &proto.SvcResponse{Message: text}, nil
+		}
+	}
+
 	time.Sleep(s.latency)
 	if rand.Float64() < s.failureRate {
 		return nil, fmt.Errorf("server error")
@@ -64,7 +73,13 @@ func (s *Server) respond(_ context.Context, _ *proto.SvcRequest) (*proto.SvcResp
 		text += fmt.Sprintf(" %s", targetText)
 	}
 
-	return &proto.SvcResponse{Message: text + "!"}, nil
+	text += "!"
+
+	if s.redis != nil {
+		s.redis.Set(text)
+	}
+
+	return &proto.SvcResponse{Message: text}, nil
 }
 
 func (s *Server) callTarget() (string, error) {

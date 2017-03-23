@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/buoyantio/linkerd-examples/docker/helloworld/redis"
 )
 
 type Server struct {
@@ -17,9 +19,10 @@ type Server struct {
 	latency     time.Duration
 	failureRate float64
 	json        bool
+	redis       *redis.Client
 }
 
-func New(text, target, podIp string, latency time.Duration, failureRate float64, json bool) *Server {
+func New(text, target, podIp string, latency time.Duration, failureRate float64, json bool, redisClient *redis.Client) *Server {
 	return &Server{
 		text:        text,
 		target:      target,
@@ -27,6 +30,7 @@ func New(text, target, podIp string, latency time.Duration, failureRate float64,
 		latency:     latency,
 		failureRate: failureRate,
 		json:        json,
+		redis:       redisClient,
 	}
 }
 
@@ -42,6 +46,13 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Server) handleRequest(w http.ResponseWriter, req *http.Request) {
+	if s.redis != nil {
+		if text, err := s.redis.Get(); err == nil {
+			w.Write([]byte(text))
+			return
+		}
+	}
+
 	time.Sleep(s.latency)
 	if rand.Float64() < s.failureRate {
 		http.Error(w, "", http.StatusInternalServerError)
@@ -63,9 +74,14 @@ func (s *Server) handleRequest(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if s.json {
-		s.writeJson(w, text)
+		text = s.writeJson(w, text)
 	} else {
-		w.Write([]byte(text + "!"))
+		text += "!"
+		w.Write([]byte(text))
+	}
+
+	if s.redis != nil && text != "" {
+		s.redis.Set(text)
 	}
 }
 
@@ -140,12 +156,13 @@ func (s *Server) callTarget(ctx *linkerdContext) (string, error) {
 	return string(body), err
 }
 
-func (s *Server) writeJson(w http.ResponseWriter, text string) {
+func (s *Server) writeJson(w http.ResponseWriter, text string) string {
 	jsonStr, err := json.Marshal(map[string]string{"api_result": text})
 	if err != nil {
 		http.Error(w, "error converting: "+text, http.StatusInternalServerError)
-		return
+		return ""
 	}
 
 	w.Write(jsonStr)
+	return string(jsonStr)
 }
