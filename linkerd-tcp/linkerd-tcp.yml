@@ -1,0 +1,13 @@
+admin:
+  addr: 127.0.0.1:9992
+  metricsIntervalSecs: 10
+
+proxies:
+- label: redis
+  servers:
+  - kind: io.l5d.tcp
+    addr: 127.0.0.1:7474
+  namerd:
+    addr: 127.0.0.1:4180
+    path: /svc/redis
+    intervalSecs: 5

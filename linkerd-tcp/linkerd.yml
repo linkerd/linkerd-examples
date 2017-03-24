@@ -1,0 +1,17 @@
+telemetry:
+- kind: io.l5d.prometheus
+- kind: io.l5d.recentRequests
+  sampleRate: 0.25
+
+usage:
+  orgId: linkerd-examples-linkerd-tcp
+
+routers:
+- protocol: http
+  interpreter:
+    kind: io.l5d.namerd
+    dst: /$/inet/127.0.0.1/4100
+    namespace: default
+  servers:
+  - port: 4140
+    ip: 0.0.0.0

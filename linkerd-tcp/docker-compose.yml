@@ -1,0 +1,201 @@
+version: '2'
+
+services:
+  app0:
+    build: .
+    network_mode: "host"
+    ports:
+    - 7770:7770
+    command:
+    - "-addr=:7770"
+    - "-redis-addr=127.0.0.1:7474"
+
+  app1:
+    build: .
+    network_mode: "host"
+    ports:
+    - 7771:7771
+    command:
+    - "-addr=:7771"
+    - "-redis-addr=127.0.0.1:7474"
+
+  app2:
+    build: .
+    network_mode: "host"
+    ports:
+    - 7772:7772
+    command:
+    - "-addr=:7772"
+    - "-redis-addr=127.0.0.1:7474"
+
+  app3:
+    build: .
+    network_mode: "host"
+    ports:
+    - 7773:7773
+    command:
+    - "-addr=:7773"
+    - "-redis-addr=127.0.0.1:7474"
+
+  app4:
+    build: .
+    network_mode: "host"
+    ports:
+    - 7774:7774
+    command:
+    - "-addr=:7774"
+    - "-redis-addr=127.0.0.1:7474"
+
+  app5:
+    build: .
+    network_mode: "host"
+    ports:
+    - 7775:7775
+    command:
+    - "-addr=:7775"
+    - "-redis-addr=127.0.0.1:7474"
+
+  app6:
+    build: .
+    network_mode: "host"
+    ports:
+    - 7776:7776
+    command:
+    - "-addr=:7776"
+    - "-redis-addr=127.0.0.1:7474"
+
+  app7:
+    build: .
+    network_mode: "host"
+    ports:
+    - 7777:7777
+    command:
+    - "-addr=:7777"
+    - "-redis-addr=127.0.0.1:7474"
+
+  app8:
+    build: .
+    network_mode: "host"
+    ports:
+    - 7778:7778
+    command:
+    - "-addr=:7778"
+    - "-redis-addr=127.0.0.1:7474"
+
+  app9:
+    build: .
+    network_mode: "host"
+    ports:
+    - 7779:7779
+    command:
+    - "-addr=:7779"
+    - "-redis-addr=127.0.0.1:7474"
+
+  linkerd:
+    image: buoyantio/linkerd:0.9.1
+    network_mode: "host"
+    ports:
+    - 4140:4140
+    - 9990:9990
+    volumes:
+    - ./linkerd.yml:/io.buoyant/linkerd/config.yml:ro
+    command:
+    - "/io.buoyant/linkerd/config.yml"
+
+  namerd:
+    image: buoyantio/namerd:0.9.1
+    network_mode: "host"
+    ports:
+    - 4100:4100
+    - 4180:4180
+    - 9991:9991
+    volumes:
+    - ./namerd.yml:/io.buoyant/namerd/config.yml:ro
+    - ./disco:/disco
+    command:
+    - "/io.buoyant/namerd/config.yml"
+
+  linkerd_tcp:
+    image: linkerd/linkerd-tcp:0.0.2
+    network_mode: "host"
+    ports:
+    - 7474:7474
+    - 9992:9992
+    volumes:
+    - ./linkerd-tcp.yml:/config.yml:ro
+    command:
+    - "/config.yml"
+
+  redis1:
+    image: redis:3.2
+    network_mode: "host"
+    ports:
+    - 6379:6379
+
+  redis2:
+    image: redis:3.2
+    network_mode: "host"
+    ports:
+    - 6380:6380
+    command:
+    - "--port 6380"
+
+  redis_exporter1:
+    image: oliver006/redis_exporter:v0.10.8
+    network_mode: "host"
+    ports:
+    - 9121:9121
+
+  redis_exporter2:
+    image: oliver006/redis_exporter:v0.10.8
+    network_mode: "host"
+    ports:
+    - 9122:9122
+    command:
+    - "-web.listen-address=:9122"
+    - "-redis.addr=redis://localhost:6380"
+
+  prometheus:
+    image: prom/prometheus:v1.0.1
+    network_mode: "host"
+    ports:
+    - 9090:9090
+    volumes:
+    - ./prometheus.yml:/prometheus/prometheus.yml:ro
+    command: >
+      -config.file=/prometheus/prometheus.yml
+      -storage.local.retention=12h
+
+  grafana:
+    build:
+      context: .
+      dockerfile: Dockerfile-grafana
+    network_mode: "host"
+    ports:
+    - 3000:3000
+    environment:
+    - GF_AUTH_ANONYMOUS_ENABLED=true
+    - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+
+  linkerd_viz:
+    image: buoyantio/linkerd-viz
+    network_mode: "host"
+    ports:
+    - 3001:3001
+    - 9191:9191
+    environment:
+    - PUBLIC_PORT=3001
+    - STATS_PORT=9191
+    volumes:
+    - ./prometheus-linkerd-viz.yml:/etc/prometheus/prometheus-local.yml:ro
+    command:
+    - "local"
+
+  slow_cooker:
+    image: buoyantio/slow_cooker:1.0.1
+    network_mode: "host"
+    environment:
+    - http_proxy=http://127.0.0.1:4140
+    entrypoint: /bin/sh
+    command: >
+      -c 'sleep 15 && slow_cooker -qps 10 -concurrency 50 -interval 5s http://web/'

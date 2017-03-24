@@ -1,0 +1,22 @@
+admin:
+  port: 9991
+
+namers:
+- kind: io.l5d.fs
+  rootDir: /disco
+
+storage:
+  kind: io.l5d.inMemory
+  namespaces:
+    default: |
+      /srv => /#/io.l5d.fs;
+      /svc => /srv;
+      /svc/redis => /srv/redis1;
+
+interfaces:
+- kind: io.l5d.thriftNameInterpreter
+  ip: 0.0.0.0
+  port: 4100
+- kind: io.l5d.httpController
+  ip: 0.0.0.0
+  port: 4180
