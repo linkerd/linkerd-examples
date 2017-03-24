@@ -22,7 +22,7 @@ data:
       dtab: /svc => /#/io.l5d.k8s
 
     usage:
-      orgId: linkerd-examples-ingress
+      orgId: linkerd-examples-ingress-tls
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet
