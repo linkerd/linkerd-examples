@@ -21,7 +21,7 @@ data:
       sampleRate: 0.25
 
     usage:
-      orgId: linkerd-examples-daemonset
+      orgId: linkerd-examples-daemonset-grpc
 
     routers:
     - protocol: h2
