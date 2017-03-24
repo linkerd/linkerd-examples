@@ -40,6 +40,8 @@ Usage of helloworld:
       time to sleep before processing request
   -protocol string
       API protocol: http or grpc (default "http")
+  -redis string
+      address of Redis caching server
   -target string
       target service to call before returning
   -text string
