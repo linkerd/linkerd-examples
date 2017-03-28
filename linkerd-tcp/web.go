@@ -5,29 +5,51 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/go-redis/redis"
 )
 
-type handler struct {
-	redisAddr string
-	redisKey  string
-	latency   time.Duration
-	expiry    time.Duration
+type redisClient struct {
+	addr   string
+	key    string
+	expiry time.Duration
+	client *redis.Client
+	sync.RWMutex
 }
 
-func (h *handler) HandleRequest(w http.ResponseWriter, req *http.Request) {
-	// for sake of example, tear down redis connection after every request
-	redisClient := redis.NewClient(&redis.Options{Addr: h.redisAddr})
-	defer func() {
-		cmd := redis.NewStringCmd("QUIT")
-		redisClient.Process(cmd)
-		redisClient.Close()
-	}()
+type handler struct {
+	redisClient *redisClient
+	latency     time.Duration
+}
 
-	if text, err := redisClient.Get(h.redisKey).Result(); err == nil {
+func (c *redisClient) Get() (string, error) {
+	c.RLock()
+	defer c.RUnlock()
+	return c.client.Get(c.key).Result()
+}
+
+func (c *redisClient) Set(text string) error {
+	c.RLock()
+	defer c.RUnlock()
+	expiry := time.Duration(rand.Int63n(int64(c.expiry)))
+	return c.client.Set(c.key, text, expiry).Err()
+}
+
+func (c *redisClient) Refresh() {
+	c.Lock()
+	defer c.Unlock()
+	if c.client != nil {
+		c.client.Close()
+	}
+	c.client = redis.NewClient(&redis.Options{Addr: c.addr})
+}
+
+func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	if text, err := h.redisClient.Get(); err == nil {
 		w.Write([]byte(text))
 		return
 	}
@@ -35,8 +57,7 @@ func (h *handler) HandleRequest(w http.ResponseWriter, req *http.Request) {
 	time.Sleep(h.latency)
 
 	text := "hello\n"
-	expiry := time.Duration(rand.Int63n(int64(h.expiry)))
-	redisClient.Set(h.redisKey, text, expiry)
+	h.redisClient.Set(text)
 	w.Write([]byte(text))
 }
 
@@ -52,13 +73,33 @@ func main() {
 	redisKey := "app:" + strconv.FormatInt(rand.Int63(), 16)
 	fmt.Printf("serving on %s, caching on %s\n", *addr, redisKey)
 
-	httpHandler := handler{
-		redisAddr: *redisAddr,
-		redisKey:  redisKey,
-		latency:   *latency,
-		expiry:    *expiry,
+	client := redisClient{
+		addr:   *redisAddr,
+		key:    redisKey,
+		expiry: *expiry,
+	}
+	client.Refresh()
+
+	// refresh connection every 5 seconds, with jitter
+	jitter := time.Duration(rand.Int63n(int64(*latency)))
+	go func() {
+		for _ = range time.Tick(5*time.Second + jitter) {
+			client.Refresh()
+		}
+	}()
+
+	httpServer := &http.Server{
+		Addr:        *addr,
+		ReadTimeout: 10 * time.Second,
+		Handler: &handler{
+			redisClient: &client,
+			latency:     *latency,
+		},
 	}
 
-	http.HandleFunc("/", httpHandler.HandleRequest)
-	http.ListenAndServe(*addr, nil)
+	err := httpServer.ListenAndServe()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
 }

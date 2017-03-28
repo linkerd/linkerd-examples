@@ -131,6 +131,9 @@ services:
     network_mode: "host"
     ports:
     - 6379:6379
+    command:
+    - "--port 6379"
+    - "--timeout 10"
 
   redis2:
     image: redis:3.2
@@ -139,6 +142,7 @@ services:
     - 6380:6380
     command:
     - "--port 6380"
+    - "--timeout 10"
 
   redis_exporter1:
     image: oliver006/redis_exporter:v0.10.8
