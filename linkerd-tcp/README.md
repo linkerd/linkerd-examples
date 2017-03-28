@@ -40,9 +40,9 @@ traffic via namerd.
 [`linkerd-tcp.yml`](linkerd-tcp.yml), which specifies 1 TCP proxy running on
 port 7474, routing redis traffic via namerd.
 
-* **redis**: Two [redis](https://redis.io/) instances are configured to run on
+* **redis**: Two [redis](https://redis.io/) clusters are configured to run on
 ports 6379 and 6380. The `default` namerd namespace is setup to send all redis
-traffic to the first redis instance, but that routing decision can be changed by
+traffic to the first redis cluster, but that routing decision can be changed by
 modifying namerd's dtab.
 
 * **web service**: The web service is composed of 10 instances of the HTTP web
@@ -64,7 +64,7 @@ are collected by the linkerd-viz container and displayed on dashboards using
 ## Traffic shifting
 
 Once the demo is up and running, you can shift traffic between the two redis
-instances by updating the default routing rules that are stored in namerd. To do
+clusters by updating the default routing rules that are stored in namerd. To do
 this, use the [namerctl](https://github.com/BuoyantIO/namerctl) command line
 utility. Install it with:
 
@@ -92,7 +92,7 @@ $ namerctl dtab get default
 ```
 
 You can see that the final dtab entry is routing all redis traffic to the first
-redis instance. Use namerctl to route all traffic to the second instance:
+redis cluster. Use namerctl to route all traffic to the second cluster:
 
 ```bash
 $ namerctl dtab get default | sed 's/redis1/redis2/' > default.dtab
