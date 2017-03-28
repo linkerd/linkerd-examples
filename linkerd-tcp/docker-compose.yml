@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-  app0:
+  web0:
     build: .
     network_mode: "host"
     ports:
@@ -10,7 +10,7 @@ services:
     - "-addr=:7770"
     - "-redis-addr=127.0.0.1:7474"
 
-  app1:
+  web1:
     build: .
     network_mode: "host"
     ports:
@@ -19,7 +19,7 @@ services:
     - "-addr=:7771"
     - "-redis-addr=127.0.0.1:7474"
 
-  app2:
+  web2:
     build: .
     network_mode: "host"
     ports:
@@ -28,7 +28,7 @@ services:
     - "-addr=:7772"
     - "-redis-addr=127.0.0.1:7474"
 
-  app3:
+  web3:
     build: .
     network_mode: "host"
     ports:
@@ -37,7 +37,7 @@ services:
     - "-addr=:7773"
     - "-redis-addr=127.0.0.1:7474"
 
-  app4:
+  web4:
     build: .
     network_mode: "host"
     ports:
@@ -46,7 +46,7 @@ services:
     - "-addr=:7774"
     - "-redis-addr=127.0.0.1:7474"
 
-  app5:
+  web5:
     build: .
     network_mode: "host"
     ports:
@@ -55,7 +55,7 @@ services:
     - "-addr=:7775"
     - "-redis-addr=127.0.0.1:7474"
 
-  app6:
+  web6:
     build: .
     network_mode: "host"
     ports:
@@ -64,7 +64,7 @@ services:
     - "-addr=:7776"
     - "-redis-addr=127.0.0.1:7474"
 
-  app7:
+  web7:
     build: .
     network_mode: "host"
     ports:
@@ -73,7 +73,7 @@ services:
     - "-addr=:7777"
     - "-redis-addr=127.0.0.1:7474"
 
-  app8:
+  web8:
     build: .
     network_mode: "host"
     ports:
@@ -82,7 +82,7 @@ services:
     - "-addr=:7778"
     - "-redis-addr=127.0.0.1:7474"
 
-  app9:
+  web9:
     build: .
     network_mode: "host"
     ports:
@@ -155,39 +155,16 @@ services:
     - "-web.listen-address=:9122"
     - "-redis.addr=redis://localhost:6380"
 
-  prometheus:
-    image: prom/prometheus:v1.0.1
-    network_mode: "host"
-    ports:
-    - 9090:9090
-    volumes:
-    - ./prometheus.yml:/prometheus/prometheus.yml:ro
-    command: >
-      -config.file=/prometheus/prometheus.yml
-      -storage.local.retention=12h
-
-  grafana:
-    build:
-      context: .
-      dockerfile: Dockerfile-grafana
+  linkerd_viz:
+    image: buoyantio/linkerd-viz:0.0.9
     network_mode: "host"
     ports:
     - 3000:3000
-    environment:
-    - GF_AUTH_ANONYMOUS_ENABLED=true
-    - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-
-  linkerd_viz:
-    image: buoyantio/linkerd-viz
-    network_mode: "host"
-    ports:
-    - 3001:3001
     - 9191:9191
-    environment:
-    - PUBLIC_PORT=3001
-    - STATS_PORT=9191
     volumes:
-    - ./prometheus-linkerd-viz.yml:/etc/prometheus/prometheus-local.yml:ro
+    - ./prometheus.yml:/etc/prometheus/prometheus-local.yml:ro
+    - ./grafana.json:/usr/share/grafana/public/dashboards/home.json:ro
+    - ./grafana.json:/usr/share/grafana/public/dashboards/linkerd-tcp-dashboard.json:ro
     command:
     - "local"
 

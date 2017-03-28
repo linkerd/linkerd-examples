@@ -12,7 +12,20 @@ directory is configured to run the demo. Start everything with:
 $ docker-compose build && docker-compose up -d
 ```
 
-That command will build and run all of the following containers:
+That command will start [linkerd-viz](https://github.com/BuoyantIO/linkerd-viz)
+on port 3000 on your Docker host, which you can use to view the demo in action.
+Set the `DOCKER_IP` environment variable to your Docker IP (e.g.
+`DOCKER_IP=$(docker-machine ip)`), and then open the dashboard with:
+
+```bash
+$ open http://$DOCKER_IP:3000 # on OS X
+```
+
+It will look like this:
+
+![linkerd-viz](screenshot.png)
+
+The docker environment is also running all of the following containers:
 
 * **namerd**: namerd is configured via the provided [`namerd.yml`](namerd.yml)
 file, which defines a `default` namespace that can be used to route traffic
@@ -25,57 +38,69 @@ traffic via namerd.
 
 * **linkerd-tcp**: linkerd-tcp is configured via the provided
 [`linkerd-tcp.yml`](linkerd-tcp.yml), which specifies 1 TCP proxy running on
-port 7474, routing Redis traffic via namerd.
+port 7474, routing redis traffic via namerd.
 
-* **2 Redis instances**: Two [Redis](https://redis.io/) instances are configured
-to run on ports 6379 and 6380. The `default` namerd namespace is setup to send
-all Redis traffic to the first redis instance, but that routing decision can be
-changed by modifying namerd's dtab.
+* **redis**: Two [redis](https://redis.io/) instances are configured to run on
+ports 6379 and 6380. The `default` namerd namespace is setup to send all redis
+traffic to the first redis instance, but that routing decision can be changed by
+modifying namerd's dtab.
 
-* **1 HTTP cluster**: The HTTP cluster consists of 10 instances of the HTTP
-web server defined in [`server.go`](server.go). The web server is configured
-to respond with the string "hello", and to cache its responses in Redis. If the
-response is found in cache, it returns immediately. On cache miss, it sleeps
-for 300 milliseconds before returning.
+* **web service**: The web service is composed of 10 instances of the HTTP web
+service defined in [`web.go`](web.go). The web service responds to HTTP requests
+with the string "hello", caches its responses in redis. If the response is found
+in cache, it returns immediately. On cache miss, it sleeps for 300 milliseconds
+before returning.
 
 * **slow_cooker**: Traffic to linkerd is generated using [slow\_cooker](
 https://github.com/BuoyantIO/slow_cooker). slow\_cooker is configured to send
 500 requests per second to the linkerd HTTP router, which load balances the
-requests over the 10 HTTP web server instances.
+requests over all 10 instances of the web service.
 
-* **prometheus**: linkerd, linkerd-tcp, and the Redis instances expose metrics
-data in a format that can be read by [Prometheus](https://prometheus.io/).
-Prometheus metrics collection is configured in [`prometheus.yml`](
-prometheus.yml), which scrapes all metrics from all processes every 10 seconds.
+* **linkerd-viz**: linkerd, linkerd-tcp, and redis expose metrics data in a
+format that can be read by [Prometheus](https://prometheus.io/). Those metrics
+are collected by the linkerd-viz container and displayed on dashboards using
+[Grafana](https://grafana.com/). The linkerd-viz UI is running on port 3000.
 
-* **grafana**: Collected metrics are displayed on a dashboard using [Grafana](
-http://grafana.org/). The grafana dasbhard is running on port 3000, and is
-defined in [`grafana.json`](grafana.json).
+## Traffic shifting
 
-* **linkerd-viz**: The setup is also running a [linkerd-viz](
-https://github.com/BuoyantIO/linkerd-viz) on port 3000, which gives an overall
-picture of the performance of slow_cooker's HTTP requests.
+Once the demo is up and running, you can shift traffic between the two redis
+instances by updating the default routing rules that are stored in namerd. To do
+this, use the [namerctl](https://github.com/BuoyantIO/namerctl) command line
+utility. Install it with:
 
-## Dashboards
+```bash
+$ go get -u github.com/buoyantio/namerctl
+```
 
-### Grafana
+namerctl uses namerd's HTTP API, which is running on port 4180 on your Docker
+host. Set the `DOCKER_IP` environment variable as described above, and then
+configure namerctl to talk to namerd by setting the `NAMERCTL_BASE_URL`
+environment variable:
 
-Grafana is running on port 3000 in your docker-compose environment. To see a
-dashboard that displays linkerd-tcp metrics alongside linkerd and redis metrics,
-load the dashboard by going to port 3000 on your docker host. It should look
-like this:
+```bash
+$ export NAMERCTL_BASE_URL=http://$DOCKER_IP:4180
+```
 
-![grafana](screenshot.png)
+Fetch namerd's current routing configuration:
 
-### linkerd admin
+```bash
+$ namerctl dtab get default
+# version AAAAAAAAAAE=
+/srv        => /#/io.l5d.fs ;
+/svc        => /srv ;
+/svc/redis  => /srv/redis1 ;
+```
 
-The linkerd admin server is running on port 9990 in your docker-compose
-environment, and displays instance-specific metrics data.
+You can see that the final dtab entry is routing all redis traffic to the first
+redis instance. Use namerctl to route all traffic to the second instance:
 
-### linkerd-viz
+```bash
+$ namerctl dtab get default | sed 's/redis1/redis2/' > default.dtab
+$ namerctl dtab update default default.dtab
+Updated default
+```
 
-The linkerd-viz server is running on port 3001 in your docker-compose
-environment, and displays high-level performance data.
+The linkerd-viz dashboard will show traffic switching from redis1 to redis2.
 
 ## Troubleshooting
 
