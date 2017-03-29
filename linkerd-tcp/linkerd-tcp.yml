@@ -1,0 +1,18 @@
+# the admin section defines where to serve the admin interface, and how
+# frequently to refresh metrics served
+admin:
+  addr: 127.0.0.1:9992
+  metricsIntervalSecs: 5
+
+# the proxies section defines a list of proxies. each proxy defines one or more
+# servers, each serving on a different address. proxies resolve routes using a
+# configured namerd address, namespace, and static path.
+proxies:
+- label: redis
+  servers:
+  - kind: io.l5d.tcp
+    addr: 127.0.0.1:7474
+  namerd:
+    addr: 127.0.0.1:4180
+    path: /svc/redis
+    intervalSecs: 5

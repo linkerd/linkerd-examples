@@ -78,6 +78,14 @@ Mesh for Kubernetes" series of blog posts. More information:
 * [A Service Mesh for Kubernetes, Part I: Top-Line Service Metrics](https://blog.buoyant.io/2016/10/04/a-service-mesh-for-kubernetes-part-i-top-line-service-metrics/)
 * [Getting Started: Running in Kubernetes with DaemonSets](https://linkerd.io/getting-started/k8s-daemonset/)
 
+## linkerd-tcp
+
+* [`linkerd-tcp/`](linkerd-tcp/)
+
+Sets up a demo environment that uses linkerd to route HTTP traffic and
+[linkerd-tcp](https://github.com/linkerd/linkerd-tcp) to route Redis traffic.
+Provides helpful configuration files and dashboards for all components.
+
 ## Mesos + Marathon
 
 * [`mesos-marathon/`](mesos-marathon/)
