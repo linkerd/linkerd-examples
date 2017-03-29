@@ -9,9 +9,9 @@ storage:
   kind: io.l5d.inMemory
   namespaces:
     default: |
-      /srv => /#/io.l5d.fs;
-      /svc => /srv;
-      /svc/redis => /srv/redis1;
+      /cluster   => /#/io.l5d.fs;
+      /svc       => /cluster;
+      /svc/redis => /cluster/redis1;
 
 interfaces:
 - kind: io.l5d.thriftNameInterpreter

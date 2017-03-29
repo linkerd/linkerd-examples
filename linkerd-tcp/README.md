@@ -86,9 +86,9 @@ Fetch namerd's current routing configuration:
 ```bash
 $ namerctl dtab get default
 # version AAAAAAAAAAE=
-/srv        => /#/io.l5d.fs ;
-/svc        => /srv ;
-/svc/redis  => /srv/redis1 ;
+/cluster    => /#/io.l5d.fs ;
+/svc        => /cluster ;
+/svc/redis  => /cluster/redis1 ;
 ```
 
 You can see that the final dtab entry is routing all redis traffic to the first
