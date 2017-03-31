@@ -61,6 +61,17 @@ This configuration is covered in more detail in:
 
 * [A Service Mesh for Kubernetes, Part II: Pods Are Great Until They're Not](https://blog.buoyant.io/2016/10/14/a-service-mesh-for-kubernetes-part-ii-pods-are-great-until-theyre-not/)
 
+#### Daemonsets + CNI
+
+If you are using CNI such as Calico or Weave, you need a slightly modified
+config as described [here](https://linkerd.io/getting-started/k8s-daemonset/index.html#cni-setups).
+
+To deploy this configuration, you can run:
+
+```bash
+kubectl apply -f k8s/linkerd-cni.yml
+```
+
 #### Daemonsets + TLS
 
 For a linkerd configuration that adds TLS to all service-to-service calls, run:

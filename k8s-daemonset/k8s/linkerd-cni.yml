@@ -83,10 +83,10 @@ spec:
       - name: l5d
         image: buoyantio/linkerd:0.9.1
         env:
-        - name: POD_IP
+        - name: NODE_NAME
           valueFrom:
             fieldRef:
-              fieldPath: status.podIP
+              fieldPath: spec.nodeName
         args:
         - /io.buoyant/linkerd/config/config.yaml
         ports:
