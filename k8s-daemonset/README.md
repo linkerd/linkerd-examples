@@ -151,15 +151,6 @@ This configuration is covered in more detail in:
 
 * [A Service Mesh for Kubernetes, Part VII: Distributed tracing made easy](https://blog.buoyant.io/2017/03/14/a-service-mesh-for-kubernetes-part-vii-distributed-tracing-made-easy/)
 
-### linkerd-viz
-
-And lastly, once you have linkerd deployed, you can deploy
-[linkerd-viz](https://github.com/BuoyantIO/linkerd-viz) as well, by running:
-
-```bash
-kubectl apply -f https://raw.githubusercontent.com/BuoyantIO/linkerd-viz/master/k8s/linkerd-viz.yml
-```
-
 #### Daemonsets + Ingress Controller
 
 To route to external requests using ingress resources, deploy linkerd as an
@@ -168,6 +159,15 @@ ingress controller and create an ingress resource:
 ```bash
 kubectl apply -f k8s/linkerd-ingress-controller.yml
 kubectl apply -f k8s/hello-world-ingress.yml
+```
+
+### linkerd-viz
+
+And lastly, once you have linkerd deployed, you can deploy
+[linkerd-viz](https://github.com/BuoyantIO/linkerd-viz) as well, by running:
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/BuoyantIO/linkerd-viz/master/k8s/linkerd-viz.yml
 ```
 
 ## Verifying
