@@ -44,9 +44,9 @@ data:
         ip: 0.0.0.0
       client:
         tls:
-          kind: io.l5d.static
-          caCertPath: /io.buoyant/linkerd/certs/cacertificate.pem
           commonName: linkerd
+          trustCerts:
+          - /io.buoyant/linkerd/certs/cacertificate.pem
       responseClassifier:
         kind: io.l5d.retryableRead5XX
 
@@ -89,7 +89,7 @@ spec:
           secretName: certificates
       containers:
       - name: l5d
-        image: buoyantio/linkerd:0.9.1
+        image: buoyantio/linkerd:1.0.0-rc1
         env:
         - name: POD_IP
           valueFrom:

@@ -12,7 +12,6 @@ namers:
 - kind: io.l5d.marathon
   host: localhost
   port: 8080
-  experimental: true
 
 routers:
 - protocol: http

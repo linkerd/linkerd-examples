@@ -7,7 +7,6 @@ admin:
 
 storage:
   kind: io.l5d.zk
-  experimental: true
   zkAddrs:
   - host: leader.mesos
     port: 2181
@@ -16,7 +15,6 @@ storage:
 
 namers:
 - kind:         io.l5d.marathon
-  experimental: true
   host:         marathon.mesos
   port:         8080
 
