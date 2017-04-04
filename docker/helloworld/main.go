@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"regexp"
 	"time"
 
 	grpcServer "github.com/buoyantio/linkerd-examples/docker/helloworld/grpc"
@@ -62,13 +63,18 @@ func main() {
 		s := grpc.NewServer()
 		server, err := grpcServer.New(serverText, *target, podIp, *latency, *failureRate)
 		dieIf(err)
-		proto.RegisterSvcServer(s, server)
+
+		isHello, err := regexp.MatchString("(?i)hello", serverText)
+		if isHello {
+			proto.RegisterHelloServer(s, server)
+		} else {
+			proto.RegisterWorldServer(s, server)
+		}
 
 		fmt.Println("starting gRPC server on", *addr)
 
 		err = s.Serve(lis)
 		dieIf(err)
-
 	default:
 		dieIf(fmt.Errorf("unsupported protocol: %s", *protocol))
 	}

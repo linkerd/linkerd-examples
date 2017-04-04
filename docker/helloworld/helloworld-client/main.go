@@ -21,14 +21,13 @@ func main() {
 		dieIf(fmt.Errorf("Usage: helloworld-client <host>:<port>"))
 	}
 	target := os.Args[1]
-
 	conn, err := grpc.Dial(target, grpc.WithInsecure())
 	dieIf(err)
 
 	defer conn.Close()
-	client := proto.NewSvcClient(conn)
+	client := proto.NewHelloClient(conn)
 
-	resp, err := client.Hello(context.Background(), &proto.SvcRequest{})
+	resp, err := client.Greeting(context.Background(), &proto.SvcRequest{})
 	dieIf(err)
 
 	fmt.Println(resp.Message)

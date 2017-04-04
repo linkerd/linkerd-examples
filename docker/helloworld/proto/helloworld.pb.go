@@ -71,97 +71,128 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// Client API for Svc service
+// Client API for Hello service
 
-type SvcClient interface {
-	Hello(ctx context.Context, in *SvcRequest, opts ...grpc.CallOption) (*SvcResponse, error)
-	World(ctx context.Context, in *SvcRequest, opts ...grpc.CallOption) (*SvcResponse, error)
+type HelloClient interface {
+	Greeting(ctx context.Context, in *SvcRequest, opts ...grpc.CallOption) (*SvcResponse, error)
 }
 
-type svcClient struct {
+type helloClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewSvcClient(cc *grpc.ClientConn) SvcClient {
-	return &svcClient{cc}
+func NewHelloClient(cc *grpc.ClientConn) HelloClient {
+	return &helloClient{cc}
 }
 
-func (c *svcClient) Hello(ctx context.Context, in *SvcRequest, opts ...grpc.CallOption) (*SvcResponse, error) {
+func (c *helloClient) Greeting(ctx context.Context, in *SvcRequest, opts ...grpc.CallOption) (*SvcResponse, error) {
 	out := new(SvcResponse)
-	err := grpc.Invoke(ctx, "/helloworld.Svc/Hello", in, out, c.cc, opts...)
+	err := grpc.Invoke(ctx, "/helloworld.Hello/Greeting", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *svcClient) World(ctx context.Context, in *SvcRequest, opts ...grpc.CallOption) (*SvcResponse, error) {
-	out := new(SvcResponse)
-	err := grpc.Invoke(ctx, "/helloworld.Svc/World", in, out, c.cc, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+// Server API for Hello service
+
+type HelloServer interface {
+	Greeting(context.Context, *SvcRequest) (*SvcResponse, error)
 }
 
-// Server API for Svc service
-
-type SvcServer interface {
-	Hello(context.Context, *SvcRequest) (*SvcResponse, error)
-	World(context.Context, *SvcRequest) (*SvcResponse, error)
+func RegisterHelloServer(s *grpc.Server, srv HelloServer) {
+	s.RegisterService(&_Hello_serviceDesc, srv)
 }
 
-func RegisterSvcServer(s *grpc.Server, srv SvcServer) {
-	s.RegisterService(&_Svc_serviceDesc, srv)
-}
-
-func _Svc_Hello_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Hello_Greeting_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SvcRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SvcServer).Hello(ctx, in)
+		return srv.(HelloServer).Greeting(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/helloworld.Svc/Hello",
+		FullMethod: "/helloworld.Hello/Greeting",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SvcServer).Hello(ctx, req.(*SvcRequest))
+		return srv.(HelloServer).Greeting(ctx, req.(*SvcRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Svc_World_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SvcRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SvcServer).World(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/helloworld.Svc/World",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SvcServer).World(ctx, req.(*SvcRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-var _Svc_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "helloworld.Svc",
-	HandlerType: (*SvcServer)(nil),
+var _Hello_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "helloworld.Hello",
+	HandlerType: (*HelloServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Hello",
-			Handler:    _Svc_Hello_Handler,
+			MethodName: "Greeting",
+			Handler:    _Hello_Greeting_Handler,
 		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "helloworld.proto",
+}
+
+// Client API for World service
+
+type WorldClient interface {
+	Greeting(ctx context.Context, in *SvcRequest, opts ...grpc.CallOption) (*SvcResponse, error)
+}
+
+type worldClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewWorldClient(cc *grpc.ClientConn) WorldClient {
+	return &worldClient{cc}
+}
+
+func (c *worldClient) Greeting(ctx context.Context, in *SvcRequest, opts ...grpc.CallOption) (*SvcResponse, error) {
+	out := new(SvcResponse)
+	err := grpc.Invoke(ctx, "/helloworld.World/Greeting", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for World service
+
+type WorldServer interface {
+	Greeting(context.Context, *SvcRequest) (*SvcResponse, error)
+}
+
+func RegisterWorldServer(s *grpc.Server, srv WorldServer) {
+	s.RegisterService(&_World_serviceDesc, srv)
+}
+
+func _World_Greeting_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SvcRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WorldServer).Greeting(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/helloworld.World/Greeting",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WorldServer).Greeting(ctx, req.(*SvcRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _World_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "helloworld.World",
+	HandlerType: (*WorldServer)(nil),
+	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "World",
-			Handler:    _Svc_World_Handler,
+			MethodName: "Greeting",
+			Handler:    _World_Greeting_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -171,14 +202,14 @@ var _Svc_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("helloworld.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 134 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0xc8, 0x48, 0xcd, 0xc9,
+	// 139 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0x12, 0xc8, 0x48, 0xcd, 0xc9,
 	0xc9, 0x2f, 0xcf, 0x2f, 0xca, 0x49, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x42, 0x88,
 	0x28, 0xf1, 0x70, 0x71, 0x05, 0x97, 0x25, 0x07, 0xa5, 0x16, 0x96, 0xa6, 0x16, 0x97, 0x28, 0xa9,
 	0x73, 0x71, 0x83, 0x79, 0xc5, 0x05, 0xf9, 0x79, 0xc5, 0xa9, 0x42, 0x12, 0x5c, 0xec, 0xb9, 0xa9,
-	0xc5, 0xc5, 0x89, 0xe9, 0xa9, 0x12, 0x8c, 0x0a, 0x8c, 0x1a, 0x9c, 0x41, 0x30, 0xae, 0x51, 0x2d,
-	0x17, 0x73, 0x70, 0x59, 0xb2, 0x90, 0x15, 0x17, 0xab, 0x07, 0xc8, 0x2c, 0x21, 0x31, 0x3d, 0x24,
-	0x5b, 0x10, 0x06, 0x4a, 0x89, 0x63, 0x88, 0x43, 0x8c, 0x56, 0x62, 0x00, 0xe9, 0x0d, 0x07, 0x09,
-	0x93, 0xa1, 0x37, 0x89, 0x0d, 0xec, 0x11, 0x63, 0x40, 0x00, 0x00, 0x00, 0xff, 0xff, 0xc5, 0xdb,
-	0xf5, 0xb1, 0xdc, 0x00, 0x00, 0x00,
+	0xc5, 0xc5, 0x89, 0xe9, 0xa9, 0x12, 0x8c, 0x0a, 0x8c, 0x1a, 0x9c, 0x41, 0x30, 0xae, 0x91, 0x1b,
+	0x17, 0xab, 0x07, 0xc8, 0x10, 0x21, 0x5b, 0x2e, 0x0e, 0xf7, 0xa2, 0xd4, 0xd4, 0x92, 0xcc, 0xbc,
+	0x74, 0x21, 0x31, 0x3d, 0x24, 0xab, 0x10, 0xa6, 0x4a, 0x89, 0x63, 0x88, 0x43, 0xcc, 0x57, 0x62,
+	0x00, 0x99, 0x13, 0x0e, 0x12, 0xa6, 0xd0, 0x9c, 0x24, 0x36, 0xb0, 0xcf, 0x8c, 0x01, 0x01, 0x00,
+	0x00, 0xff, 0xff, 0x45, 0xc2, 0x02, 0xf2, 0xed, 0x00, 0x00, 0x00,
 }
