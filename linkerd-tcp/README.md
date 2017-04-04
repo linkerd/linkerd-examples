@@ -12,7 +12,7 @@ directory is configured to run the demo. Start everything with:
 $ docker-compose build && docker-compose up -d
 ```
 
-That command will start [linkerd-viz](https://github.com/BuoyantIO/linkerd-viz)
+That command will start [linkerd-viz](https://github.com/linkerd/linkerd-viz)
 on port 3000 on your Docker host, which you can use to view the demo in action.
 Set the `DOCKER_IP` environment variable to your Docker IP (e.g.
 `DOCKER_IP=$(docker-machine ip)`), and then open the dashboard with:
@@ -65,11 +65,11 @@ are collected by the linkerd-viz container and displayed on dashboards using
 
 Once the demo is up and running, you can shift traffic between the two redis
 clusters by updating the default routing rules that are stored in namerd. To do
-this, use the [namerctl](https://github.com/BuoyantIO/namerctl) command line
+this, use the [namerctl](https://github.com/linkerd/namerctl) command line
 utility. Install it with:
 
 ```bash
-$ go get -u github.com/buoyantio/namerctl
+$ go get -u github.com/linkerd/namerctl
 ```
 
 namerctl uses namerd's HTTP API, which is running on port 4180 on your Docker

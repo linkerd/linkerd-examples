@@ -9,9 +9,9 @@ import (
 	"os"
 	"time"
 
-	grpcServer "github.com/buoyantio/linkerd-examples/docker/helloworld/grpc"
-	httpServer "github.com/buoyantio/linkerd-examples/docker/helloworld/http"
-	proto "github.com/buoyantio/linkerd-examples/docker/helloworld/proto"
+	grpcServer "github.com/linkerd/linkerd-examples/docker/helloworld/grpc"
+	httpServer "github.com/linkerd/linkerd-examples/docker/helloworld/http"
+	proto "github.com/linkerd/linkerd-examples/docker/helloworld/proto"
 	"google.golang.org/grpc"
 )
 

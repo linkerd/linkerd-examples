@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	proto "github.com/buoyantio/linkerd-examples/docker/helloworld/proto"
+	proto "github.com/linkerd/linkerd-examples/docker/helloworld/proto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )

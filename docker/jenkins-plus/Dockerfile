@@ -9,7 +9,7 @@ RUN mv go /usr/local
 ENV GOPATH /go
 RUN mkdir $GOPATH
 ENV PATH /usr/local/go/bin:$GOPATH/bin:$PATH
-RUN go get github.com/BuoyantIO/namerctl && go install github.com/BuoyantIO/namerctl
+RUN go get github.com/linkerd/namerctl && go install github.com/linkerd/namerctl
 ENV NAMERCTL_BASE_URL http://namerd.default.svc.cluster.local:4180
 
 USER jenkins

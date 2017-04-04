@@ -28,8 +28,8 @@ interact with the namerd API from the commandline. If you have
 as:
 
 ```
-:; go get github.com/buoyantio/namerctl
-:; go install github.com/buoyantio/namerctl
+:; go get github.com/linkerd/namerctl
+:; go install github.com/linkerd/namerctl
 :; namerctl -h
 Find more information at https://linkerd.io
 

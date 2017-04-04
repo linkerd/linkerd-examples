@@ -42,7 +42,7 @@ dcos marathon app add dcos/marathon/websvc.json
 `namerctl` is utility for interacting with the namerd API from the commandline
 
 ```
-:; go install github.com/buoyantio/namerctl
+:; go install github.com/linkerd/namerctl
 :; namerctl -h
 ```
 

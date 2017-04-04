@@ -11,7 +11,7 @@ Start by cloning this repo.  Make sure that `kubectl` is installed and
 configured to talk to your Kubernetes cluster.
 
 ```
-git clone https://github.com/BuoyantIO/linkerd-examples.git
+git clone https://github.com/linkerd/linkerd-examples.git
 cd linkerd-examples/getting-started/k8s
 kubectl cluster-info
 ```
