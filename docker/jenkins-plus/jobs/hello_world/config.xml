@@ -9,7 +9,7 @@
         <hudson.model.StringParameterDefinition>
           <name>gitRepo</name>
           <description>linkerd-examples repo to clone and build</description>
-          <defaultValue>https://github.com/BuoyantIO/linkerd-examples</defaultValue>
+          <defaultValue>https://github.com/linkerd/linkerd-examples</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>gitBranch</name>

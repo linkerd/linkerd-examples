@@ -164,10 +164,10 @@ kubectl apply -f k8s/hello-world-ingress.yml
 ### linkerd-viz
 
 And lastly, once you have linkerd deployed, you can deploy
-[linkerd-viz](https://github.com/BuoyantIO/linkerd-viz) as well, by running:
+[linkerd-viz](https://github.com/linkerd/linkerd-viz) as well, by running:
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/BuoyantIO/linkerd-viz/master/k8s/linkerd-viz.yml
+kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-viz/master/k8s/linkerd-viz.yml
 ```
 
 ## Verifying

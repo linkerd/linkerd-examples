@@ -11,7 +11,7 @@ For more information on linkerd, please visit linkerd.io
 Start by cloning this repo:
 
 ```
-git clone https://github.com/BuoyantIO/linkerd-examples.git
+git clone https://github.com/linkerd/linkerd-examples.git
 cd linkerd-examples/getting-started/docker
 ```
 

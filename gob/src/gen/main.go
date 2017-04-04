@@ -6,7 +6,7 @@ import (
 	"net"
 	"os"
 
-	pb "github.com/buoyantio/linkerd-examples/gob/proto"
+	pb "github.com/linkerd/linkerd-examples/gob/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
