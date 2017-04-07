@@ -39,7 +39,7 @@ spec:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.0.0-rc1
+        image: buoyantio/linkerd:1.0.0-rc2
         env:
         - name: POD_IP
           valueFrom:

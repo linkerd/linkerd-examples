@@ -62,7 +62,7 @@ services:
     - "-redis-addr=linkerdtcp:7474"
 
   linkerd:
-    image: buoyantio/linkerd:1.0.0-rc1
+    image: buoyantio/linkerd:1.0.0-rc2
     ports:
     - 9990:9990
     volumes:
@@ -71,7 +71,7 @@ services:
     - "/io.buoyant/linkerd/config.yml"
 
   namerd:
-    image: buoyantio/namerd:1.0.0-rc1
+    image: buoyantio/namerd:1.0.0-rc2
     ports:
     - 4180:4180
     - 9991:9991
