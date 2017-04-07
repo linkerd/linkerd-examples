@@ -1,0 +1,23 @@
+admin:
+  port: 9990
+
+# use the filesystem namer, read from the local /disco directory
+namers:
+- kind: io.l5d.fs
+  rootDir: /disco
+
+# enable InfluxDB telemeter
+telemetry:
+- kind: io.l5d.influxdb
+
+usage:
+  orgId: linkerd-examples-influxdb
+
+routers:
+- protocol: http
+  servers:
+  - port: 4140
+    ip: 0.0.0.0
+  # route 90% of traffic to app1, 10% to app2
+  dtab: >-
+    /svc => 9 * /#/io.l5d.fs/app1 & /#/io.l5d.fs/app2;
