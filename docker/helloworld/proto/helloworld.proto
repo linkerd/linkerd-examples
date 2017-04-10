@@ -2,9 +2,12 @@ syntax = "proto3";
 
 package helloworld;
 
-service Svc {
-  rpc Hello (SvcRequest) returns (SvcResponse) {}
-  rpc World (SvcRequest) returns (SvcResponse) {}
+service Hello {
+  rpc Greeting (SvcRequest) returns (SvcResponse) {}
+}
+
+service World {
+  rpc Greeting (SvcRequest) returns (SvcResponse) {}
 }
 
 message SvcRequest {}

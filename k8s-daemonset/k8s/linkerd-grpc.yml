@@ -29,8 +29,8 @@ data:
       experimental: true
       dtab: |
         /srv                      => /#/io.l5d.k8s/default/grpc;
-        /svc/helloworld.Svc/Hello => /srv/hello;
-        /svc/helloworld.Svc/World => /srv/world;
+        /svc/helloworld.Hello     => /srv/hello;
+        /svc/helloworld.World     => /srv/world;
         /srv/world                => /srv/world-v1;
       identifier:
         kind: io.l5d.headerPath
@@ -50,8 +50,8 @@ data:
       experimental: true
       dtab: |
         /srv                      => /#/io.l5d.k8s/default/grpc;
-        /svc/helloworld.Svc/Hello => /srv/hello;
-        /svc/helloworld.Svc/World => /srv/world;
+        /svc/helloworld.Hello     => /srv/hello;
+        /svc/helloworld.World     => /srv/world;
         /srv/world                => /srv/world-v1;
       identifier:
         kind: io.l5d.headerPath
