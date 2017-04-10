@@ -7,7 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"regexp"
+	"strings"
 	"time"
 
 	grpcServer "github.com/buoyantio/linkerd-examples/docker/helloworld/grpc"
@@ -64,8 +64,7 @@ func main() {
 		server, err := grpcServer.New(serverText, *target, podIp, *latency, *failureRate)
 		dieIf(err)
 
-		isHello, err := regexp.MatchString("(?i)hello", serverText)
-		if isHello {
+		if strings.ToLower(serverText) == "hello" {
 			proto.RegisterHelloServer(s, server)
 		} else {
 			proto.RegisterWorldServer(s, server)
