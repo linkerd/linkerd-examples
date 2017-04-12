@@ -34,6 +34,7 @@ data:
         /svc        => /$/io.buoyant.http.domainToPathPfx/grpc;
       identifier:
         kind: io.l5d.headerPath
+        segments: 1
       interpreter:
         kind: default
         transformers:
@@ -55,6 +56,7 @@ data:
         /svc        => /$/io.buoyant.http.domainToPathPfx/grpc;
       identifier:
         kind: io.l5d.headerPath
+        segments: 1
       interpreter:
         kind: default
         transformers:
