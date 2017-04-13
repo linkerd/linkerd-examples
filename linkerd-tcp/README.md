@@ -15,7 +15,8 @@ $ docker-compose build && docker-compose up -d
 That command will start [linkerd-viz](https://github.com/linkerd/linkerd-viz)
 on port 3000 on your Docker host, which you can use to view the demo in action.
 Set the `DOCKER_IP` environment variable to your Docker IP (e.g.
-`DOCKER_IP=$(docker-machine ip)`), and then open the dashboard with:
+`DOCKER_IP=localhost` for Docker For Mac, or `DOCKER_IP=$(docker-machine ip)`
+for Docker Toolkit), and then open the dashboard with:
 
 ```bash
 $ open http://$DOCKER_IP:3000 # on OS X

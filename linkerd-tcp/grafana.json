@@ -217,15 +217,16 @@
           "targets": [
             {
               "expr": "irate(bytes_total[1m])",
+              "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "bytes",
+              "legendFormat": "{{direction}} bytes",
               "refId": "A",
               "step": 2
             }
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Bytes Sent",
+          "title": "Connection Bytes",
           "tooltip": {
             "msResolution": false,
             "shared": true,
