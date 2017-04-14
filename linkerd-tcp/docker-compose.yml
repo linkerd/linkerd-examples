@@ -3,99 +3,67 @@ version: '2'
 services:
   web0:
     build: .
-    network_mode: "host"
-    ports:
-    - 7770:7770
     command:
     - "-addr=:7770"
-    - "-redis-addr=127.0.0.1:7474"
+    - "-redis-addr=linkerdtcp:7474"
 
   web1:
     build: .
-    network_mode: "host"
-    ports:
-    - 7771:7771
     command:
     - "-addr=:7771"
-    - "-redis-addr=127.0.0.1:7474"
+    - "-redis-addr=linkerdtcp:7474"
 
   web2:
     build: .
-    network_mode: "host"
-    ports:
-    - 7772:7772
     command:
     - "-addr=:7772"
-    - "-redis-addr=127.0.0.1:7474"
+    - "-redis-addr=linkerdtcp:7474"
 
   web3:
     build: .
-    network_mode: "host"
-    ports:
-    - 7773:7773
     command:
     - "-addr=:7773"
-    - "-redis-addr=127.0.0.1:7474"
+    - "-redis-addr=linkerdtcp:7474"
 
   web4:
     build: .
-    network_mode: "host"
-    ports:
-    - 7774:7774
     command:
     - "-addr=:7774"
-    - "-redis-addr=127.0.0.1:7474"
+    - "-redis-addr=linkerdtcp:7474"
 
   web5:
     build: .
-    network_mode: "host"
-    ports:
-    - 7775:7775
     command:
     - "-addr=:7775"
-    - "-redis-addr=127.0.0.1:7474"
+    - "-redis-addr=linkerdtcp:7474"
 
   web6:
     build: .
-    network_mode: "host"
-    ports:
-    - 7776:7776
     command:
     - "-addr=:7776"
-    - "-redis-addr=127.0.0.1:7474"
+    - "-redis-addr=linkerdtcp:7474"
 
   web7:
     build: .
-    network_mode: "host"
-    ports:
-    - 7777:7777
     command:
     - "-addr=:7777"
-    - "-redis-addr=127.0.0.1:7474"
+    - "-redis-addr=linkerdtcp:7474"
 
   web8:
     build: .
-    network_mode: "host"
-    ports:
-    - 7778:7778
     command:
     - "-addr=:7778"
-    - "-redis-addr=127.0.0.1:7474"
+    - "-redis-addr=linkerdtcp:7474"
 
   web9:
     build: .
-    network_mode: "host"
-    ports:
-    - 7779:7779
     command:
     - "-addr=:7779"
-    - "-redis-addr=127.0.0.1:7474"
+    - "-redis-addr=linkerdtcp:7474"
 
   linkerd:
     image: buoyantio/linkerd:0.9.1
-    network_mode: "host"
     ports:
-    - 4140:4140
     - 9990:9990
     volumes:
     - ./linkerd.yml:/io.buoyant/linkerd/config.yml:ro
@@ -104,9 +72,7 @@ services:
 
   namerd:
     image: buoyantio/namerd:0.9.1
-    network_mode: "host"
     ports:
-    - 4100:4100
     - 4180:4180
     - 9991:9991
     volumes:
@@ -115,11 +81,9 @@ services:
     command:
     - "/io.buoyant/namerd/config.yml"
 
-  linkerd_tcp:
-    image: linkerd/linkerd-tcp:0.0.2
-    network_mode: "host"
+  linkerdtcp:
+    image: linkerd/linkerd-tcp:0.0.3
     ports:
-    - 7474:7474
     - 9992:9992
     volumes:
     - ./linkerd-tcp.yml:/config.yml:ro
@@ -128,40 +92,22 @@ services:
 
   redis1:
     image: redis:3.2
-    network_mode: "host"
-    ports:
-    - 6379:6379
-    command:
-    - "--port 6379"
-    - "--timeout 10"
 
   redis2:
     image: redis:3.2
-    network_mode: "host"
-    ports:
-    - 6380:6380
-    command:
-    - "--port 6380"
-    - "--timeout 10"
 
-  redis_exporter1:
+  redisexporter1:
     image: oliver006/redis_exporter:v0.10.8
-    network_mode: "host"
-    ports:
-    - 9121:9121
-
-  redis_exporter2:
-    image: oliver006/redis_exporter:v0.10.8
-    network_mode: "host"
-    ports:
-    - 9122:9122
     command:
-    - "-web.listen-address=:9122"
-    - "-redis.addr=redis://localhost:6380"
+    - "-redis.addr=redis://redis1:6379"
+
+  redisexporter2:
+    image: oliver006/redis_exporter:v0.10.8
+    command:
+    - "-redis.addr=redis://redis2:6379"
 
   linkerd_viz:
-    image: buoyantio/linkerd-viz:0.0.9
-    network_mode: "host"
+    image: buoyantio/linkerd-viz:0.0.10
     ports:
     - 3000:3000
     - 9191:9191
@@ -174,9 +120,8 @@ services:
 
   slow_cooker:
     image: buoyantio/slow_cooker:1.0.1
-    network_mode: "host"
     environment:
-    - http_proxy=http://127.0.0.1:4140
+    - http_proxy=http://linkerd:4140
     entrypoint: /bin/sh
     command: >
       -c 'sleep 15 && slow_cooker -qps 10 -concurrency 50 -interval 5s http://web/'

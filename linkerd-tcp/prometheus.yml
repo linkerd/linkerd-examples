@@ -7,7 +7,7 @@ scrape_configs:
   metrics_path: /admin/metrics/prometheus
   static_configs:
   - targets:
-    - '127.0.0.1:9990'
+    - 'linkerd:9990'
   relabel_configs:
   - source_labels: [__address__]
     action: replace
@@ -24,14 +24,14 @@ scrape_configs:
 - job_name: 'linkerd_tcp'
   static_configs:
   - targets:
-    - '127.0.0.1:9992'
+    - 'linkerdtcp:9992'
 
 - job_name: 'redis1'
   static_configs:
   - targets:
-    - '127.0.0.1:9121'
+    - 'redisexporter1:9121'
 
 - job_name: 'redis2'
   static_configs:
   - targets:
-    - '127.0.0.1:9122'
+    - 'redisexporter2:9121'

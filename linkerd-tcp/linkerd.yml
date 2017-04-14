@@ -10,7 +10,7 @@ routers:
 - protocol: http
   interpreter:
     kind: io.l5d.namerd
-    dst: /$/inet/127.0.0.1/4100
+    dst: /$/inet/namerd/4100
     namespace: default
   servers:
   - port: 4140
