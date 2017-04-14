@@ -28,12 +28,13 @@ data:
       label: outgoing
       experimental: true
       dtab: |
-        /srv                      => /#/io.l5d.k8s/default/grpc;
-        /svc/helloworld.Hello     => /srv/hello;
-        /svc/helloworld.World     => /srv/world;
-        /srv/world                => /srv/world-v1;
+        /srv        => /#/io.l5d.k8s/default/grpc;
+        /grpc       => /srv;
+        /grpc/World => /srv/world-v1;
+        /svc        => /$/io.buoyant.http.domainToPathPfx/grpc;
       identifier:
         kind: io.l5d.headerPath
+        segments: 1
       interpreter:
         kind: default
         transformers:
@@ -49,12 +50,13 @@ data:
       label: incoming
       experimental: true
       dtab: |
-        /srv                      => /#/io.l5d.k8s/default/grpc;
-        /svc/helloworld.Hello     => /srv/hello;
-        /svc/helloworld.World     => /srv/world;
-        /srv/world                => /srv/world-v1;
+        /srv        => /#/io.l5d.k8s/default/grpc;
+        /grpc       => /srv;
+        /grpc/World => /srv/world-v1;
+        /svc        => /$/io.buoyant.http.domainToPathPfx/grpc;
       identifier:
         kind: io.l5d.headerPath
+        segments: 1
       interpreter:
         kind: default
         transformers:
