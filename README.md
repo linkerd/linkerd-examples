@@ -25,6 +25,13 @@ linkerd's performance. More information:
 
 * [Making Things Faster by Adding More Steps](https://blog.buoyant.io/2017/01/31/making-things-faster-by-adding-more-steps/)
 
+## Consul
+
+* [`consul/`](consul/)
+
+Provides a self-contained docker-compose environment which shows how to
+use consul as a service discovery back-end with linkerd.
+
 ## DC/OS
 
 * [`dcos/`](dcos/)
@@ -34,6 +41,7 @@ information:
 
 * [Getting Started: Running in DC/OS](https://linkerd.io/getting-started/dcos/)
 * [linkerd on DC/OS for Service Discovery and Visibility](https://blog.buoyant.io/2016/10/10/linkerd-on-dcos-for-service-discovery-and-visibility/)
+
 
 ## Docker
 

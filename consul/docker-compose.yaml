@@ -1,0 +1,36 @@
+version: '2'
+services:
+  consul:
+    image: "consul:0.8.0"
+    ports:
+      - "8500:8500"
+  audit:
+    build: ./audit/
+    command: ["node", "/usr/src/app/index.js"]
+    ports:
+      - "8100:8100"
+    volumes:
+      - ./audit/:/usr/src/app/
+    environment:
+      - SERVICE_NAME=audit
+  linkerd:
+      image: buoyantio/linkerd:0.9.1
+      command: ['/config.yaml']
+      links:
+        - consul
+      volumes:
+        - ./linkerd/linkerd.conf.yaml:/config.yaml
+      ports:
+        - 9990:9990
+        - 4140:4140
+      depends_on:
+        - consul-registrator
+  consul-registrator:
+    image: gliderlabs/registrator:v7
+    command: ['consul://consul:8500']
+    links:
+      - consul
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+    depends_on:
+      - consul
