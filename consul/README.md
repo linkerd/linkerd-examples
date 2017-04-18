@@ -9,16 +9,16 @@ configuration
 The following components make up the system:
 * `curl` which acts as our client application
 * `linkerd` for proxying requests to our service
-* `audit` example service which has a `/health` endpoint
+* `helloworld` example service
 * `consul` as our service discovery back-end
 * [`consul-registrator`](https://github.com/gliderlabs/registrator)
 to automatically registers services with consul
 
 **System overview**
 ```
-+--------+      +---------+    +-----------------+
-| client +----> | linkerd +--> | service (audit) |
-+--------+      +----^----+    +-------+---------+
++--------+      +---------+    +----------------------+
+| client +----> | linkerd +--> | service (helloworld) |
++--------+      +----^----+    +-------+--------------+
                      |                 |
                 +----+---+     +-------v------------+
                 | consul <-----+ consul registrator |
@@ -38,10 +38,10 @@ $ docker-compose build && docker-compose up -d
 ## Testing the system
 To make sure everything is working properly run the following command:
 ```bash
-$ curl localhost:4140/audit/health
+$ curl localhost:4140/helloworld
 ```
 
 You will get the following response:
 ```bash
-I am healthy!
+Hello!
 ```
