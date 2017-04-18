@@ -1,0 +1,35 @@
+version: '2'
+services:
+  consul:
+    image: "consul:0.8.0"
+    ports:
+      - "8500:8500"
+
+  service:
+    image: buoyantio/helloworld
+    command: ["-addr=:7777", "-text=Hello"]
+    ports:
+      - "7777:7777"
+
+  linkerd:
+      image: buoyantio/linkerd:0.9.1
+      command: ['/config.yaml']
+      links:
+        - consul
+      volumes:
+        - ./linkerd.yml:/config.yaml
+      ports:
+        - 9990:9990
+        - 4140:4140
+      depends_on:
+        - consul-registrator
+
+  consul-registrator:
+    image: gliderlabs/registrator:v7
+    command: ['consul://consul:8500']
+    links:
+      - consul
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+    depends_on:
+      - consul

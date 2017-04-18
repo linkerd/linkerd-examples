@@ -1,0 +1,23 @@
+namers:
+- kind: io.l5d.consul
+  includeTag: false
+  useHealthCheck: false
+  host: consul
+routers:
+- protocol: http
+  label: /http-consul
+  responseClassifier:
+    kind: io.l5d.retryableIdempotent5XX
+  identifier:
+   kind: io.l5d.path
+   segments: 1
+   consume: true
+  dtab: |
+    /svc => /#/io.l5d.consul/dc1;
+  servers:
+  - port: 4140
+    ip: 0.0.0.0
+  client:
+   retries:
+    budget:
+     percentCanRetry: 5.0
