@@ -28,7 +28,7 @@ to automatically registers services with consul
 
 ## Startup
 
-The [`docker-compose.yaml`](docker-compose.yaml) file that's included
+The [`docker-compose.yml`](docker-compose.yml) file that's included
 in this directory is configured to run the demo. Start everything with:
 
 ```bash
