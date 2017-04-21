@@ -9,15 +9,15 @@ retryable failure, and any other value means non-retryable failure.
 
 # Heloworld Identifier
 
-Helloworld Identifier injects a header with the value set from config, and pass the updated request to next identifier
-
+Helloworld Identifier injects a header with the value set from config, and pass
+the updated request to next identifier
 
 ## Building
 
 This plugin is built with sbt.  Run sbt from the plugins directory.
 
 ```
-./sbt header-classifer/assembly
+./sbt headerClassifier/assembly
 ```
 
 This will produce the plugin jar at
@@ -32,7 +32,7 @@ router in your linkerd config:
 ```
 routers:
 - protocol: http
-  baseDtab: /http/1.1/*/* => /$/inet/localhost/8888
+  dtab: /svc => /$/inet/localhost/8888
   service:
     responseClassifier:
       kind: io.buoyant.headerClassifier
@@ -47,5 +47,4 @@ routers:
   servers:
   - ip: 0.0.0.0
     port: 4140
-
 ```
