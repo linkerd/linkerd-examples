@@ -21,7 +21,7 @@ routers:
     ip: 0.0.0.0
   service:
     responseClassifier:
-      kind: io.l5d.nonRetryable5XX
+      kind: io.l5d.http.nonRetryable5XX
 
 - protocol: http
   label: none
@@ -34,7 +34,7 @@ routers:
     ip: 0.0.0.0
   service:
     responseClassifier:
-      kind: io.l5d.nonRetryable5XX
+      kind: io.l5d.http.nonRetryable5XX
 
 - protocol: http
   label: io.l5d.consecutiveFailures
@@ -51,7 +51,7 @@ routers:
     ip: 0.0.0.0
   service:
     responseClassifier:
-      kind: io.l5d.nonRetryable5XX
+      kind: io.l5d.http.nonRetryable5XX
 
 - protocol: http
   label: io.l5d.successRate
@@ -69,4 +69,4 @@ routers:
     ip: 0.0.0.0
   service:
     responseClassifier:
-      kind: io.l5d.nonRetryable5XX
+      kind: io.l5d.http.nonRetryable5XX

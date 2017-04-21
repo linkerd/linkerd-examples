@@ -35,7 +35,7 @@ data:
         ip: 0.0.0.0
       service:
         responseClassifier:
-          kind: io.l5d.retryableRead5XX
+          kind: io.l5d.http.retryableRead5XX
 
     - protocol: http
       label: incoming
