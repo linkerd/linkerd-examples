@@ -33,9 +33,10 @@ router in your linkerd config:
 routers:
 - protocol: http
   baseDtab: /http/1.1/*/* => /$/inet/localhost/8888
-  responseClassifier:
-    kind: io.buoyant.headerClassifier
-    headerName: status
+  service:
+    responseClassifier:
+      kind: io.buoyant.headerClassifier
+      headerName: status
 
   identifier:
     - kind: io.buoyant.helloWorldIdentifier
