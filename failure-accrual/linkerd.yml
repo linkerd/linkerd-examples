@@ -19,8 +19,9 @@ routers:
   servers:
   - port: 4140
     ip: 0.0.0.0
-  responseClassifier:
-    kind: io.l5d.nonRetryable5XX
+  service:
+    responseClassifier:
+      kind: io.l5d.nonRetryable5XX
 
 - protocol: http
   label: none
@@ -31,8 +32,9 @@ routers:
   servers:
   - port: 4141
     ip: 0.0.0.0
-  responseClassifier:
-    kind: io.l5d.nonRetryable5XX
+  service:
+    responseClassifier:
+      kind: io.l5d.nonRetryable5XX
 
 - protocol: http
   label: io.l5d.consecutiveFailures
@@ -47,8 +49,9 @@ routers:
   servers:
   - port: 4142
     ip: 0.0.0.0
-  responseClassifier:
-    kind: io.l5d.nonRetryable5XX
+  service:
+    responseClassifier:
+      kind: io.l5d.nonRetryable5XX
 
 - protocol: http
   label: io.l5d.successRate
@@ -64,5 +67,6 @@ routers:
   servers:
   - port: 4143
     ip: 0.0.0.0
-  responseClassifier:
-    kind: io.l5d.nonRetryable5XX
+  service:
+    responseClassifier:
+      kind: io.l5d.nonRetryable5XX

@@ -33,8 +33,9 @@ data:
       servers:
       - port: 4140
         ip: 0.0.0.0
-      responseClassifier:
-        kind: io.l5d.retryableRead5XX
+      service:
+        responseClassifier:
+          kind: io.l5d.retryableRead5XX
 
     - protocol: http
       label: incoming
@@ -76,7 +77,7 @@ spec:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.0.0-rc2
+        image: buoyantio/linkerd:1.0.0-rc3
         env:
         - name: POD_IP
           valueFrom:

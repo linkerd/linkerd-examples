@@ -20,14 +20,14 @@ services:
     command: word
 
   linkerd:
-    image: buoyantio/linkerd:1.0.0-rc2
+    image: buoyantio/linkerd:1.0.0-rc3
     container_name: linkerd
     ports: ["4142:4142", "4141:4141", "9990:9990"]
     volumes: ["./config:/io.buoyant/linkerd/config:ro"]
     command: /io.buoyant/linkerd/config/linkerd.yml
 
   namerd:
-    image: buoyantio/namerd:1.0.0-rc2
+    image: buoyantio/namerd:1.0.0-rc3
     container_name: namerd
     ports: ["4100:4100", "4180:4180", "9991:9991"]
     volumes: ["./config:/io.buoyant/linkerd/config:ro"]
