@@ -1,3 +1,8 @@
+![linkerd][l5d-logo]
+
+[![GitHub license][license-badge]](LICENSE)
+[![Circle CI][l5d-ci-badge]][l5d-ci]
+
 # linkerd examples
 
 🎈 Welcome to linkerd-examples! 👋
@@ -117,3 +122,16 @@ without DC/OS.
 Contains sample code for building linkerd plugins. More information:
 
 * [In Depth: Plugins](https://linkerd.io/in-depth/plugin/)
+
+
+## Testing
+
+```bash
+docker run -v `pwd`:/root/linkerd-examples --entrypoint=/root/linkerd-examples/.circleci/ci.sh buoyantio/linkerd:0.9.1
+```
+
+<!-- references -->
+[l5d-ci]: https://circleci.com/gh/linkerd/linkerd-examples
+[l5d-ci-badge]: https://circleci.com/gh/linkerd/linkerd-examples.svg?style=shield
+[l5d-logo]: https://cloud.githubusercontent.com/assets/9226/12433413/c6fff880-beb5-11e5-94d1-1afb1258f464.png
+[license-badge]: https://img.shields.io/github/license/linkerd/linkerd-examples.svg
