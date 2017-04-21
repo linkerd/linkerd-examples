@@ -3,26 +3,28 @@ version: 2
 jobs:
   build:
     docker:
-      - image: buoyantio/linkerd:0.9.1
+      - image: buoyantio/linkerd:1.0.0-rc4
         parallelism: 1 # TODO: parallelize tests
     working_directory: ~/linkerd-examples
 
     steps:
       - restore_cache:
-          key: linkerd-examples-git
+          key: linkerd-examples-packages
 
       - run:
           name: Install git
           command: |
             set -ex
-            if [ ! -f /usr/bin/git ]; then
-              apt-get update
-              apt-get install -y git
+            if [ ! -f /usr/bin/curl || ! -f /usr/bin/git ]; then
+              apk update
+              apk add curl
+              apk add git
             fi
 
       - save_cache:
-          key: linkerd-examples-git
+          key: linkerd-examples-packages
           paths:
+            - /usr/bin/curl
             - /usr/bin/git
 
       # Check out linkerd-examples source code into ~/linkerd-examples.

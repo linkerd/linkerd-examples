@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-LINKERD_PID=linkerd.pid
+LINKERD_PID=/tmp/linkerd.pid
 WAIT=10
 
 start_linkerd() {
@@ -44,7 +44,7 @@ shutdown_linkerd() {
   echo "Could not shutdown linkerd, forcing on pid $(cat $LINKERD_PID)"
   kill -9 "$(cat $LINKERD_PID)"
   for i in $(seq $WAIT); do
-    if ps -p $(cat $LINKERD_PID) > /dev/null; then
+    if ps -o pid|grep $(cat $LINKERD_PID) > /dev/null; then
       printf "."
       sleep 1
     else
@@ -95,10 +95,9 @@ test_config ~/linkerd-examples/gob/dcos/linkerd-dcos-gob.yaml
 
 test_config ~/linkerd-examples/http-proxy/linkerd.yaml
 
-# TODO: 1.0
-# cp -a ~/linkerd-examples/influxdb/disco /
-# test_config ~/linkerd-examples/influxdb/linkerd1.yml
-# test_config ~/linkerd-examples/influxdb/linkerd2.yml
+cp -a ~/linkerd-examples/influxdb/disco /
+test_config ~/linkerd-examples/influxdb/linkerd1.yml
+test_config ~/linkerd-examples/influxdb/linkerd2.yml
 
 test_config ~/linkerd-examples/linkerd-tcp/linkerd.yml
 

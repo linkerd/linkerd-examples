@@ -49,7 +49,7 @@ data:
           - /io.buoyant/linkerd/certs/cacertificate.pem
       service:
         responseClassifier:
-          kind: io.l5d.retryableRead5XX
+          kind: io.l5d.http.retryableRead5XX
 
     - protocol: http
       label: incoming
