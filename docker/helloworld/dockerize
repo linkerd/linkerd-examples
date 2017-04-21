@@ -7,7 +7,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-docker run --rm -v `pwd`:/go/src/github.com/buoyantio/linkerd-examples/docker/helloworld -w /go/src/github.com/buoyantio/linkerd-examples/docker/helloworld -e CGO_ENABLED=0 golang:1.8 go build -v
-docker run --rm -v `pwd`:/go/src/github.com/buoyantio/linkerd-examples/docker/helloworld -w /go/src/github.com/buoyantio/linkerd-examples/docker/helloworld/helloworld-client -e CGO_ENABLED=0 golang:1.8 go build -v
+docker run --rm -v `pwd`:/go/src/github.com/linkerd/linkerd-examples/docker/helloworld -w /go/src/github.com/linkerd/linkerd-examples/docker/helloworld -e CGO_ENABLED=0 golang:1.8 go build -v
+docker run --rm -v `pwd`:/go/src/github.com/linkerd/linkerd-examples/docker/helloworld -w /go/src/github.com/linkerd/linkerd-examples/docker/helloworld/helloworld-client -e CGO_ENABLED=0 golang:1.8 go build -v
 docker build -t buoyantio/helloworld:$1 .
 echo "Created buoyantio/helloworld:$1"

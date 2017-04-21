@@ -7,11 +7,12 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
-	grpcServer "github.com/buoyantio/linkerd-examples/docker/helloworld/grpc"
-	httpServer "github.com/buoyantio/linkerd-examples/docker/helloworld/http"
-	proto "github.com/buoyantio/linkerd-examples/docker/helloworld/proto"
+	grpcServer "github.com/linkerd/linkerd-examples/docker/helloworld/grpc"
+	httpServer "github.com/linkerd/linkerd-examples/docker/helloworld/http"
+	proto "github.com/linkerd/linkerd-examples/docker/helloworld/proto"
 	"google.golang.org/grpc"
 )
 
@@ -62,13 +63,17 @@ func main() {
 		s := grpc.NewServer()
 		server, err := grpcServer.New(serverText, *target, podIp, *latency, *failureRate)
 		dieIf(err)
-		proto.RegisterSvcServer(s, server)
+
+		if strings.ToLower(serverText) == "hello" {
+			proto.RegisterHelloServer(s, server)
+		} else {
+			proto.RegisterWorldServer(s, server)
+		}
 
 		fmt.Println("starting gRPC server on", *addr)
 
 		err = s.Serve(lis)
 		dieIf(err)
-
 	default:
 		dieIf(fmt.Errorf("unsupported protocol: %s", *protocol))
 	}

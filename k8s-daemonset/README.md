@@ -39,6 +39,10 @@ kubectl apply -f k8s/hello-world-legacy.yml
 Either of these commands will create new Kubernetes Services and
 ReplicationControllers for both the hello app and the world app.
 
+More information about running linkerd on Kubernetes prior to 1.4 can be found
+on our
+[Flavors of Kubernetes wiki page](https://github.com/linkerd/linkerd/wiki/Flavors-of-Kubernetes#minikube).
+
 ### linkerd
 
 Next deploy linkerd. There are multiple different linkerd deployment
@@ -64,7 +68,7 @@ This configuration is covered in more detail in:
 #### Daemonsets + CNI
 
 If you are using CNI such as Calico or Weave, you need a slightly modified
-config as described [here](https://linkerd.io/getting-started/k8s-daemonset/index.html#cni-setups).
+config as described [here](https://github.com/linkerd/linkerd/wiki/Flavors-of-Kubernetes#cnicalicoweave).
 
 To deploy this configuration, you can run:
 
@@ -164,10 +168,10 @@ kubectl apply -f k8s/hello-world-ingress.yml
 ### linkerd-viz
 
 And lastly, once you have linkerd deployed, you can deploy
-[linkerd-viz](https://github.com/BuoyantIO/linkerd-viz) as well, by running:
+[linkerd-viz](https://github.com/linkerd/linkerd-viz) as well, by running:
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/BuoyantIO/linkerd-viz/master/k8s/linkerd-viz.yml
+kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-viz/master/k8s/linkerd-viz.yml
 ```
 
 ## Verifying
@@ -176,6 +180,9 @@ Use the commands below to test out the app configurations that you deployed in
 the previous section. Note that if you're running on Minikube, the verification
 commands are different, and are covered in the next section,
 [Verifying Minikube](#verifying-minikube).
+
+More information about running linkerd on Minikube can be found on our
+[Flavors of Kubernetes wiki page](https://github.com/linkerd/linkerd/wiki/Flavors-of-Kubernetes#minikube).
 
 ### linkerd admin page
 

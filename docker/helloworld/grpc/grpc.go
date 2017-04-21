@@ -5,27 +5,27 @@ import (
 	"math/rand"
 	"time"
 
-	proto "github.com/buoyantio/linkerd-examples/docker/helloworld/proto"
+	proto "github.com/linkerd/linkerd-examples/docker/helloworld/proto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
 type Server struct {
 	text        string
-	target      proto.SvcClient
+	target      proto.WorldClient
 	podIp       string
 	latency     time.Duration
 	failureRate float64
 }
 
 func New(text, target, podIp string, latency time.Duration, failureRate float64) (*Server, error) {
-	var client proto.SvcClient
+	var client proto.WorldClient
 	if target != "" {
 		conn, err := grpc.Dial(target, grpc.WithInsecure())
 		if err != nil {
 			return nil, err
 		}
-		client = proto.NewSvcClient(conn)
+		client = proto.NewWorldClient(conn)
 	}
 
 	return &Server{
@@ -37,11 +37,7 @@ func New(text, target, podIp string, latency time.Duration, failureRate float64)
 	}, nil
 }
 
-func (s *Server) Hello(ctx context.Context, req *proto.SvcRequest) (*proto.SvcResponse, error) {
-	return s.respond(ctx, req)
-}
-
-func (s *Server) World(ctx context.Context, req *proto.SvcRequest) (*proto.SvcResponse, error) {
+func (s *Server) Greeting(ctx context.Context, req *proto.SvcRequest) (*proto.SvcResponse, error) {
 	return s.respond(ctx, req)
 }
 
@@ -68,7 +64,7 @@ func (s *Server) respond(_ context.Context, _ *proto.SvcRequest) (*proto.SvcResp
 }
 
 func (s *Server) callTarget() (string, error) {
-	resp, err := s.target.World(context.Background(), &proto.SvcRequest{})
+	resp, err := s.target.Greeting(context.Background(), &proto.SvcRequest{})
 	if err != nil {
 		return "", err
 	}
