@@ -15,10 +15,15 @@ scrape_configs:
     regex: (.+)(?::\d+)
     replacement: $1
   metric_relabel_configs:
-  - source_labels: [dst_id]
+  - source_labels: [client]
+    action:        replace
+    target_label:  client
+    regex:         .*\/([^/]+)
+    replacement:   $1
+  - source_labels: [service]
     action:        replace
     target_label:  service
-    regex:         .*/([^/]+)
+    regex:         .*\/([^/]+)
     replacement:   $1
 
 - job_name: 'linkerd_tcp'
