@@ -52,7 +52,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "irate(rt:srv:requests[1m])",
+              "expr": "irate(rt:server:requests[1m])",
               "intervalFactor": 2,
               "legendFormat": "requests",
               "refId": "A",
@@ -129,7 +129,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rt:srv:request_latency_ms{quantile=~\"^(0.5|0.95|0.9999)$\"}",
+              "expr": "rt:server:request_latency_ms{quantile=~\"^(0.5|0.95|0.9999)$\"}",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "{{quantile}} latency",
