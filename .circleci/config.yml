@@ -1,0 +1,34 @@
+
+version: 2
+jobs:
+  build:
+    docker:
+      - image: buoyantio/linkerd:0.9.1
+        parallelism: 1 # TODO: parallelize tests
+    working_directory: ~/linkerd-examples
+
+    steps:
+      - restore_cache:
+          key: linkerd-examples-git
+
+      - run:
+          name: Install git
+          command: |
+            set -ex
+            if [ ! -f /usr/bin/git ]; then
+              apt-get update
+              apt-get install -y git
+            fi
+
+      - save_cache:
+          key: linkerd-examples-git
+          paths:
+            - /usr/bin/git
+
+      # Check out linkerd-examples source code into ~/linkerd-examples.
+      - checkout
+
+      - run:
+          name: Run examples
+          command: |
+            ~/linkerd-examples/.circleci/ci.sh
