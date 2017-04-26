@@ -18,11 +18,12 @@ data:
       - port: 4180
         ip: 0.0.0.0
       dstPrefix: /grpc
-      timeoutMs: 1000
-      responseClassifier:
-        kind: io.l5d.retryableRead5XX
+      service:
+        totalTimeoutMs: 1000
+        responseClassifier:
+          kind: io.l5d.h2.retryableRead5XX
       interpreter:
         kind: io.l5d.namerd
         dst: /$/inet/namerd-sync.default.svc.cluster.local/4100
       identifier:
-        kind: io.l5d.headerPath
+        kind: io.l5d.header.path

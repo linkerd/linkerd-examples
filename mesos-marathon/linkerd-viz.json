@@ -8,7 +8,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "buoyantio/linkerd-viz:latest",
+      "image": "buoyantio/linkerd-viz:0.1.0",
       "network": "HOST",
       "privileged": true
     }

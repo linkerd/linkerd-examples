@@ -11,7 +11,7 @@ data:
     routers:
     - protocol: http
       identifier:
-        kind: io.l5d.http.ingress
+        kind: io.l5d.ingress
       servers:
         - port: 80
           ip: 0.0.0.0
@@ -39,7 +39,7 @@ spec:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:0.9.1
+        image: buoyantio/linkerd:1.0.0
         env:
         - name: POD_IP
           valueFrom:

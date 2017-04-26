@@ -19,8 +19,9 @@ routers:
   # route all traffic to service identified in service discovery as "app"
   dtab: >-
     /svc => /#/io.l5d.fs/app;
-  responseClassifier:
-    kind: io.l5d.retryableRead5XX
+  service:
+    responseClassifier:
+      kind: io.l5d.http.retryableRead5XX
   client:
     loadBalancer:
       kind: ewma

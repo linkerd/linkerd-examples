@@ -17,4 +17,4 @@ routers:
     ip: 0.0.0.0
   dstPrefix: /grpc
   identifier:
-    kind: io.l5d.headerPath
+    kind: io.l5d.header.path

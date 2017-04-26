@@ -33,7 +33,7 @@ data:
         /grpc/World => /srv/world-v1;
         /svc        => /$/io.buoyant.http.domainToPathPfx/grpc;
       identifier:
-        kind: io.l5d.headerPath
+        kind: io.l5d.header.path
         segments: 1
       interpreter:
         kind: default
@@ -55,7 +55,7 @@ data:
         /grpc/World => /srv/world-v1;
         /svc        => /$/io.buoyant.http.domainToPathPfx/grpc;
       identifier:
-        kind: io.l5d.headerPath
+        kind: io.l5d.header.path
         segments: 1
       interpreter:
         kind: default
@@ -83,7 +83,7 @@ spec:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:0.9.1
+        image: buoyantio/linkerd:1.0.0
         env:
         - name: POD_IP
           valueFrom:
