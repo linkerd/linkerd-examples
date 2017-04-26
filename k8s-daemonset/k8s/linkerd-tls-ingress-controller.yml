@@ -11,7 +11,7 @@ data:
     routers:
     - protocol: http
       identifier:
-        kind: io.l5d.http.ingress
+        kind: io.l5d.ingress
       servers:
       - port: 443
         ip: 0.0.0.0
@@ -45,7 +45,7 @@ spec:
           secretName: ingress-certs
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.0.0-rc4
+        image: buoyantio/linkerd:1.0.0
         env:
         - name: POD_IP
           valueFrom:
