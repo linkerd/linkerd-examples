@@ -9,22 +9,20 @@ jobs:
 
     steps:
       - restore_cache:
-          key: linkerd-examples-packages
+          key: linkerd-examples-git
 
       - run:
           name: Install git
           command: |
             set -ex
-            if [ ! -f /usr/bin/curl || ! -f /usr/bin/git ]; then
-              apk update
-              apk add curl
-              apk add git
+            if [ ! -f /usr/bin/git ]; then
+              apt-get update
+              apt-get install -y git
             fi
 
       - save_cache:
-          key: linkerd-examples-packages
+          key: linkerd-examples-git
           paths:
-            - /usr/bin/curl
             - /usr/bin/git
 
       # Check out linkerd-examples source code into ~/linkerd-examples.
