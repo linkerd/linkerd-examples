@@ -2471,7 +2471,7 @@
             "selected": true
           }
         ],
-        "query": "SHOW TAG VALUES FROM \"l5d:rt:srv\" WITH KEY = \"rt\"",
+        "query": "SHOW TAG VALUES FROM \"l5d:rt:server\" WITH KEY = \"rt\"",
         "refresh": 2,
         "regex": "",
         "type": "query"
@@ -2541,7 +2541,7 @@
             "selected": false
           }
         ],
-        "query": "SHOW TAG VALUES FROM \"l5d:rt:srv\" WITH KEY = \"host\"",
+        "query": "SHOW TAG VALUES FROM \"l5d:rt:server\" WITH KEY = \"host\"",
         "refresh": 2,
         "regex": "",
         "type": "query"

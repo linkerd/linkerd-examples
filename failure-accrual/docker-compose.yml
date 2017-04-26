@@ -50,7 +50,7 @@ services:
     build: .
 
   linkerd:
-    image: buoyantio/linkerd:1.0.0-rc4
+    image: buoyantio/linkerd:1.0.0
     ports:
       - 9990:9990
     volumes:
