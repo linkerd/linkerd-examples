@@ -12,7 +12,7 @@ hello -> linkerd (outgoing) -> linkerd (incoming) -> world
 
 ## Building
 
-The Docker image for the hello and world services is [buoyantio/helloword](
+The Docker image for the hello and world services is [buoyantio/helloworld](
 https://hub.docker.com/r/buoyantio/helloworld/). There are instructions for
 building the image yourself in the [`docker/helloworld`](../docker/helloworld)
 directory.
