@@ -103,6 +103,24 @@ Updated default
 
 The linkerd-viz dashboard will show traffic switching from redis1 to redis2.
 
+### Namerctl without a Go environment
+
+Alternatively, if you do not have a working Go environment, you can run namerctl
+from a Docker container.
+
+```bash
+export NAMERCTL_BASE_URL=http://$DOCKER_IP:4180
+
+# get dtab
+docker run -e NAMERCTL_BASE_URL=$NAMERCTL_BASE_URL linkerd/namerctl:0.8.6 dtab get default
+
+# edit dtab
+docker run -e NAMERCTL_BASE_URL=$NAMERCTL_BASE_URL linkerd/namerctl:0.8.6 dtab get default | sed 's/redis1/redis2/' > default.dtab
+
+# update dtab
+docker run -e NAMERCTL_BASE_URL=$NAMERCTL_BASE_URL -v `pwd`:/dtab linkerd/namerctl:0.8.6 dtab update default /dtab/default.dtab
+```
+
 ## Troubleshooting
 
 If you have any issues getting the demo up and running, pop into [linkerd's
