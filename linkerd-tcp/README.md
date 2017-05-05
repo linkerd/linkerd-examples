@@ -42,9 +42,9 @@ traffic via namerd.
 port 7474, routing redis traffic via namerd.
 
 * **redis**: Two [redis](https://redis.io/) clusters are configured to run on
-ports 6379 and 6380. The `default` namerd namespace is setup to send all redis
-traffic to the first redis cluster, but that routing decision can be changed by
-modifying namerd's dtab.
+port 6379. The `default` namerd namespace is setup to send all redis traffic to
+the first redis cluster, but that routing decision can be changed by modifying
+namerd's dtab.
 
 * **web service**: The web service is composed of 10 instances of the HTTP web
 service defined in [`web.go`](web.go). The web service responds to HTTP requests
