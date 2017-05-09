@@ -11,7 +11,7 @@ data:
 
     namers:
     - kind: io.l5d.k8s # This namer has the daemonset transformer "built-in"
-      prefix: io.l5d.k8s.ds # We reference this in the outgoing router's dtab
+      prefix: /io.l5d.k8s.ds # We reference this in the outgoing router's dtab
       transformers:
       - kind: io.l5d.k8s.daemonset
         namespace: default
@@ -48,7 +48,7 @@ data:
         configs:
         - prefix: "/$/io.buoyant.rinet/443/{service}"
           tls:
-            commonName: "{serivce}"
+            commonName: "{service}"
 
     - protocol: http
       label: incoming
