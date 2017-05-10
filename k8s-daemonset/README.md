@@ -165,6 +165,15 @@ kubectl apply -f k8s/linkerd-ingress-controller.yml
 kubectl apply -f k8s/hello-world-ingress.yml
 ```
 
+#### Daemonsets + Egress
+
+To have linkerd fall back to routing to external services via DNS, use this
+configuration:
+
+```bash
+kubectl apply -f k8s/linkerd-egress.yml
+```
+
 ### linkerd-viz
 
 And lastly, once you have linkerd deployed, you can deploy

@@ -25,7 +25,7 @@ data:
       sampleRate: 0.25
 
     usage:
-      orgId: linkerd-examples-daemonset
+      orgId: linkerd-examples-daemonset-egress
 
     routers:
     - protocol: http
