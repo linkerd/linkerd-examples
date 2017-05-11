@@ -165,6 +165,17 @@ kubectl apply -f k8s/linkerd-ingress-controller.yml
 kubectl apply -f k8s/hello-world-ingress.yml
 ```
 
+#### Daemonsets + Per-Service Timeouts
+
+This deployment adds 500ms of artificial latency to the `hello` service and
+demonstrates linkerd's ability to configure per-service timeouts.  Deploy it
+with:
+
+```bash
+kubectl apply -f k8s/hello-world-latency.yml
+kubectl apply -f k8s/linkerd-latency.yml
+```
+
 #### Daemonsets + Egress
 
 To have linkerd fall back to routing to external services via DNS, use this
