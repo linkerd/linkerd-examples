@@ -176,6 +176,15 @@ kubectl apply -f k8s/hello-world-latency.yml
 kubectl apply -f k8s/linkerd-latency.yml
 ```
 
+#### Daemonsets + Egress
+
+To have linkerd fall back to routing to external services via DNS, use this
+configuration:
+
+```bash
+kubectl apply -f k8s/linkerd-egress.yml
+```
+
 ### linkerd-viz
 
 And lastly, once you have linkerd deployed, you can deploy
@@ -249,6 +258,13 @@ If you deployed NGINX, then you can also use that to initiate requests:
 NGINX_LB=$(kubectl get svc nginx -o jsonpath="{.status.loadBalancer.ingress[0].*}")
 curl -H 'Host: www.hello.world' http://$NGINX_LB
 curl -H 'Host: api.hello.world' http://$NGINX_LB
+```
+
+If you configured linkerd for egress, then you can also send requests to external services:
+
+```bash
+http_proxy=$L5D_INGRESS_LB:4140 curl -s http://linkerd.io/index.html
+http_proxy=$L5D_INGRESS_LB:4140 curl -s http://linkerd.io/index.html:443
 ```
 
 ### linkerd-viz dashboard
