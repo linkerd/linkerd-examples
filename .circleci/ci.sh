@@ -102,3 +102,5 @@ test_config ~/linkerd-examples/influxdb/linkerd2.yml
 test_config ~/linkerd-examples/linkerd-tcp/linkerd.yml
 
 test_config ~/linkerd-examples/mesos-marathon/linkerd-config.yml
+
+echo "All test completed successfully"

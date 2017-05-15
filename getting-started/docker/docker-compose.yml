@@ -10,7 +10,7 @@ services:
 
   # linkerd
   l5d:
-    image: buoyantio/linkerd:1.0.0
+    image: buoyantio/linkerd:1.0.2
     ports:
     - "4140:4140"
     - "9990:9990"
