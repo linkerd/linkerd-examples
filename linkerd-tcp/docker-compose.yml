@@ -119,7 +119,7 @@ services:
     - "local"
 
   slow_cooker:
-    image: buoyantio/slow_cooker:1.0.2
+    image: buoyantio/slow_cooker:1.0.1
     environment:
     - http_proxy=http://linkerd:4140
     entrypoint: /bin/sh
