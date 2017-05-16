@@ -78,7 +78,7 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
 
   slow_cooker:
-    image: buoyantio/slow_cooker:1.0.2
+    image: buoyantio/slow_cooker:1.0.1
     entrypoint: /bin/sh
     command: >
       -c 'sleep 15 && slow_cooker -qps 20 -concurrency 15 -interval 5s -totalRequests 10000000 http://linkerd:4140/'
