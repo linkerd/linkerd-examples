@@ -1,0 +1,371 @@
+#
+# https://coreos.com/operators/prometheus/latest/prometheus-operator.yaml
+# modified version number 0.0.1 => 0.9.0
+#
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prometheus-operator
+  labels:
+    operator: prometheus
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        operator: prometheus
+    spec:
+      containers:
+       - name: prometheus-operator
+         image: quay.io/coreos/prometheus-operator:v0.9.0
+         args:
+         - "--kubelet-service=kube-system/kubelet"
+         - "--config-reloader-image=quay.io/coreos/configmap-reload:v0.0.1"
+#
+# https://coreos.com/operators/prometheus/latest/prometheus-k8s.yaml
+#
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: Prometheus
+metadata:
+  name: prometheus-k8s
+  labels:
+    prometheus: k8s
+spec:
+  version: v1.6.1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-k8s
+spec:
+  type: NodePort
+  ports:
+  - name: web
+    nodePort: 30900
+    port: 9090
+    protocol: TCP
+    targetPort: web
+  selector:
+    prometheus: prometheus-k8s
+
+
+
+
+
+
+
+    spec:
+      containers:
+      - name: l5d
+        image: buoyantio/linkerd:1.0.2
+        args:
+        - "/io.buoyant/linkerd/config/config.yml"
+        ports:
+        - name: incoming
+          containerPort: 4140
+        - name: admin
+          containerPort: 9990
+        volumeMounts:
+        - name: "linkerd-config"
+          mountPath: "/io.buoyant/linkerd/config"
+          readOnly: true
+        # We run a kubectl proxy container so that linkerd can talk to the
+        # Kubernetes master API.
+      - name: kubectl
+        image: buoyantio/kubectl:v1.4.0
+        args:
+        - proxy
+        - "-p"
+        - "8001"
+      volumes:
+      - name: linkerd-config
+        configMap:
+          name: linkerd-config
+
+
+
+
+
+
+#
+# https://coreos.com/operators/prometheus/latest/exporters.yaml
+#
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kube-state-metrics
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kube-state-metrics
+    spec:
+      containers:
+      - name: kube-state-metrics
+        image: gcr.io/google_containers/kube-state-metrics:v0.3.0
+        ports:
+        - name: metrics
+          containerPort: 8080
+        resources:
+          requests:
+            memory: 30Mi
+            cpu: 100m
+          limits:
+            memory: 50Mi
+            cpu: 200m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/scrape: 'true'
+  labels:
+    app: kube-state-metrics
+  name: kube-state-metrics
+spec:
+  ports:
+  - name: metrics
+    port: 8080
+    targetPort: metrics
+    protocol: TCP
+  selector:
+    app: kube-state-metrics
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+spec:
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+      name: node-exporter
+    spec:
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - image:  quay.io/prometheus/node-exporter:v0.14.0
+        args:
+        - "-collector.procfs=/host/proc"
+        - "-collector.sysfs=/host/sys"
+        name: node-exporter
+        ports:
+        - containerPort: 9100
+          hostPort: 9100
+          name: scrape
+        resources:
+          requests:
+            memory: 30Mi
+            cpu: 100m
+          limits:
+            memory: 50Mi
+            cpu: 200m
+        volumeMounts:
+        - name: proc
+          readOnly:  true
+          mountPath: /host/proc
+        - name: sys
+          readOnly: true
+          mountPath: /host/sys
+      volumes:
+      - name: proc
+        hostPath:
+          path: /proc
+      - name: sys
+        hostPath:
+          path: /sys
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: node-exporter
+    k8s-app: node-exporter
+  name: node-exporter
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: http-metrics
+    port: 9100
+    protocol: TCP
+  selector:
+    app: node-exporter
+
+#
+# https://coreos.com/operators/prometheus/latest/prometheus-k8s-cm.yaml
+#
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-k8s
+data:
+  prometheus.yaml: |
+    global:
+      evaluation_interval: 30s
+
+    rule_files:
+      - /etc/prometheus/rules/*.rules
+
+    scrape_configs:
+    - job_name: kubelets
+      scrape_interval: 20s
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        # Skip verification until we have resolved why the certificate validation
+        # for the kubelet on API server nodes fail.
+        insecure_skip_verify: true
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+      kubernetes_sd_configs:
+      - role: node
+
+    # Scrapes the endpoint lists for the Kubernetes API server, kube-state-metrics,
+    # and node-exporter, which we all consider part of a default setup.
+    - job_name: standard-endpoints
+      scrape_interval: 20s
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        # As for kubelets, certificate validation fails for the API server (node)
+        # and we circumvent it for now.
+        insecure_skip_verify: true
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+      kubernetes_sd_configs:
+      - role: endpoints
+
+      relabel_configs:
+      - action: keep
+        source_labels: [__meta_kubernetes_service_name]
+        regex: kubernetes|node-exporter|kube-state-metrics|etcd-k8s
+      - action: replace
+        source_labels: [__meta_kubernetes_service_name]
+        target_label: job
+      - action: replace
+        source_labels: [__meta_kubernetes_service_name]
+        regex: kubernetes
+        target_label: __scheme__
+        replacement: https
+
+    # Scrapes the endpoint lists for the kube-dns server. Which we consider
+    # part of a default setup.
+    - job_name: kube-components
+      scrape_interval: 20s
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+      kubernetes_sd_configs:
+      - role: endpoints
+
+      relabel_configs:
+      - action: replace
+        source_labels: [__meta_kubernetes_service_name]
+        target_label: job
+        regex: "kube-(.*)-prometheus-discovery"
+        replacement: "kube-${1}"
+      - action: keep
+        source_labels: [__meta_kubernetes_service_name]
+        regex: "kube-(.*)-prometheus-discovery"
+      - action: keep
+        source_labels: [__meta_kubernetes_endpoint_port_name]
+        regex: "prometheus"
+
+#
+# https://coreos.com/operators/prometheus/latest/servicemonitor-frontend.yaml
+#
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ServiceMonitor
+metadata:
+  name: frontend
+  labels:
+    tier: frontend
+spec:
+  selector:
+    matchLabels:
+      tier: frontend
+  endpoints:
+  - port: web
+    interval: 10s
+
+#
+# https://coreos.com/operators/prometheus/latest/prometheus-frontend.yaml
+#
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: Prometheus
+metadata:
+  name: prometheus-frontend
+  namespace: default
+  labels:
+    prometheus: frontend
+spec:
+  version: v1.3.0
+  serviceMonitors:
+  - selector:
+      matchLabels:
+        tier: frontend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-frontend
+spec:
+  type: NodePort
+  ports:
+  - name: web
+    nodePort: 30100
+    port: 9090
+    protocol: TCP
+    targetPort: web
+  selector:
+    prometheus: prometheus-frontend
+
+#
+# https://coreos.com/operators/prometheus/latest/example-app.yaml
+#
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: example-app
+  labels:
+    tier: frontend
+  annotations:
+    prometheus.io/scrape: 'true'
+spec:
+  selector:
+    app: example-app
+  ports:
+  - name: web
+    protocol: TCP
+    port: 8080
+    targetPort: web
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: example-app
+spec:
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        app: example-app
+        version: 1.1.3
+    spec:
+      containers:
+      - name: example-app
+        image: quay.io/fabxc/prometheus_demo_service
+        ports:
+        - name: web
+          containerPort: 8080
+          protocol: TCP

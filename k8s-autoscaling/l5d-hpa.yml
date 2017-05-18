@@ -1,0 +1,40 @@
+apiVersion: autoscaling/v2alpha1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: l5d-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: ReplicationController
+    name: hello
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  # - type: Resource
+  #   resource:
+  #     name: cpu
+  #     targetAverageUtilization: 50
+  # - type: Pods
+  #   pods:
+  #     metricName: packets-per-second
+  #     targetAverageValue: 1k
+  - type: Object
+    object:
+      metricName: rt:service:request_latency_ms_avg
+      target:
+        apiVersion: extensions/v1beta1
+        kind: Service
+        name: l5d
+      targetValue: 10k
+status:
+  observedGeneration: 1
+  # lastScaleTime: <some-time>
+  currentReplicas: 1
+  desiredReplicas: 1
+  currentMetrics:
+  - type: Resource
+    resource:
+      name: cpu
+      currentAverageUtilization: 0
+      currentAverageValue: 0
