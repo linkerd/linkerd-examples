@@ -7,9 +7,9 @@ the response should be classified as a success or failure and if the request
 should be retried.  A value of "success" means success, a value of "retry" means
 retryable failure, and any other value means non-retryable failure.
 
-# Heloworld Identifier
+# HelloWorld Identifier
 
-Helloworld Identifier injects a header with the value set from config, and pass
+HelloWorld Identifier injects a header with the value set from config, and pass
 the updated request to next identifier
 
 ## Building

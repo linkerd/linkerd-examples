@@ -1,4 +1,4 @@
-# Hello World Identifier
+# HelloWorld Identifier
 
 This is an example of an identifier which mutates the request.  It works by
 setting a header on the request and then returning an `UnidentifiedRequest`
