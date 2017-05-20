@@ -21,7 +21,7 @@ This plugin is built with sbt.  Run sbt from the plugins directory.
 ```
 
 This will produce the plugin jar at
-`header-classifier/target/scala-2.11/header-classifier-assembly-0.1-SNAPSHOT.jar`.
+`header-classifier/target/scala-2.12/header-classifier-assembly-0.1-SNAPSHOT.jar`.
 
 ## Installing
 
