@@ -32,7 +32,7 @@ data:
       label: outgoing
       dtab: |
         /ph        => /$/io.buoyant.rinet ; # Lookup the name in DNS
-        /svc       => /ph/80 ; # Use port 80 if unspecified
+        /srv       => /ph/80 ; # Use port 80 if unspecified
         /srv       => /$/io.buoyant.porthostPfx/ph ; # Attempt to extract the port from the hostname
         /srv       => /#/io.l5d.k8s.ds/default/http ; # Lookup the name in Kubernetes, use the linkerd daemonset pod
         /svc       => /srv ;
