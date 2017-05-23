@@ -36,3 +36,11 @@ which provides the base nginx image, along with pre-installed modules that are
 useful when using nginx to proxy requests to linkerd. For more information, see:
 
 * [A Service Mesh for Kubernetes, Part V: Dogfood environments, ingress and edge routing](https://blog.buoyant.io/2016/11/18/a-service-mesh-for-kubernetes-part-v-dogfood-environments-ingress-and-edge-routing/)
+
+## kubectl
+
+The [`k8s-daemonset`](../k8s-daemonset/) examples make use of a
+[kubectl Docker container](https://hub.docker.com/r/buoyantio/kubectl/), hosted
+in the [buoyantio DockerHub repo](https://hub.docker.com/r/buoyantio/). To build
+this container yourself, follow the instructions in the
+[Kubernetes Repo](https://github.com/kubernetes/kubernetes/tree/master/examples/kubectl-container).
