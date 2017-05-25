@@ -41,7 +41,7 @@ func (s *Server) Greeting(ctx context.Context, req *proto.SvcRequest) (*proto.Sv
 	return s.respond(ctx, req)
 }
 
-func (s *Server) respond(_ context.Context, _ *proto.SvcRequest) (*proto.SvcResponse, error) {
+func (s *Server) respond(ctx context.Context, _ *proto.SvcRequest) (*proto.SvcResponse, error) {
 	time.Sleep(s.latency)
 	if rand.Float64() < s.failureRate {
 		return nil, fmt.Errorf("server error")
@@ -53,7 +53,7 @@ func (s *Server) respond(_ context.Context, _ *proto.SvcRequest) (*proto.SvcResp
 	}
 
 	if s.target != nil {
-		targetText, err := s.callTarget()
+		targetText, err := s.callTarget(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -63,8 +63,8 @@ func (s *Server) respond(_ context.Context, _ *proto.SvcRequest) (*proto.SvcResp
 	return &proto.SvcResponse{Message: text + "!"}, nil
 }
 
-func (s *Server) callTarget() (string, error) {
-	resp, err := s.target.Greeting(context.Background(), &proto.SvcRequest{})
+func (s *Server) callTarget(ctx context.Context) (string, error) {
+	resp, err := s.target.Greeting(linkerdContext(ctx), &proto.SvcRequest{})
 	if err != nil {
 		return "", err
 	}
