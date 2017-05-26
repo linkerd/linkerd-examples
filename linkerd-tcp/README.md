@@ -112,13 +112,13 @@ from a Docker container.
 export NAMERCTL_BASE_URL=http://$DOCKER_IP:4180
 
 # get dtab
-docker run -e NAMERCTL_BASE_URL=$NAMERCTL_BASE_URL linkerd/namerctl:0.8.6 dtab get default
+docker run --network=host -e NAMERCTL_BASE_URL=$NAMERCTL_BASE_URL linkerd/namerctl:0.8.6 dtab get default
 
 # edit dtab
-docker run -e NAMERCTL_BASE_URL=$NAMERCTL_BASE_URL linkerd/namerctl:0.8.6 dtab get default | sed 's/redis1/redis2/' > default.dtab
+docker run --network=host -e NAMERCTL_BASE_URL=$NAMERCTL_BASE_URL linkerd/namerctl:0.8.6 dtab get default | sed 's/redis1/redis2/' > default.dtab
 
 # update dtab
-docker run -e NAMERCTL_BASE_URL=$NAMERCTL_BASE_URL -v `pwd`:/dtab linkerd/namerctl:0.8.6 dtab update default /dtab/default.dtab
+docker run --network=host -e NAMERCTL_BASE_URL=$NAMERCTL_BASE_URL -v `pwd`:/dtab linkerd/namerctl:0.8.6 dtab update default /dtab/default.dtab
 ```
 
 ## Troubleshooting
