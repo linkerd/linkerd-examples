@@ -1,8 +1,11 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"io"
 	"os"
+	"path"
 
 	proto "github.com/linkerd/linkerd-examples/docker/helloworld/proto"
 	"golang.org/x/net/context"
@@ -17,18 +20,43 @@ func dieIf(err error) {
 }
 
 func main() {
-	if len(os.Args) != 2 {
-		dieIf(fmt.Errorf("Usage: helloworld-client <host>:<port>"))
+	streaming := flag.Bool("streaming", false, "send streaming requests")
+
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s <host>:<port> [flags]\n", path.Base(os.Args[0]))
+		flag.PrintDefaults()
 	}
-	target := os.Args[1]
+
+	flag.Parse()
+
+	if len(flag.Args()) != 1 {
+		fmt.Fprintf(os.Stderr, "Usage: %s <host>:<port> [flags]\n", path.Base(os.Args[0]))
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+	target := flag.Arg(0)
+
 	conn, err := grpc.Dial(target, grpc.WithInsecure())
 	dieIf(err)
-
 	defer conn.Close()
+
 	client := proto.NewHelloClient(conn)
+	req := &proto.SvcRequest{}
 
-	resp, err := client.Greeting(context.Background(), &proto.SvcRequest{})
-	dieIf(err)
-
-	fmt.Println(resp.Message)
+	if *streaming {
+		stream, err := client.StreamGreeting(context.Background(), req)
+		dieIf(err)
+		for {
+			resp, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			dieIf(err)
+			fmt.Println(resp.Message)
+		}
+	} else {
+		resp, err := client.Greeting(context.Background(), req)
+		dieIf(err)
+		fmt.Println(resp.Message)
+	}
 }
