@@ -111,10 +111,21 @@ $ go run main.go -addr :7777 -text Hello -target localhost:7778 -protocol grpc &
 starting gRPC server on :7777
 ```
 
-Send traffic to the "hello" service with:
+Send a unary gRPC request to the "hello" service with:
 
 ```bash
 $ go run helloworld-client/main.go localhost:7777
+Hello world!!
+```
+
+Or send a streaming gRPC request with:
+
+```bash
+$ go run helloworld-client/main.go -streaming localhost:7777
+Hello world!!
+Hello world!!
+Hello world!!
+Hello world!!
 Hello world!!
 ```
 
