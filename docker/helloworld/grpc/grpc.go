@@ -37,11 +37,26 @@ func New(text, target, podIp string, latency time.Duration, failureRate float64)
 	}, nil
 }
 
+// unary RPC sends back 1 hello world response
 func (s *Server) Greeting(ctx context.Context, req *proto.SvcRequest) (*proto.SvcResponse, error) {
-	return s.respond(ctx, req)
+	return s.respond(ctx)
 }
 
-func (s *Server) respond(_ context.Context, _ *proto.SvcRequest) (*proto.SvcResponse, error) {
+// streaming RPC sends back 5 hello world responses
+func (s *Server) StreamGreeting(req *proto.SvcRequest, stream proto.Hello_StreamGreetingServer) error {
+	for i := 0; i < 5; i++ {
+		resp, err := s.respond(stream.Context())
+		if err != nil {
+			return err
+		}
+		if err = stream.Send(resp); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *Server) respond(ctx context.Context) (*proto.SvcResponse, error) {
 	time.Sleep(s.latency)
 	if rand.Float64() < s.failureRate {
 		return nil, fmt.Errorf("server error")
@@ -53,7 +68,7 @@ func (s *Server) respond(_ context.Context, _ *proto.SvcRequest) (*proto.SvcResp
 	}
 
 	if s.target != nil {
-		targetText, err := s.callTarget()
+		targetText, err := s.callTarget(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -63,8 +78,8 @@ func (s *Server) respond(_ context.Context, _ *proto.SvcRequest) (*proto.SvcResp
 	return &proto.SvcResponse{Message: text + "!"}, nil
 }
 
-func (s *Server) callTarget() (string, error) {
-	resp, err := s.target.Greeting(context.Background(), &proto.SvcRequest{})
+func (s *Server) callTarget(ctx context.Context) (string, error) {
+	resp, err := s.target.Greeting(linkerdContext(ctx), &proto.SvcRequest{})
 	if err != nil {
 		return "", err
 	}

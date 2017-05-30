@@ -4,6 +4,7 @@ package helloworld;
 
 service Hello {
   rpc Greeting (SvcRequest) returns (SvcResponse) {}
+  rpc StreamGreeting (SvcRequest) returns (stream SvcResponse) {}
 }
 
 service World {

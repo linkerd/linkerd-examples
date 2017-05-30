@@ -346,9 +346,15 @@ L5D_INGRESS_LB=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[
 open http://$L5D_INGRESS_LB:9990 # on OS X
 ```
 
-Send a test request using the `helloworld-client` script, provided by the
+Send a unary gRPC request using the `helloworld-client` script provided by the
 buoyantio/helloworld docker image:
 
 ```bash
-docker run --rm --entrypoint=helloworld-client buoyantio/helloworld:0.1.2 $L5D_INGRESS_LB:4140
+docker run --rm --entrypoint=helloworld-client buoyantio/helloworld:0.1.4 $L5D_INGRESS_LB:4140
+```
+
+Add the `-streaming` flag to send a streaming gRPC request:
+
+```bash
+docker run --rm --entrypoint=helloworld-client buoyantio/helloworld:0.1.4 -streaming $L5D_INGRESS_LB:4140
 ```
