@@ -12,7 +12,10 @@ usage:
 
 routers:
 - protocol: http
-  dtab: /svc => /$/inet/127.1/4141 & /$/inet/127.1/4142 & /$/inet/127.1/4143;
+  interpreter:
+    kind: io.l5d.namerd
+    dst: /$/inet/namerd/4100
+    namespace: default
   client:
     failureAccrual:
       kind: none
@@ -24,21 +27,8 @@ routers:
       kind: io.l5d.http.nonRetryable5XX
 
 - protocol: http
-  label: none
-  dtab: /svc => /#/io.l5d.fs/service1;
-  client:
-    failureAccrual:
-      kind: none
-  servers:
-  - port: 4141
-    ip: 0.0.0.0
-  service:
-    responseClassifier:
-      kind: io.l5d.http.nonRetryable5XX
-
-- protocol: http
   label: io.l5d.consecutiveFailures
-  dtab: /svc => /#/io.l5d.fs/service2;
+  dtab: /svc => /#/io.l5d.fs/service1;
   client:
     failureAccrual:
       kind: io.l5d.consecutiveFailures
@@ -47,7 +37,7 @@ routers:
         kind: constant
         ms: 10000
   servers:
-  - port: 4142
+  - port: 4141
     ip: 0.0.0.0
   service:
     responseClassifier:
@@ -55,7 +45,7 @@ routers:
 
 - protocol: http
   label: io.l5d.successRate
-  dtab: /svc => /#/io.l5d.fs/service3;
+  dtab: /svc => /#/io.l5d.fs/service2;
   client:
     failureAccrual:
       kind: io.l5d.successRate
@@ -65,7 +55,7 @@ routers:
         kind: constant
         ms: 10000
   servers:
-  - port: 4143
+  - port: 4142
     ip: 0.0.0.0
   service:
     responseClassifier:

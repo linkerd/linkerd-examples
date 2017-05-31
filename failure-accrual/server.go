@@ -17,6 +17,7 @@ var requests = prometheus.NewCounter(prometheus.CounterOpts{
 })
 
 type handler struct {
+	text        string
 	successRate float64
 }
 
@@ -28,7 +29,7 @@ func (h *handler) HandleRequest(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("internal service error"))
 		return
 	}
-	w.Write([]byte("pong"))
+	w.Write([]byte(h.text))
 }
 
 func init() {
@@ -37,12 +38,13 @@ func init() {
 
 func main() {
 	addr := flag.String("addr", ":8501", "service port to run on")
+	text := flag.String("text", "Hello", "text to serve")
 	successRate := flag.Float64("success-rate", 1.0, "service success rate")
 	flag.Parse()
 
-	fmt.Printf("serving on %s with %2f success rate\n", *addr, *successRate)
+	fmt.Printf("serving %s on %s with %2f success rate\n", *text, *addr, *successRate)
 
-	httpHandler := handler{successRate: *successRate}
+	httpHandler := handler{text: *text, successRate: *successRate}
 	http.HandleFunc("/", httpHandler.HandleRequest)
 	http.Handle("/metrics", promhttp.Handler())
 	http.ListenAndServe(*addr, nil)

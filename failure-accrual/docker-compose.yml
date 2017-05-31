@@ -3,61 +3,84 @@ version: '2'
 services:
   app01:
     build: .
+    command:
+    - "-text=One"
+    - "-success-rate=1.0"
 
   app02:
     build: .
+    command:
+    - "-text=One"
+    - "-success-rate=1.0"
 
   app03:
     build: .
-    command: -success-rate=0.6
+    command:
+    - "-text=One"
+    - "-success-rate=0.6"
 
   app04:
     build: .
+    command:
+    - "-text=One"
+    - "-success-rate=1.0"
 
   app05:
     build: .
+    command:
+    - "-text=One"
+    - "-success-rate=1.0"
 
   app06:
     build: .
+    command:
+    - "-text=Two"
+    - "-success-rate=1.0"
 
   app07:
     build: .
+    command:
+    - "-text=Two"
+    - "-success-rate=1.0"
 
   app08:
     build: .
-    command: -success-rate=0.6
+    command:
+    - "-text=Two"
+    - "-success-rate=0.6"
 
   app09:
     build: .
+    command:
+    - "-text=Two"
+    - "-success-rate=1.0"
 
   app10:
     build: .
-
-  app11:
-    build: .
-
-  app12:
-    build: .
-
-  app13:
-    build: .
-    command: -success-rate=0.6
-
-  app14:
-    build: .
-
-  app15:
-    build: .
+    command:
+    - "-text=Two"
+    - "-success-rate=1.0"
 
   linkerd:
     image: buoyantio/linkerd:1.0.2
     ports:
+      - 4140:4140
       - 9990:9990
     volumes:
       - ./linkerd.yml:/io/buoyant/linkerd/config.yml:ro
       - ./disco:/disco
     command:
       - "/io/buoyant/linkerd/config.yml"
+
+  namerd:
+    image: buoyantio/namerd:1.0.2
+    ports:
+      - 9991:9991
+    volumes:
+      - ./namerd.yml:/io.buoyant/namerd/config.yml:ro
+      - ./disco:/disco
+    command:
+      - "/io.buoyant/namerd/config.yml"
 
   prometheus:
     image: prom/prometheus:v1.0.2
@@ -81,4 +104,4 @@ services:
     image: buoyantio/slow_cooker:1.0.1
     entrypoint: /bin/sh
     command: >
-      -c 'sleep 15 && slow_cooker -qps 20 -concurrency 15 -interval 5s -totalRequests 10000000 http://linkerd:4140/'
+      -c 'sleep 15 && slow_cooker -qps 20 -concurrency 15 -interval 5s http://linkerd:4140/'

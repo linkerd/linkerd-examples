@@ -15,281 +15,6 @@
       "height": "250px",
       "panels": [
         {
-          "content": "```yaml\n- protocol: http\n  client:\n    failureAccrual:\n      kind: none\n```",
-          "editable": true,
-          "error": false,
-          "id": 17,
-          "isNew": true,
-          "links": [],
-          "mode": "markdown",
-          "span": 3,
-          "title": "",
-          "type": "text"
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "datasource": null,
-          "editable": true,
-          "error": false,
-          "fill": 1,
-          "grid": {
-            "threshold1": null,
-            "threshold1Color": "rgba(216, 200, 27, 0.27)",
-            "threshold2": null,
-            "threshold2Color": "rgba(234, 112, 112, 0.22)"
-          },
-          "id": 2,
-          "isNew": true,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": false,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 2,
-          "links": [],
-          "nullPointMode": "connected",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "span": 3,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "0.99",
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "target success rate",
-              "metric": "",
-              "refId": "B",
-              "step": 2
-            },
-            {
-              "expr": "rate(rt:client:success{rt='none', client='#/io.l5d.fs/service1'}[10s]) / (rate(rt:client:failures{rt='none', client='#/io.l5d.fs/service1'}[10s]) + rate(rt:client:success{rt='none', client='#/io.l5d.fs/service1'}[10s]))",
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "success rate",
-              "metric": "",
-              "refId": "A",
-              "step": 2
-            },
-            {
-              "expr": "rate(rt:client:success{rt='none', client='#/io.l5d.fs/service1'}[1m]) / (rate(rt:client:failures{rt='none', client='#/io.l5d.fs/service1'}[1m]) + rate(rt:client:success{rt='none', client='#/io.l5d.fs/service1'}[1m]))",
-              "hide": true,
-              "intervalFactor": 2,
-              "legendFormat": "success rate smoothed",
-              "refId": "C",
-              "step": 2
-            }
-          ],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "linkerd success rate",
-          "tooltip": {
-            "msResolution": false,
-            "shared": true,
-            "sort": 2,
-            "value_type": "cumulative"
-          },
-          "type": "graph",
-          "xaxis": {
-            "show": true
-          },
-          "yaxes": [
-            {
-              "format": "percentunit",
-              "label": "",
-              "logBase": 1,
-              "max": 1,
-              "min": 0.93,
-              "show": true
-            },
-            {
-              "format": "percentunit",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "datasource": null,
-          "editable": true,
-          "error": false,
-          "fill": 1,
-          "grid": {
-            "threshold1": null,
-            "threshold1Color": "rgba(216, 200, 27, 0.27)",
-            "threshold2": null,
-            "threshold2Color": "rgba(234, 112, 112, 0.22)"
-          },
-          "id": 4,
-          "isNew": true,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": false,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 2,
-          "links": [],
-          "nullPointMode": "connected",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "span": 3,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rate(requests{job=\"service1\"}[10s])",
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "{{instance}} requests",
-              "metric": "requests",
-              "refId": "A",
-              "step": 2
-            }
-          ],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "requests per instance",
-          "tooltip": {
-            "msResolution": false,
-            "shared": true,
-            "sort": 2,
-            "value_type": "cumulative"
-          },
-          "type": "graph",
-          "xaxis": {
-            "show": true
-          },
-          "yaxes": [
-            {
-              "format": "rps",
-              "label": "",
-              "logBase": 1,
-              "max": 35,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "datasource": null,
-          "editable": true,
-          "error": false,
-          "fill": 1,
-          "grid": {
-            "threshold1": null,
-            "threshold1Color": "rgba(216, 200, 27, 0.27)",
-            "threshold2": null,
-            "threshold2Color": "rgba(234, 112, 112, 0.22)"
-          },
-          "id": 16,
-          "isNew": true,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": false,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 2,
-          "links": [],
-          "nullPointMode": "connected",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "span": 3,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rt:client:failure_accrual:removed_for_ms{rt='none', client='#/io.l5d.fs/service1'}",
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "cumulative remove time",
-              "metric": "",
-              "refId": "A",
-              "step": 2
-            }
-          ],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "cumulative removal time",
-          "tooltip": {
-            "msResolution": false,
-            "shared": true,
-            "sort": 2,
-            "value_type": "cumulative"
-          },
-          "type": "graph",
-          "xaxis": {
-            "show": true
-          },
-          "yaxes": [
-            {
-              "format": "ms",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ]
-        }
-      ],
-      "showTitle": true,
-      "title": "no failure accrual"
-    },
-    {
-      "collapse": false,
-      "editable": true,
-      "height": "250px",
-      "panels": [
-        {
           "content": "```yaml\n- protocol: http\n  client:\n    failureAccrual:\n      kind: io.l5d.consecutiveFailures\n      failures: 5\n      backoff:\n        kind: constant\n        ms: 10000\n```",
           "editable": true,
           "error": false,
@@ -297,7 +22,7 @@
           "isNew": true,
           "links": [],
           "mode": "markdown",
-          "span": 3,
+          "span": 4,
           "title": "",
           "type": "text"
         },
@@ -334,7 +59,7 @@
           "points": false,
           "renderer": "flot",
           "seriesOverrides": [],
-          "span": 3,
+          "span": 4,
           "stack": false,
           "steppedLine": false,
           "targets": [
@@ -347,7 +72,7 @@
               "step": 2
             },
             {
-              "expr": "rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service2'}[10s]) / (rate(rt:client:failures{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service2'}[10s]) + rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service2'}[10s]))",
+              "expr": "rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[10s]) / (rate(rt:client:failures{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[10s]) + rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[10s]))",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "success rate",
@@ -356,7 +81,7 @@
               "step": 2
             },
             {
-              "expr": "rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service2'}[1m]) / (rate(rt:client:failures{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service2'}[1m]) + rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service2'}[1m]))",
+              "expr": "rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[1m]) / (rate(rt:client:failures{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[1m]) + rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[1m]))",
               "hide": true,
               "intervalFactor": 2,
               "legendFormat": "success rate smoothed",
@@ -429,12 +154,12 @@
           "points": false,
           "renderer": "flot",
           "seriesOverrides": [],
-          "span": 3,
+          "span": 4,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(requests{job=\"service2\"}[10s])",
+              "expr": "rate(requests{job=\"service1\"}[10s])",
               "intervalFactor": 2,
               "legendFormat": "{{instance}} requests",
               "metric": "requests",
@@ -460,86 +185,7 @@
               "format": "rps",
               "label": "",
               "logBase": 1,
-              "max": 35,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "datasource": null,
-          "editable": true,
-          "error": false,
-          "fill": 1,
-          "grid": {
-            "threshold1": null,
-            "threshold1Color": "rgba(216, 200, 27, 0.27)",
-            "threshold2": null,
-            "threshold2Color": "rgba(234, 112, 112, 0.22)"
-          },
-          "id": 14,
-          "isNew": true,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": false,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 2,
-          "links": [],
-          "nullPointMode": "connected",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "span": 3,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rt:client:failure_accrual:removed_for_ms{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service2'}",
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "cumulative removal time",
-              "metric": "",
-              "refId": "A",
-              "step": 2
-            }
-          ],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "cumulative removal time",
-          "tooltip": {
-            "msResolution": false,
-            "shared": true,
-            "sort": 2,
-            "value_type": "cumulative"
-          },
-          "type": "graph",
-          "xaxis": {
-            "show": true
-          },
-          "yaxes": [
-            {
-              "format": "ms",
-              "label": null,
-              "logBase": 1,
-              "max": null,
+              "max": 50,
               "min": 0,
               "show": true
             },
@@ -570,7 +216,7 @@
           "isNew": true,
           "links": [],
           "mode": "markdown",
-          "span": 3,
+          "span": 4,
           "title": "",
           "type": "text"
         },
@@ -607,7 +253,7 @@
           "points": false,
           "renderer": "flot",
           "seriesOverrides": [],
-          "span": 3,
+          "span": 4,
           "stack": false,
           "steppedLine": false,
           "targets": [
@@ -620,7 +266,7 @@
               "step": 2
             },
             {
-              "expr": "rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service3'}[10s]) / (rate(rt:client:failures{rt='io.l5d.successRate', client='#/io.l5d.fs/service3'}[10s]) + rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service3'}[10s]))",
+              "expr": "rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[10s]) / (rate(rt:client:failures{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[10s]) + rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[10s]))",
               "intervalFactor": 2,
               "legendFormat": "success rate",
               "metric": "",
@@ -628,7 +274,7 @@
               "step": 2
             },
             {
-              "expr": "rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service3'}[1m]) / (rate(rt:client:failures{rt='io.l5d.successRate', client='#/io.l5d.fs/service3'}[1m]) + rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service3'}[1m]))",
+              "expr": "rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[1m]) / (rate(rt:client:failures{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[1m]) + rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[1m]))",
               "hide": true,
               "interval": "",
               "intervalFactor": 2,
@@ -702,12 +348,12 @@
           "points": false,
           "renderer": "flot",
           "seriesOverrides": [],
-          "span": 3,
+          "span": 4,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(requests{job=\"service3\"}[10s])",
+              "expr": "rate(requests{job=\"service2\"}[10s])",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "{{instance}} requests",
@@ -734,86 +380,7 @@
               "format": "rps",
               "label": "",
               "logBase": 1,
-              "max": 35,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "datasource": null,
-          "editable": true,
-          "error": false,
-          "fill": 1,
-          "grid": {
-            "threshold1": null,
-            "threshold1Color": "rgba(216, 200, 27, 0.27)",
-            "threshold2": null,
-            "threshold2Color": "rgba(234, 112, 112, 0.22)"
-          },
-          "id": 15,
-          "isNew": true,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": false,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 2,
-          "links": [],
-          "nullPointMode": "connected",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "span": 3,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rt:client:failure_accrual:removed_for_ms{rt='io.l5d.successRate', client='#/io.l5d.fs/service3'}",
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "cumulative removal time",
-              "metric": "",
-              "refId": "A",
-              "step": 2
-            }
-          ],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "cumulative removal time",
-          "tooltip": {
-            "msResolution": false,
-            "shared": true,
-            "sort": 2,
-            "value_type": "cumulative"
-          },
-          "type": "graph",
-          "xaxis": {
-            "show": true
-          },
-          "yaxes": [
-            {
-              "format": "ms",
-              "label": null,
-              "logBase": 1,
-              "max": null,
+              "max": 50,
               "min": 0,
               "show": true
             },
@@ -849,6 +416,101 @@
             "threshold2": null,
             "threshold2Color": "rgba(234, 112, 112, 0.22)"
           },
+          "id": 22,
+          "isNew": true,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 2,
+          "links": [],
+          "nullPointMode": "connected",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [
+            {
+              "alias": "io.l5d.consecutiveFailures",
+              "color": "#EAB839"
+            },
+            {
+              "alias": "io.l5d.successRate",
+              "color": "#6ED0E0"
+            }
+          ],
+          "span": 4,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "rate(rt:client:requests{rt=\"io.l5d.consecutiveFailures\"}[90s])",
+              "interval": "",
+              "intervalFactor": 2,
+              "legendFormat": "{{rt}}",
+              "refId": "A",
+              "step": 2
+            },
+            {
+              "expr": "rate(rt:client:requests{rt=\"io.l5d.successRate\"}[90s])",
+              "interval": "",
+              "intervalFactor": 2,
+              "legendFormat": "{{rt}}",
+              "refId": "B",
+              "step": 2
+            }
+          ],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "requests smoothed",
+          "tooltip": {
+            "msResolution": false,
+            "shared": true,
+            "sort": 2,
+            "value_type": "cumulative"
+          },
+          "type": "graph",
+          "xaxis": {
+            "show": true
+          },
+          "yaxes": [
+            {
+              "format": "rps",
+              "label": "",
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ]
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "datasource": null,
+          "editable": true,
+          "error": false,
+          "fill": 1,
+          "grid": {
+            "threshold1": null,
+            "threshold1Color": "rgba(216, 200, 27, 0.27)",
+            "threshold2": null,
+            "threshold2Color": "rgba(234, 112, 112, 0.22)"
+          },
           "id": 20,
           "isNew": true,
           "legend": {
@@ -869,33 +531,27 @@
           "points": false,
           "renderer": "flot",
           "seriesOverrides": [],
-          "span": 6,
+          "span": 4,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
               "expr": ".99",
+              "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "target success rate",
+              "legendFormat": "99%",
               "refId": "D",
               "step": 2
             },
             {
-              "expr": "rate(rt:client:success{rt='none', client='#/io.l5d.fs/service1'}[90s]) / (rate(rt:client:failures{rt='none', client='#/io.l5d.fs/service1'}[90s]) + rate(rt:client:success{rt='none', client='#/io.l5d.fs/service1'}[90s]))",
-              "intervalFactor": 2,
-              "legendFormat": "none",
-              "refId": "A",
-              "step": 2
-            },
-            {
-              "expr": "rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service2'}[90s]) / (rate(rt:client:failures{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service2'}[90s]) + rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service2'}[90s]))",
+              "expr": "rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[90s]) / (rate(rt:client:failures{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[90s]) + rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[90s]))",
               "intervalFactor": 2,
               "legendFormat": "io.l5d.consecutiveFailures",
               "refId": "B",
               "step": 2
             },
             {
-              "expr": "rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service3'}[90s]) / (rate(rt:client:failures{rt='io.l5d.successRate', client='#/io.l5d.fs/service3'}[90s]) + rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service3'}[90s]))",
+              "expr": "rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[90s]) / (rate(rt:client:failures{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[90s]) + rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[90s]))",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "io.l5d.successRate",
@@ -969,44 +625,32 @@
           "renderer": "flot",
           "seriesOverrides": [
             {
-              "alias": "none",
+              "alias": "io.l5d.consecutiveFailures",
               "color": "#EAB839"
             },
             {
-              "alias": "io.l5d.consecutiveFailures",
-              "color": "#6ED0E0"
-            },
-            {
               "alias": "io.l5d.successRate",
-              "color": "#EF843C"
+              "color": "#6ED0E0"
             }
           ],
-          "span": 6,
+          "span": 4,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rt:server:request_latency_ms{rt='none', server='0.0.0.0/4141', quantile='0.99'}",
+              "expr": "rt:server:request_latency_ms{rt='io.l5d.consecutiveFailures', server='0.0.0.0/4141', quantile='0.99'}",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "none",
+              "legendFormat": "io.l5d.consecutiveFailures",
               "metric": "",
               "refId": "A",
               "step": 2
             },
             {
-              "expr": "rt:server:request_latency_ms{rt='io.l5d.consecutiveFailures', server='0.0.0.0/4142', quantile='0.99'}",
-              "intervalFactor": 2,
-              "legendFormat": "io.l5d.consecutiveFailures",
-              "refId": "B",
-              "step": 2
-            },
-            {
-              "expr": "rt:server:request_latency_ms{rt='io.l5d.successRate', server='0.0.0.0/4143', quantile='0.99'}",
-              "interval": "",
+              "expr": "rt:server:request_latency_ms{rt='io.l5d.successRate', server='0.0.0.0/4142', quantile='0.99'}",
               "intervalFactor": 2,
               "legendFormat": "io.l5d.successRate",
-              "refId": "C",
+              "refId": "B",
               "step": 2
             }
           ],
