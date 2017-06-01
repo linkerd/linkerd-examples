@@ -9,7 +9,8 @@ storage:
   kind: io.l5d.inMemory
   namespaces:
     default: |
-      /svc => /$/inet/127.1/4141 & /$/inet/127.1/4142;
+      /srv => /#/io.l5d.fs;
+      /svc/* => /srv/service1 & /srv/service2;
 
 interfaces:
 - kind: io.l5d.thriftNameInterpreter

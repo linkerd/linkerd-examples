@@ -75,6 +75,7 @@ services:
   namerd:
     image: buoyantio/namerd:1.0.2
     ports:
+      - 4180:4180
       - 9991:9991
     volumes:
       - ./namerd.yml:/io.buoyant/namerd/config.yml:ro

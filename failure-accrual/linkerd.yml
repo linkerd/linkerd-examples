@@ -1,14 +1,10 @@
-namers:
-- kind: io.l5d.fs
-  rootDir: /disco
+admin:
+  port: 9990
 
 telemetry:
 - kind: io.l5d.prometheus
 - kind: io.l5d.recentRequests
-  sampleRate: 0.25
-
-usage:
-  orgId: linkerd-examples-failure-accrual
+  sampleRate: 0.1
 
 routers:
 - protocol: http
@@ -17,45 +13,25 @@ routers:
     dst: /$/inet/namerd/4100
     namespace: default
   client:
-    failureAccrual:
-      kind: none
+    kind: io.l5d.static
+    configs:
+    - prefix: /#/io.l5d.fs/service1
+      failureAccrual:
+        kind: io.l5d.consecutiveFailures
+        failures: 5
+        backoff:
+          kind: constant
+          ms: 10000
+    - prefix: /#/io.l5d.fs/service2
+      failureAccrual:
+        kind: io.l5d.successRate
+        successRate: 0.9
+        requests: 20
+        backoff:
+          kind: constant
+          ms: 10000
   servers:
   - port: 4140
-    ip: 0.0.0.0
-  service:
-    responseClassifier:
-      kind: io.l5d.http.nonRetryable5XX
-
-- protocol: http
-  label: io.l5d.consecutiveFailures
-  dtab: /svc => /#/io.l5d.fs/service1;
-  client:
-    failureAccrual:
-      kind: io.l5d.consecutiveFailures
-      failures: 5
-      backoff:
-        kind: constant
-        ms: 10000
-  servers:
-  - port: 4141
-    ip: 0.0.0.0
-  service:
-    responseClassifier:
-      kind: io.l5d.http.nonRetryable5XX
-
-- protocol: http
-  label: io.l5d.successRate
-  dtab: /svc => /#/io.l5d.fs/service2;
-  client:
-    failureAccrual:
-      kind: io.l5d.successRate
-      successRate: 0.9
-      requests: 20
-      backoff:
-        kind: constant
-        ms: 10000
-  servers:
-  - port: 4142
     ip: 0.0.0.0
   service:
     responseClassifier:

@@ -72,20 +72,12 @@
               "step": 2
             },
             {
-              "expr": "rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[10s]) / (rate(rt:client:failures{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[10s]) + rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[10s]))",
+              "expr": "rate(rt:client:success{client='#/io.l5d.fs/service1'}[10s]) / (rate(rt:client:failures{client='#/io.l5d.fs/service1'}[10s]) + rate(rt:client:success{client='#/io.l5d.fs/service1'}[10s]))",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "success rate",
               "metric": "",
               "refId": "A",
-              "step": 2
-            },
-            {
-              "expr": "rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[1m]) / (rate(rt:client:failures{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[1m]) + rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[1m]))",
-              "hide": true,
-              "intervalFactor": 2,
-              "legendFormat": "success rate smoothed",
-              "refId": "C",
               "step": 2
             }
           ],
@@ -266,20 +258,11 @@
               "step": 2
             },
             {
-              "expr": "rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[10s]) / (rate(rt:client:failures{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[10s]) + rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[10s]))",
+              "expr": "rate(rt:client:success{client='#/io.l5d.fs/service2'}[10s]) / (rate(rt:client:failures{client='#/io.l5d.fs/service2'}[10s]) + rate(rt:client:success{client='#/io.l5d.fs/service2'}[10s]))",
               "intervalFactor": 2,
               "legendFormat": "success rate",
               "metric": "",
               "refId": "A",
-              "step": 2
-            },
-            {
-              "expr": "rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[1m]) / (rate(rt:client:failures{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[1m]) + rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[1m]))",
-              "hide": true,
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "success rate smoothed",
-              "refId": "C",
               "step": 2
             }
           ],
@@ -435,34 +418,17 @@
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
-          "seriesOverrides": [
-            {
-              "alias": "io.l5d.consecutiveFailures",
-              "color": "#EAB839"
-            },
-            {
-              "alias": "io.l5d.successRate",
-              "color": "#6ED0E0"
-            }
-          ],
+          "seriesOverrides": [],
           "span": 4,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(rt:client:requests{rt=\"io.l5d.consecutiveFailures\"}[90s])",
+              "expr": "rate(rt:client:requests{}[90s])",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{rt}}",
+              "legendFormat": "{{client}}",
               "refId": "A",
-              "step": 2
-            },
-            {
-              "expr": "rate(rt:client:requests{rt=\"io.l5d.successRate\"}[90s])",
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "{{rt}}",
-              "refId": "B",
               "step": 2
             }
           ],
@@ -536,26 +502,19 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": ".99",
+              "expr": "rate(rt:client:success[90s]) / (rate(rt:client:failures[90s]) + rate(rt:client:success[90s]))",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "99%",
-              "refId": "D",
-              "step": 2
-            },
-            {
-              "expr": "rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[90s]) / (rate(rt:client:failures{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[90s]) + rate(rt:client:success{rt='io.l5d.consecutiveFailures', client='#/io.l5d.fs/service1'}[90s]))",
-              "intervalFactor": 2,
-              "legendFormat": "io.l5d.consecutiveFailures",
+              "legendFormat": "{{client}}",
               "refId": "B",
               "step": 2
             },
             {
-              "expr": "rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[90s]) / (rate(rt:client:failures{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[90s]) + rate(rt:client:success{rt='io.l5d.successRate', client='#/io.l5d.fs/service2'}[90s]))",
+              "expr": "0.99",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "io.l5d.successRate",
-              "refId": "C",
+              "legendFormat": "target",
+              "refId": "A",
               "step": 2
             }
           ],
@@ -623,40 +582,24 @@
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
-          "seriesOverrides": [
-            {
-              "alias": "io.l5d.consecutiveFailures",
-              "color": "#EAB839"
-            },
-            {
-              "alias": "io.l5d.successRate",
-              "color": "#6ED0E0"
-            }
-          ],
+          "seriesOverrides": [],
           "span": 4,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rt:server:request_latency_ms{rt='io.l5d.consecutiveFailures', server='0.0.0.0/4141', quantile='0.99'}",
+              "expr": "rt:client:failure_accrual:removed_for_ms",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "io.l5d.consecutiveFailures",
+              "legendFormat": "{{client}}",
               "metric": "",
               "refId": "A",
-              "step": 2
-            },
-            {
-              "expr": "rt:server:request_latency_ms{rt='io.l5d.successRate', server='0.0.0.0/4142', quantile='0.99'}",
-              "intervalFactor": 2,
-              "legendFormat": "io.l5d.successRate",
-              "refId": "B",
               "step": 2
             }
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "request latency p99",
+          "title": "removal time",
           "tooltip": {
             "msResolution": false,
             "shared": true,
