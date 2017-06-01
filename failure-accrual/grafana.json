@@ -177,7 +177,7 @@
               "format": "rps",
               "label": "",
               "logBase": 1,
-              "max": 50,
+              "max": null,
               "min": 0,
               "show": true
             },
@@ -363,7 +363,7 @@
               "format": "rps",
               "label": "",
               "logBase": 1,
-              "max": 50,
+              "max": null,
               "min": 0,
               "show": true
             },
@@ -424,7 +424,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(rt:client:requests{}[90s])",
+              "expr": "irate(rt:client:requests[10s])",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "{{client}}",
@@ -434,7 +434,7 @@
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "requests smoothed",
+          "title": "total requests",
           "tooltip": {
             "msResolution": false,
             "shared": true,
