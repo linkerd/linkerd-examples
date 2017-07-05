@@ -23,6 +23,9 @@ data:
     routers:
     - protocol: http
       label: outgoing
+      loggers:
+      - kind: io.l5d.istio
+        mixerHost: istio-mixer
       identifier:
         kind: io.l5d.istio
       interpreter:
