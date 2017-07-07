@@ -1,0 +1,87 @@
+{
+  "id": "/buoyant",
+  "groups": [
+    {
+      "id": "/buoyant/hw",
+      "apps": [
+        {
+          "id": "/buoyant/hw/hello",
+          "cmd": "http_proxy=$LIBPROCESS_IP:4140 POD_IP=$LIBPROCESS_IP helloworld -addr=:$PORT0 -text=Hello -target=world-v1.hw.buoyant",
+          "cpus": 0.5,
+          "mem": 64.0,
+          "instances": 2,
+          "container": {
+            "type": "DOCKER",
+            "docker": {
+              "image": "buoyantio/helloworld:0.1.4",
+              "network": "BRIDGE",
+              "portMappings": [
+                { "containerPort": 0, "hostPort": 0, "protocol": "tcp" }
+              ]
+            }
+          },
+          "healthChecks": [
+            {
+              "protocol": "HTTP",
+              "portIndex": 0,
+              "path": "/",
+              "gracePeriodSeconds": 5,
+              "intervalSeconds": 20,
+              "maxConsecutiveFailures": 3
+            }
+          ]
+        },
+        {
+          "id": "/buoyant/hw/world-v1",
+          "cmd": "http_proxy=$LIBPROCESS_IP:4140 POD_IP=$LIBPROCESS_IP helloworld -addr=:$PORT0",
+          "env": {
+            "TARGET_WORLD": "world"
+          },
+          "cpus": 0.5,
+          "mem": 64.0,
+          "instances": 2,
+          "container": {
+            "type": "DOCKER",
+            "docker": {
+              "image": "buoyantio/helloworld:0.1.4",
+              "network": "BRIDGE",
+              "portMappings": [
+                { "containerPort": 0, "hostPort": 0, "protocol": "tcp" }
+              ]
+            }
+          },
+          "healthChecks": [
+            {
+              "protocol": "HTTP",
+              "portIndex": 0,
+              "path": "/",
+              "gracePeriodSeconds": 5,
+              "intervalSeconds": 20,
+              "maxConsecutiveFailures": 3
+            }
+          ]
+        },
+        {
+          "id": "/buoyant/hw/world-v2",
+          "cmd": "http_proxy=$LIBPROCESS_IP:4140 POD_IP=$LIBPROCESS_IP helloworld -addr=:$PORT0 -failure-rate=0.3 -latency=100ms",
+          "env": {
+            "TARGET_WORLD": "earth"
+          },
+          "cpus": 0.5,
+          "mem": 64.0,
+          "instances": 2,
+          "container": {
+            "type": "DOCKER",
+            "docker": {
+              "image": "buoyantio/helloworld:0.1.4",
+              "network": "BRIDGE",
+              "portMappings": [
+                { "containerPort": 0, "hostPort": 0, "protocol": "tcp" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

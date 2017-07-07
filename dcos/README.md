@@ -124,6 +124,10 @@ linkerd config examples documented here all use the `domainToPathPfx` rewriting
 namer, marathon applications within a group are routed by reversing the group
 name into a domain-like name. For example, `webgroup/webapp-a/webapp-a1` becomes `webapp-a1.webapp-a.webgroup`:
 
+#### Webgroup
+
+This example demonstrates linkerd routing requests to a Marathon app in an application group.
+
 ```bash
 dcos marathon group add webgroup.json
 ```
@@ -131,4 +135,37 @@ dcos marathon group add webgroup.json
 ```bash
 http_proxy=$PUBLIC_NODE:4140 curl webapp-a1.webapp-a.webgroup/hello
 Hello world
+```
+
+#### Hello World
+
+This example demonstrates inter-service routing, along with a routing override.
+
+Deploy 3 services: `hello`, `world-v1`, `world-v2`:
+
+```bash
+dcos marathon group add hello-world.json
+```
+
+Route requests `linkerd` -> `hello` -> `linkerd` -> `world-v1`:
+
+```bash
+http_proxy=$PUBLIC_NODE:4140 curl hello.hw.buoyant
+Hello (10.0.3.80) world (10.0.1.148)!
+```
+
+Routing override from `world-v1` to `world-v2`:
+
+```bash
+# 25% to world-v2
+http_proxy=$PUBLIC_NODE:4140 curl -H 'l5d-dtab: /svc/world-v1.hw.buoyant => 3 * /marathonId/buoyant/hw/world-v1 & /marathonId/buoyant/hw/world-v2' hello.hw.buoyant
+Hello (10.0.1.56) world (10.0.1.56)!!
+
+# 75% to world-v2
+http_proxy=$PUBLIC_NODE:4140 curl -H 'l5d-dtab: /svc/world-v1.hw.buoyant => /marathonId/buoyant/hw/world-v1 & 3 * /marathonId/buoyant/hw/world-v2' hello.hw.buoyant
+Hello (10.0.1.56) earth (10.0.1.56)!!
+
+# 100% to world-v2
+http_proxy=$PUBLIC_NODE:4140 curl -H 'l5d-dtab: /svc/world-v1.hw.buoyant => /svc/world-v2.hw.buoyant' hello.hw.buoyant
+Hello (10.0.1.56) earth (10.0.1.56)!!
 ```
