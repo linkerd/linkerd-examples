@@ -13,14 +13,13 @@ data:
     routers:
     - protocol: http
       identifier:
-        kind: io.l5d.istio-ingress
-        apiserverHost: istio-pilot
-        discoveryHost: istio-pilot
+        kind: io.l5d.k8s.istio-ingress
       interpreter:
         kind: io.l5d.k8s.istio
         experimental: true
-        discoveryHost: istio-pilot
-        apiserverHost: istio-pilot
+      loggers:
+      - kind: io.l5d.k8s.istio
+        mixerHost: istio-mixer
       servers:
         - port: 80
           ip: 0.0.0.0

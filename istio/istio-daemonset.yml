@@ -9,12 +9,6 @@ data:
     admin:
       port: 9990
 
-    namers:
-    - kind: io.l5d.k8s
-      experimental: true
-      host: localhost
-      port: 8001
-
     telemetry:
     - kind: io.l5d.prometheus
     - kind: io.l5d.recentRequests
@@ -24,10 +18,10 @@ data:
     - protocol: http
       label: outgoing
       loggers:
-      - kind: io.l5d.istio
+      - kind: io.l5d.k8s.istio
         mixerHost: istio-mixer
       identifier:
-        kind: io.l5d.istio
+        kind: io.l5d.k8s.istio
       interpreter:
         kind: io.l5d.k8s.istio
         experimental: true
@@ -46,14 +40,10 @@ data:
     - protocol: http
       label: incoming
       identifier:
-        kind: io.l5d.istio
-        apiserverHost: istio-pilot
-        discoveryHost: istio-pilot
+        kind: io.l5d.k8s.istio
       interpreter:
         kind: io.l5d.k8s.istio
         experimental: true
-        discoveryHost: istio-pilot
-        apiserverHost: istio-pilot
         transformers:
         - kind: io.l5d.k8s.localnode
       servers:
