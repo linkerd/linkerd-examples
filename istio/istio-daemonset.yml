@@ -1,5 +1,7 @@
-# runs linkerd in a daemonset, in linker-to-linker mode
 ---
+################################
+# Linkerd Daemonset
+################################
 apiVersion: v1
 kind: ConfigMap
 metadata:
