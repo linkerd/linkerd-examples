@@ -70,7 +70,7 @@ spec:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.1.0-SNAPSHOT
+        image: buoyantio/linkerd:1.1.1-rc1
         env:
         - name: POD_IP
           valueFrom:
