@@ -52,7 +52,7 @@ spec:
           name: "istio-egress-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.1.1-rc1
+        image: buoyantio/linkerd:1.1.1
         args:
         - /io.buoyant/linkerd/config/config.yaml
         ports:
