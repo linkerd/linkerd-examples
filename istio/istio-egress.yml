@@ -1,0 +1,87 @@
+---
+################################
+# Istio egress Linkerd
+################################
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: istio-egress-config
+data:
+  config.yaml: |-
+    admin:
+      port: 9990
+
+    telemetry:
+    - kind: io.l5d.prometheus
+    - kind: io.l5d.recentRequests
+      sampleRate: 0.25
+
+    routers:
+    - protocol: http
+      dtab: |
+        /ph        => /$/io.buoyant.rinet ; # Lookup the name in DNS
+        /svc       => /ph/80 ; # Use port 80 if unspecified
+        /srv       => /$/io.buoyant.porthostPfx/ph ;
+        /svc       => /srv ;
+      servers:
+      - port: 80
+        ip: 0.0.0.0
+      client:
+        kind: io.l5d.static
+        configs:
+        - prefix: "/$/io.buoyant.rinet/443/{service}"
+          tls:
+            commonName: "{service}"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: istio-egress
+spec:
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        alpha.istio.io/sidecar: ignore
+      labels:
+        istio: egress
+    spec:
+      volumes:
+      - name: istio-egress-config
+        configMap:
+          name: "istio-egress-config"
+      containers:
+      - name: l5d
+        image: buoyantio/linkerd:1.1.1
+        args:
+        - /io.buoyant/linkerd/config/config.yaml
+        ports:
+        - name: incoming
+          containerPort: 80
+        - name: admin
+          containerPort: 9990
+        volumeMounts:
+        - name: "istio-egress-config"
+          mountPath: "/io.buoyant/linkerd/config"
+          readOnly: true
+
+      - name: kubectl
+        image: buoyantio/kubectl:v1.6.2
+        args:
+        - "proxy"
+        - "-p"
+        - "8001"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio-egress
+spec:
+  selector:
+    istio: egress
+  type: LoadBalancer
+  ports:
+  - name: incoming
+    port: 80
+  - name: admin
+    port: 9990
