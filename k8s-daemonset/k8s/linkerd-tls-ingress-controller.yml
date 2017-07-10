@@ -45,7 +45,7 @@ spec:
           secretName: ingress-certs
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.0.2
+        image: buoyantio/linkerd:1.1.1
         env:
         - name: POD_IP
           valueFrom:

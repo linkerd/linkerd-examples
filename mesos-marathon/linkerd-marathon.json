@@ -8,7 +8,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "buoyantio/linkerd:1.0.2",
+      "image": "buoyantio/linkerd:1.1.1",
       "network": "HOST",
       "privileged": true
     }
@@ -36,5 +36,5 @@
     }
   ],
   "requirePorts": true,
-  "cmd": "echo \"{\\\"admin\\\":{\\\"port\\\":9990},\\\"telemetry\\\":[{\\\"kind\\\":\\\"io.l5d.prometheus\\\"}],\\\"namers\\\":[{\\\"kind\\\":\\\"io.l5d.marathon\\\",\\\"host\\\":\\\"localhost\\\",\\\"port\\\":8080}],\\\"routers\\\":[{\\\"protocol\\\":\\\"http\\\",\\\"servers\\\":[{\\\"port\\\":4140,\\\"ip\\\":\\\"0.0.0.0\\\"}],\\\"dtab\\\":\\\"/marathonId=>/#/io.l5d.marathon;/svc=>/$/io.buoyant.http.domainToPathPfx/marathonId;\\\",\\\"label\\\":\\\"linkerd_proxy\\\"}]}\" | /io.buoyant/linkerd/1.0.2/bundle-exec -log.level=DEBUG -com.twitter.finagle.tracing.debugTrace=true -- -"
+  "cmd": "echo \"{\\\"admin\\\":{\\\"port\\\":9990},\\\"telemetry\\\":[{\\\"kind\\\":\\\"io.l5d.prometheus\\\"}],\\\"namers\\\":[{\\\"kind\\\":\\\"io.l5d.marathon\\\",\\\"host\\\":\\\"localhost\\\",\\\"port\\\":8080}],\\\"routers\\\":[{\\\"protocol\\\":\\\"http\\\",\\\"servers\\\":[{\\\"port\\\":4140,\\\"ip\\\":\\\"0.0.0.0\\\"}],\\\"dtab\\\":\\\"/marathonId=>/#/io.l5d.marathon;/svc=>/$/io.buoyant.http.domainToPathPfx/marathonId;\\\",\\\"label\\\":\\\"linkerd_proxy\\\"}]}\" | /io.buoyant/linkerd/1.1.1/bundle-exec -log.level=DEBUG -com.twitter.finagle.tracing.debugTrace=true -- -"
 }
