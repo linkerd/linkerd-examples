@@ -127,7 +127,7 @@ Contains sample code for building linkerd plugins. More information:
 ## Testing
 
 ```bash
-docker run -v `pwd`:/root/linkerd-examples --entrypoint=/root/linkerd-examples/.circleci/ci.sh buoyantio/linkerd:1.0.2
+docker run -v `pwd`:/root/linkerd-examples --entrypoint=/root/linkerd-examples/.circleci/ci.sh buoyantio/linkerd:1.1.1
 ```
 
 <!-- references -->
