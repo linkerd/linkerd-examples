@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: node-name
+spec:
+  template:
+    metadata:
+      name: pi
+    spec:
+      restartPolicy: Never
+      containers:
+      - image: arussellsaw/test:latest
+        name: node-name
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
