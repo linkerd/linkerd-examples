@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hello-ingress
+  annotations:
+    kubernetes.io/ingress.class: "istio"
+spec:
+  rules:
+  - host: hello
+    http:
+      paths:
+      - backend:
+          serviceName: hello
+          servicePort: http
