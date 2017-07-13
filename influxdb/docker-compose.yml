@@ -18,7 +18,7 @@ services:
 
   # route 90% of traffic to app1, 10% to app2
   linkerd1:
-    image: buoyantio/linkerd:1.1.1
+    image: buoyantio/linkerd:1.1.2
     volumes:
     - ./linkerd1.yml:/io.buoyant/linkerd/config.yml:ro
     - ./disco:/disco:ro
@@ -27,7 +27,7 @@ services:
 
   # route 25% of traffic to app1, 75% to app2
   linkerd2:
-    image: buoyantio/linkerd:1.1.1
+    image: buoyantio/linkerd:1.1.2
     volumes:
     - ./linkerd2.yml:/io.buoyant/linkerd/config.yml:ro
     - ./disco:/disco:ro

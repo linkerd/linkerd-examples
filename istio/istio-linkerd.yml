@@ -194,7 +194,7 @@ spec:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.1.1
+        image: buoyantio/linkerd:1.1.2
         env:
         - name: POD_IP
           valueFrom:
@@ -291,7 +291,7 @@ spec:
           name: "istio-ingress-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.1.1
+        image: buoyantio/linkerd:1.1.2
         env:
         - name: POD_IP
           valueFrom:
@@ -385,7 +385,7 @@ spec:
           name: "istio-egress-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.1.1
+        image: buoyantio/linkerd:1.1.2
         args:
         - /io.buoyant/linkerd/config/config.yaml
         ports:
