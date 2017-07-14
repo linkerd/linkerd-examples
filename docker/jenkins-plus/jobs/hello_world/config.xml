@@ -33,7 +33,9 @@
     </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
   </properties>
   <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.22">
-    <script>node {
+    <script>namerctlBaseURL = &quot;http://namerd.&quot; + k8sNamespace + &quot;.svc.cluster.local:4180&quot;
+    
+node {
     def currentVersion = getCurrentVersion()
     def newVersion = getNextVersion(currentVersion)
     def frontendIp = kubectl(&quot;get svc l5d -o jsonpath=\&quot;{.status.loadBalancer.ingress[0].*}\&quot;&quot;).trim()
@@ -105,12 +107,12 @@ def kubectl(cmd) {
 }
 
 def getDtab() {
-    return sh(script: &quot;namerctl dtab get ${namerdNamespace} --json&quot;, returnStdout: true)
+    return sh(script: &quot;NAMERCTL_BASE_URL=&quot; + namerctlBaseURL + &quot; namerctl dtab get ${namerdNamespace} --json&quot;, returnStdout: true)
 }
 
 def setDtab(dtab) {
     writeFile file: namerdNamespace + &quot;.dtab&quot;, text: dtab
-    return sh(script: &quot;namerctl dtab update ${namerdNamespace} ${namerdNamespace}.dtab --json&quot;, returnStdout: true)
+    return sh(script: &quot;NAMERCTL_BASE_URL=&quot; + namerctlBaseURL + &quot; namerctl dtab update ${namerdNamespace} ${namerdNamespace}.dtab --json&quot;, returnStdout: true)
 }
 
 def getDst(jsonResp) {
