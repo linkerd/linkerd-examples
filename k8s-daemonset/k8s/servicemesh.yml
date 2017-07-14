@@ -108,7 +108,6 @@ data:
 
     # Usage is used for anonymized usage reporting.  You can set the orgId to
     # identify your organization or set `enabled: false` to disable entirely.
-
     usage:
       orgId: linkerd-examples-servicemesh
 
