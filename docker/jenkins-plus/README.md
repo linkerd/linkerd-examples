@@ -17,7 +17,7 @@ $ docker rm -vf kubectl
 Then build the bouyantio/jenkins-plus image:
 
 ```bash
-$ docker build -t buoyantio/jenkins-plus:2.19.1 .
+$ docker build -t buoyantio/jenkins-plus:2.60.1 .
 ```
 
 The version number should match the version number in line 1 of the Dockerfile.

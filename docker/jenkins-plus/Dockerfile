@@ -1,4 +1,4 @@
-FROM jenkins:2.19.1
+FROM jenkins:2.60.1
 
 USER root
 COPY kubectl /usr/bin/
