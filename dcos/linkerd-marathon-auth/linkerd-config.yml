@@ -1,0 +1,36 @@
+# linkerd config for basic http proxy
+# listens on port 4140, routes via http_proxy or host header
+# configured to connect to DC/OS in Strict mode, via Marathon TLS
+
+admin:
+  port: 9990
+
+telemetry:
+- kind: io.l5d.prometheus
+
+# This section is specific to DC/OS in Strict mode. linkerd's Marathon namer
+# connects to Marathon via TLS on port 443.
+namers:
+- kind: io.l5d.marathon
+  host: leader.mesos
+  port: 443
+  prefix: "/io.l5d.marathon"
+  uriPrefix: "/marathon"
+  tls:
+    disableValidation: false
+    commonName: master.mesos
+    trustCerts:
+    # This certificate should be available on Mesos Master. From within a
+    # container, the path should also be available via the
+    # LIBPROCESS_SSL_CA_FILE environment variable.
+    - /mnt/mesos/sandbox/.ssl/ca.crt
+
+routers:
+- protocol: http
+  servers:
+  - port: 4140
+    ip: 0.0.0.0
+  dtab: >- # route based on marathon name
+    /marathonId => /#/io.l5d.marathon;
+    /svc        => /$/io.buoyant.http.domainToPathPfx/marathonId;
+  label: linkerd_proxy

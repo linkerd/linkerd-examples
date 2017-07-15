@@ -68,6 +68,75 @@ $ http_proxy=$PUBLIC_NODE:4140 curl -s http://webapp/hello
 Hello world
 ```
 
+### linkerd with Strict Mode and Marathon Authentication
+
+DC/OS Supports increased security modes. Specifically, with Strict mode, all
+Marathon access is via TLS. Additionally, Mesosphere Enterprise DC/OS defaults
+to requiring authenticated access to Marathon. This example demonstrates
+configuring a linkerd's Marathon Namer for both Strict mode and Marathon
+Authentication.
+
+#### Strict mode
+
+To enable linkerd's Marathon namer for Strict mode,
+[`linkerd-marathon-auth/linkerd-config.yml`](linkerd-marathon-auth/linkerd-config.yml)
+includes the following `io.l5d.marathon` config block:
+
+```yaml
+namers:
+- kind: io.l5d.marathon
+  host: leader.mesos
+  port: 443
+  prefix: "/io.l5d.marathon"
+  uriPrefix: "/marathon"
+  tls:
+    disableValidation: false
+    commonName: master.mesos
+    trustCerts:
+      - /mnt/mesos/sandbox/.ssl/ca.crt
+```
+
+Browse to the [DC/OS Security page](https://docs.mesosphere.com/1.9/security/)
+for more information on Strict mode.
+
+#### Marathon Authentication
+
+To configure linkerd to make authenticated requests to Marathon, create a
+keypair, service account, and DC/OS secret. Full instructions are documented in
+the [DC/OS examples repo](https://github.com/dcos/examples/tree/master/linkerd/1.9#mesosphere-enterprise-dcos).
+Follow those instructions, stop at the `Install linkerd` step, as we're going to
+install our own linkerd rather than use the DC/OS Universe package.
+
+We now specify the location of these credentials in
+[`linkerd-marathon-auth/linkerd-dcos.json`](linkerd-marathon-auth/linkerd-dcos.json):
+
+```json
+"env": {
+  "DCOS_SERVICE_ACCOUNT_CREDENTIAL": { "secret": "serviceCredential" }
+},
+"secrets": {
+  "serviceCredential": {
+    "source": "linkerd-secret"
+  }
+},
+```
+
+#### Deploying
+
+With linkerd configured for Strict mode and Marathon Authentication, we're ready
+to deploy:
+
+```bash
+dcos marathon app add linkerd-marathon-auth/linkerd-dcos.json
+```
+
+Test this configuration with:
+
+```bash
+$ http_proxy=$PUBLIC_NODE:4140 curl -s http://webapp/hello
+Hello world
+```
+
 ### linkerd with namerd
 
 #### namerd
