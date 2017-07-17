@@ -127,6 +127,15 @@ data:
       servers:
       - port: 4140
         ip: 0.0.0.0
+      # This dtab looks up service names in k8s and falls back to DNS if they're
+      # not found (e.g. for external services). It accepts names of the form
+      # "service" and "service.namespace", defaulting the namespace to
+      # "default". For DNS lookups, it uses port 80 if unspecified. Note that
+      # dtab rules are read bottom to top. To see this in action, on the Linkerd
+      # administrative dashboard, click on the "dtab" tab, select "http-outgoing"
+      # from the dropdown, and enter a service name like "a.b". (Or click on the
+      # "requests" tab to see recent traffic through the system and how it was
+      # resolved.)
       dtab: |
         /ph  => /$/io.buoyant.rinet ;                     # /ph/80/google.com -> /$/io.buoyant.rinet/80/google.com
         /svc => /ph/80 ;                                  # /svc/google.com -> /ph/80/google.com
@@ -242,6 +251,7 @@ data:
         /srv => /#/io.l5d.k8s/default/grpc ;             # /srv/service/package -> /#/io.l5d.k8s/default/grpc/service/package
         /svc => /$/io.buoyant.http.domainToPathPfx/srv ; # /svc/package.service -> /srv/service/package
 
+    # HTTP Ingress Controller listening on port 80
     - protocol: http
       label: http-ingress
       servers:
@@ -252,6 +262,7 @@ data:
         kind: io.l5d.ingress
       dtab: /svc => /#/io.l5d.k8s
 
+    # HTTP/2 Ingress Controller listening on port 8080
     - protocol: h2
       experimental: true
       label: h2-ingress
@@ -321,6 +332,8 @@ spec:
           mountPath: "/io.buoyant/linkerd/config"
           readOnly: true
 
+      # Run `kubectl proxy` as a sidecar to give us authenticated access to the
+      # Kubernetes API.
       - name: kubectl
         image: buoyantio/kubectl:v1.4.0
         args:
