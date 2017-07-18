@@ -1,0 +1,99 @@
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: hello
+spec:
+  replicas: 3
+  selector:
+    app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.1.4
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: NS
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        command:
+        - "/bin/sh"
+        - "-c"
+        - "helloworld -addr=:7777 -text=Hello -target=$NODE_NAME:4140 -protocol=grpc"
+        ports:
+        - name: service
+          containerPort: 7777
+      - name: kubectl
+        image: buoyantio/kubectl:v1.4.0
+        args:
+        - proxy
+        - "-p"
+        - "8001"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello
+spec:
+  selector:
+    app: hello
+  clusterIP: None
+  ports:
+  - name: grpc
+    port: 7777
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: world-v1
+spec:
+  replicas: 3
+  selector:
+    app: world-v1
+  template:
+    metadata:
+      labels:
+        app: world-v1
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.1.4
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: TARGET_WORLD
+          value: world
+        args:
+        - "-addr=:7778"
+        - "-protocol=grpc"
+        ports:
+        - name: service
+          containerPort: 7778
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: world-v1
+spec:
+  selector:
+    app: world-v1
+  clusterIP: None
+  ports:
+  - name: grpc
+    port: 7778
