@@ -358,3 +358,58 @@ Add the `-streaming` flag to send a streaming gRPC request:
 ```bash
 docker run --rm --entrypoint=helloworld-client buoyantio/helloworld:0.1.4 -streaming $L5D_INGRESS_LB:4140
 ```
+
+## RBAC
+
+As of version 1.6, Kubernetes supports
+[Role Based Access Control](http://blog.kubernetes.io/2017/04/rbac-support-in-kubernetes.html)
+which allows for dynamic control of access to k8s resources.
+
+If you're trying out these examples in an RBAC enabled cluster, you'll need to
+add [RBAC rules](https://kubernetes.io/docs/admin/authorization/rbac/) so that
+linkerd can access list services using the kubernetes API (which it needs to do
+service discovery).
+
+You can find out if your cluster supports RBAC by running:
+```
+kubectl api-versions | grep rbac
+```
+
+If you do, you'll need to grant linkerd access:
+```
+kubectl apply -f k8s/linkerd-rbac-beta.yaml
+```
+
+Note that this is a beta RBAC config. If your cluster only supports alpha RBAC
+(`rbac.authorization.k8s.io/v1alpha1`), you'll need to modify the apiVersion in
+this config.
+
+This grants the `default` ServiceAccount access to the "endpoints" and
+"services" resources. In cases where you don't want to grant these perimissions
+on the default service account, so you should create a service account for
+linkerd, and use that in the RoleBinding.
+
+For example, you can create the following ServiceAccount:
+
+```
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: linkerd-daemonset-account
+```
+
+And in `linkerd.yml`, specify this service account in the pod spec
+with `serviceAccount: linkerd-daemonset-account`.
+
+And in the RoleBinding change the subject of the binding from `default` to
+the service account you've created:
+
+```
+subjects:
+  - kind: ServiceAccount
+    name: linkerd-daemonset-account
+```
+
+You may also want to use a `Role` in a specified namespace rather than
+applying the rules cluster-wide with `ClusterRole`.
