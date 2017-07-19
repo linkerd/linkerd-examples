@@ -32,7 +32,7 @@ spec:
         command:
         - "/bin/sh"
         - "-c"
-        - "helloworld -addr=:7777 -text=Hello -target=$NODE_NAME:4140 -protocol=grpc"
+        - "helloworld -addr=:7777 -text=Hello -target=`hostIP.sh`:4140 -protocol=grpc"
         ports:
         - name: service
           containerPort: 7777
@@ -93,7 +93,6 @@ metadata:
 spec:
   selector:
     app: world-v1
-  clusterIP: None
   ports:
   - name: grpc
     port: 7778
