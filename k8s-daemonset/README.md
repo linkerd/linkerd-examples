@@ -384,13 +384,12 @@ Note that this is a beta RBAC config. If your cluster only supports alpha RBAC
 (`rbac.authorization.k8s.io/v1alpha1`), you'll need to modify the apiVersion in
 this config.
 
-The `endpoints-reader` role grants access to the
-`endpoints` and `services` resources. The `namerd-dtab-storage` role grants
-access to the `d-tab.l5d.io` third party resource. These roles are applied to the
-`default` `ServiceAccount`. In cases where you don't want to grant
-these perimissions on the default service account, you should create a
-service account for linkerd (and namerd, if applicable), and use that in the
-`RoleBinding`.
+The `linkerd-endpoints-reader` role grants access to the `endpoints` and
+`services` resources. The `namerd-dtab-storage` role grants access to the
+`d-tab.l5d.io` third party resource. These roles are applied to the `default`
+`ServiceAccount`. In cases where you don't want to grant these perimissions on
+the default service account, you should create a service account for linkerd
+(and namerd, if applicable), and use that in the `RoleBinding`.
 
 For example, you can create the following ServiceAccount:
 
