@@ -1,6 +1,6 @@
 # RBAC configs for linkerd
 ---
-# allow linkerd/namerd permissions to enable service discovery
+# grant linkerd/namerd permissions to enable service discovery
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
@@ -10,7 +10,7 @@ rules:
     resources: ["endpoints", "services"]
     verbs: ["get", "watch", "list"]
 ---
-# allow namerd permisisons to third party resource permissions for dtab storage
+# grant namerd permisisons to third party resources for dtab storage
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
