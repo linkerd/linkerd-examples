@@ -8,6 +8,9 @@ rules:
   - apiGroups: [""] # "" indicates the core API group
     resources: ["endpoints", "services"]
     verbs: ["get", "watch", "list"]
+  - apiGroups: ["l5d.io"]
+    resources: ["dtabs"] # third party resource needed by namerd for dtab storage
+    verbs: ["get", "watch", "list", "update", "create"]
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
