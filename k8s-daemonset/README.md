@@ -375,7 +375,7 @@ You can find out if your cluster supports RBAC by running:
 kubectl api-versions | grep rbac
 ```
 
-If you do, you'll need to grant linkerd access:
+If you do, you'll need to grant linkerd/namerd access:
 ```
 kubectl apply -f k8s/linkerd-rbac-beta.yaml
 ```
@@ -384,10 +384,13 @@ Note that this is a beta RBAC config. If your cluster only supports alpha RBAC
 (`rbac.authorization.k8s.io/v1alpha1`), you'll need to modify the apiVersion in
 this config.
 
-This grants the `default` ServiceAccount access to the "endpoints" and
-"services" resources. In cases where you don't want to grant these perimissions
-on the default service account, so you should create a service account for
-linkerd, and use that in the RoleBinding.
+The `endpoints-reader` role grants access to the
+`endpoints` and `services` resources. The `namerd-dtab-storage` role grants
+access to the `d-tab.l5d.io` third party resource. These roles are applied to the
+`default` `ServiceAccount`. In cases where you don't want to grant
+these perimissions on the default service account, you should create a
+service account for linkerd (and namerd, if applicable), and use that in the
+`RoleBinding`.
 
 For example, you can create the following ServiceAccount:
 
@@ -413,3 +416,8 @@ subjects:
 
 You may also want to use a `Role` in a specified namespace rather than
 applying the rules cluster-wide with `ClusterRole`.
+
+If you're using `namerd.yml`, note that namerd needs access to the
+`d-tab.l5d.io` `ThirdPartyResource`. We've already configured this under the
+`namerd-dtab-storage` role. If you've modified the name of this resource, be
+sure to update the role.
