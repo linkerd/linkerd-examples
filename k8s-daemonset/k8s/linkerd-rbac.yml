@@ -4,10 +4,10 @@
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: endpoints-reader
+  name: linkerd-endpoints-reader
 rules:
   - apiGroups: [""] # "" indicates the core API group
-    resources: ["endpoints", "services"]
+    resources: ["endpoints", "services", "pods"] # pod access is required for the *-legacy.yml examples in this folder
     verbs: ["get", "watch", "list"]
 ---
 # grant namerd permisisons to third party resources for dtab storage
@@ -30,7 +30,7 @@ subjects:
     namespace: default
 roleRef:
   kind: ClusterRole
-  name: endpoints-reader
+  name: linkerd-endpoints-reader
   apiGroup: rbac.authorization.k8s.io
 ---
 kind: ClusterRoleBinding
@@ -45,4 +45,3 @@ roleRef:
   kind: ClusterRole
   name: namerd-dtab-storage
   apiGroup: rbac.authorization.k8s.io
----
