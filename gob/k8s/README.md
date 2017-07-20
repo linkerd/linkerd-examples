@@ -236,7 +236,7 @@ We can test out our staged service (without altering the web service
 at all), by adding a delegation (routing rule) to a request.  For example:
 
 ```
-:; curl -H 'Dtab-local: /srv/gen => /srv/gen-growthhack' "$GOB_HOST/gob?text=gob&limit=10"
+:; curl -H 'l5d-dtab: /srv/gen => /srv/gen-growthhack' "$GOB_HOST/gob?text=gob&limit=10"
 gob <3 k8s
 gob <3 k8s
 gob <3 k8s
