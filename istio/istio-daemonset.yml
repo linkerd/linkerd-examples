@@ -17,11 +17,9 @@ data:
       sampleRate: 0.25
 
     routers:
-    - protocol: http
+    - protocol: h2
+      experimental: true
       label: outgoing
-      loggers:
-      - kind: io.l5d.k8s.istio
-        mixerHost: istio-mixer
       identifier:
         kind: io.l5d.k8s.istio
       interpreter:
@@ -35,11 +33,14 @@ data:
       servers:
       - port: 4140
         ip: 0.0.0.0
+      loggers:
+        - kind: io.l5d.k8s.istio
       service:
         responseClassifier:
           kind: io.l5d.http.retryableRead5XX
 
-    - protocol: http
+    - protocol: h2
+      experimental: true
       label: incoming
       identifier:
         kind: io.l5d.k8s.istio
@@ -70,7 +71,7 @@ spec:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.1.2
+        image: buoyantio/linkerd:1.1.2-SNAPSHOT
         env:
         - name: POD_IP
           valueFrom:

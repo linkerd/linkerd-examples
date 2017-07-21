@@ -6,8 +6,7 @@ metadata:
     kubernetes.io/ingress.class: "istio"
 spec:
   rules:
-  - host: hello
-    http:
+  - http:
       paths:
       - backend:
           serviceName: hello

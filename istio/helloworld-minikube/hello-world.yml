@@ -16,10 +16,6 @@ spec:
       - name: service
         image: buoyantio/helloworld:0.1.4
         env:
-        - name: NODE_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: spec.nodeName
         - name: POD_IP
           valueFrom:
             fieldRef:
@@ -27,7 +23,8 @@ spec:
         args:
         - "-addr=:7777"
         - "-text=Hello"
-        - "-target=world"
+        - "-target=world:7778"
+        - "-protocol=grpc"
         ports:
         - name: service
           containerPort: 7777
@@ -68,6 +65,7 @@ spec:
           value: world
         args:
         - "-addr=:7778"
+        - "-protocol=grpc"
         ports:
         - name: service
           containerPort: 7778
