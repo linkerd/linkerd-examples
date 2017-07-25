@@ -19,7 +19,13 @@
           "protocol": "tcp"
         }
       ],
-      "essential": true
+      "essential": true,
+      "environment": [
+        {
+          "name": "SCRAPE_INTERVAL",
+          "value": "5s"
+        }
+      ]
     }
   ],
   "family": "linkerd-viz",

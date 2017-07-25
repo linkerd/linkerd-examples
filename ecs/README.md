@@ -104,12 +104,16 @@ ECS_NODE=$( \
 http_proxy=$ECS_NODE:4140 curl hello
 Hello (172.31.20.160) World (172.31.19.35)!!
 
+# test dynamic routing to world-v2
+http_proxy=$ECS_NODE:4140 curl -H 'l5d-dtab: /svc/world => /svc/world-v2' hello
+Hello (172.31.20.160) World-V2 (172.31.19.35)!!
+
 # view linkerd and Consul UIs (osx)
 open http://$ECS_NODE:9990
 open http://$ECS_NODE:8500
 ```
 
-### linkerd-viz
+## linkerd-viz
 
 Put some load on our example app
 

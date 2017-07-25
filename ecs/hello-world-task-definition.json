@@ -43,6 +43,28 @@
         }
       ],
       "essential": true
+    },
+    {
+      "name": "world-v2",
+      "image": "docker.io/buoyantio/helloworld:0.1.4",
+      "entryPoint": ["/bin/sh", "-c"],
+      "command": [
+        "LOCAL_IP=$(curl http://169.254.169.254/latest/meta-data/local-ipv4) http_proxy=$LOCAL_IP:4140 POD_IP=$LOCAL_IP helloworld -addr=:1234 -text=World-V2"
+      ],
+      "environment": [
+        {
+          "name": "SERVICE_NAME",
+          "value": "world-v2"
+        }
+      ],
+      "memory": 128,
+      "portMappings": [
+        {
+          "containerPort": 1234,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true
     }
   ],
   "family": "hello-world"
