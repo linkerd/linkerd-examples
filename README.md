@@ -47,13 +47,21 @@ information:
 * [Getting Started: Running in DC/OS](https://linkerd.io/getting-started/dcos/)
 * [linkerd on DC/OS for Service Discovery and Visibility](https://blog.buoyant.io/2016/10/10/linkerd-on-dcos-for-service-discovery-and-visibility/)
 
-
 ## Docker
 
 * [`docker/`](docker/)
 
 Contains files and scripts for building custom Docker images that are used in
 some of the examples in this repo.
+
+## Amazon ECS
+
+* [`ecs/`](ecs/)
+
+Provides common configurations for deploying linkerd to Amazon ECS. More
+information:
+
+* [Getting Started: Running in ECS](https://linkerd.io/getting-started/ecs/)
 
 ## Failure accrual demo
 
@@ -89,6 +97,15 @@ Sets up a demo environment that configures a
 linkerd, Telegraf, InfluxDB, and Grafana. Provides helpful configuration files
 and dashboards for all components.
 
+## Istio
+
+* [`istio/`](istio/)
+
+Provides common configurations for deploying linkerd to Istio. More information:
+
+* [Getting Started: Running with Istio](https://linkerd.io/getting-started/istio/)
+* [Linkerd and Istio: Like Peanut Butter and Jelly](https://buoyant.io/2017/07/11/linkerd-istio/)
+
 ## A Service Mesh for Kubernetes
 
 * [`k8s-daemonset/`](k8s-daemonset/)
@@ -122,7 +139,6 @@ without DC/OS.
 Contains sample code for building linkerd plugins. More information:
 
 * [In Depth: Plugins](https://linkerd.io/in-depth/plugin/)
-
 
 ## Testing
 
