@@ -8,12 +8,12 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "buoyantio/linkerd-viz:0.1.0",
+      "image": "buoyantio/linkerd-viz:0.1.4",
       "network": "HOST",
       "privileged": true
     }
   },
-  "args": ["mesos-marathon"],
+  "args": ["dcos"],
   "healthChecks": [
     {
       "protocol": "HTTP",
@@ -38,6 +38,8 @@
   ],
   "requirePorts": true,
   "env": {
+    "MARATHON_HOST": "localhost",
+    "SCRAPE_INTERVAL": "5s",
     "PUBLIC_PORT": "3000",
     "STATS_PORT": "9191"
   }
