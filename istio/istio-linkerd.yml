@@ -349,6 +349,9 @@ data:
     - kind: io.l5d.recentRequests
       sampleRate: 0.25
 
+    usage:
+      orgId: linkerd-examples-istio-linkerd
+
     routers:
     - protocol: http
       dtab: |

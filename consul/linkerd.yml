@@ -21,3 +21,6 @@ routers:
   client:
    requeueBudget:
      percentCanRetry: 5.0
+
+usage:
+  orgId: linkerd-examples-consul

@@ -8,6 +8,9 @@ admin:
 telemetry:
 - kind: io.l5d.prometheus
 
+usage:
+  orgId: linkerd-examples-dcos-linkerd-marathon-auth
+
 # This section is specific to DC/OS in Strict mode. linkerd's Marathon namer
 # connects to Marathon via TLS on port 443.
 namers:
