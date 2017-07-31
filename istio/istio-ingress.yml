@@ -14,7 +14,7 @@ data:
       sampleRate: 0.25
 
     usage:
-      orgId: linkerd-examples-istio-ingress
+      orgId: linkerd-istio-ingress
 
     routers:
     - protocol: http
