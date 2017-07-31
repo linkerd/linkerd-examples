@@ -16,6 +16,9 @@ data:
     - kind: io.l5d.recentRequests
       sampleRate: 0.25
 
+    usage:
+      orgId: linkerd-istio-egress
+
     routers:
     - protocol: http
       dtab: |

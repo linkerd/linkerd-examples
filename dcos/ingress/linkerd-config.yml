@@ -8,6 +8,9 @@ admin:
 telemetry:
 - kind: io.l5d.prometheus
 
+usage:
+  orgId: linkerd-examples-dcos-ingress
+
 namers:
 - kind: io.l5d.marathon
   host: marathon.mesos

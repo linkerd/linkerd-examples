@@ -13,6 +13,9 @@ data:
     - kind: io.l5d.recentRequests
       sampleRate: 0.25
 
+    usage:
+      orgId: linkerd-istio-ingress
+
     routers:
     - protocol: http
       identifier:

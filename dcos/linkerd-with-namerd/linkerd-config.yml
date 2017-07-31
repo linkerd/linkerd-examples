@@ -8,6 +8,9 @@ admin:
 telemetry:
 - kind: io.l5d.prometheus
 
+usage:
+  orgId: linkerd-examples-dcos-linkerd-namerd
+
 routers:
 - protocol: http
   servers:
