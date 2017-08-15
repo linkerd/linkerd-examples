@@ -64,6 +64,7 @@ services:
   linkerd:
     image: buoyantio/linkerd:1.1.2
     ports:
+    - 4140:4140 # expose for testing only
     - 9990:9990
     volumes:
     - ./linkerd.yml:/io.buoyant/linkerd/config.yml:ro
