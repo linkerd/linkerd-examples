@@ -12,9 +12,9 @@ echo "Hello world" > hello; python3 -m http.server 8888
 ## Setup linkerd
 
 ```bash
-curl -sLO https://github.com/linkerd/linkerd/releases/download/1.1.2/linkerd-1.1.2-exec
-chmod +x linkerd-1.1.2-exec
-./linkerd-1.1.2-exec ./linkerd.yaml
+curl -sLO https://github.com/linkerd/linkerd/releases/download/1.1.3/linkerd-1.1.3-exec
+chmod +x linkerd-1.1.3-exec
+./linkerd-1.1.3-exec ./linkerd.yaml
 ```
 
 ## Test
