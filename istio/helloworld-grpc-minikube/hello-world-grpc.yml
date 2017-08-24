@@ -37,7 +37,7 @@ spec:
   selector:
     app: hello
   ports:
-  - name: http
+  - name: grpc
     port: 7777
 ---
 apiVersion: v1
@@ -78,5 +78,5 @@ spec:
   selector:
     app: world-v1
   ports:
-  - name: http
+  - name: grpc
     port: 7778
