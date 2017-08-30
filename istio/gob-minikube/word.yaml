@@ -24,7 +24,7 @@ spec:
             - word
             - --srv=:8080
           ports:
-            - name: http
+            - name: grpc
               containerPort: 8080
 ---
 apiVersion: v1
