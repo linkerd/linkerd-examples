@@ -12,7 +12,7 @@ kubectl apply -f ../mixer-pilot.yml -f ../istio-egress.yml
 kubectl apply -f hello-ingress.yml
 
 # Add grpc-specific linkerds
-kubectl apply -f istio-daemonset.yml -f istio-ingress.yml
+kubectl apply -f ../istio-daemonset-grpc.yml -f istio-ingress.yml
 
 # Use linkerd-inject to modify the hello world grpc config, and deploy it:
 kubectl apply -f <(linkerd-inject -useServiceVip -f hello-world-grpc.yml)
