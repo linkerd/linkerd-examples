@@ -28,7 +28,7 @@ curl http://$LB/gob?limit=10
 
 ## Istio-Linkerd
 
-Assumes you've gone through the first four steps of the
+Follow the first four steps of the
 [Istio installation guide](https://istio.io/docs/tasks/installing-istio.html).
 
 Then deploy Istio with linkerd and the Gob application:
