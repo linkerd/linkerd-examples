@@ -5,61 +5,61 @@ services:
     build: .
     command:
     - "-addr=:7770"
-    - "-redis-addr=linkerdtcp:7474"
+    - "-redis-addr=linkerd-tcp:7474"
 
   web1:
     build: .
     command:
     - "-addr=:7771"
-    - "-redis-addr=linkerdtcp:7474"
+    - "-redis-addr=linkerd-tcp:7474"
 
   web2:
     build: .
     command:
     - "-addr=:7772"
-    - "-redis-addr=linkerdtcp:7474"
+    - "-redis-addr=linkerd-tcp:7474"
 
   web3:
     build: .
     command:
     - "-addr=:7773"
-    - "-redis-addr=linkerdtcp:7474"
+    - "-redis-addr=linkerd-tcp:7474"
 
   web4:
     build: .
     command:
     - "-addr=:7774"
-    - "-redis-addr=linkerdtcp:7474"
+    - "-redis-addr=linkerd-tcp:7474"
 
   web5:
     build: .
     command:
     - "-addr=:7775"
-    - "-redis-addr=linkerdtcp:7474"
+    - "-redis-addr=linkerd-tcp:7474"
 
   web6:
     build: .
     command:
     - "-addr=:7776"
-    - "-redis-addr=linkerdtcp:7474"
+    - "-redis-addr=linkerd-tcp:7474"
 
   web7:
     build: .
     command:
     - "-addr=:7777"
-    - "-redis-addr=linkerdtcp:7474"
+    - "-redis-addr=linkerd-tcp:7474"
 
   web8:
     build: .
     command:
     - "-addr=:7778"
-    - "-redis-addr=linkerdtcp:7474"
+    - "-redis-addr=linkerd-tcp:7474"
 
   web9:
     build: .
     command:
     - "-addr=:7779"
-    - "-redis-addr=linkerdtcp:7474"
+    - "-redis-addr=linkerd-tcp:7474"
 
   linkerd:
     image: buoyantio/linkerd:1.1.3
@@ -82,7 +82,7 @@ services:
     command:
     - "/io.buoyant/namerd/config.yml"
 
-  linkerdtcp:
+  linkerd-tcp:
     image: linkerd/linkerd-tcp:0.0.3
     ports:
     - 9992:9992
@@ -107,7 +107,7 @@ services:
     command:
     - "-redis.addr=redis://redis2:6379"
 
-  linkerd_viz:
+  linkerd-viz:
     image: buoyantio/linkerd-viz:0.1.4
     environment:
     - SCRAPE_INTERVAL=5s

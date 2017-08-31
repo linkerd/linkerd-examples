@@ -26,10 +26,10 @@ scrape_configs:
     regex:         .*\/([^/]+)
     replacement:   $1
 
-- job_name: 'linkerd_tcp'
+- job_name: 'linkerd-tcp'
   static_configs:
   - targets:
-    - 'linkerdtcp:9992'
+    - 'linkerd-tcp:9992'
 
 - job_name: 'redis1'
   static_configs:
