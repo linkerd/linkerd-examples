@@ -1,8 +1,8 @@
 # runs linkerd in a daemonset, in linker-to-linker mode
 # for CNI setups such as Calico and Weave.
 #
-# this configuration does not support Kubernetes versions
-# earlier than 1.6, use `linkerd-cni-legacy.yml` instead.
+# legacy config for Kubernetes < 1.6 --- Zipkin telemetry
+# is not supported with this configuration.
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -79,14 +79,13 @@ spec:
         app: l5d
     spec:
       hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
       volumes:
       - name: l5d-config
         configMap:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.1.3
+        image: buoyantio/linkerd:1.1.1
         env:
         - name: NODE_NAME
           valueFrom:
