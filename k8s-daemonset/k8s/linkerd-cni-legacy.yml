@@ -1,8 +1,8 @@
 # runs linkerd in a daemonset, in linker-to-linker mode
 # for CNI setups such as Calico and Weave.
 #
-# this configuration does not support Kubernetes versions
-# earlier than 1.6, use `linkerd-cni-legacy.yml` instead.
+# legacy config for Kubernetes < 1.6 --- Zipkin telemetry
+# is not supported with this configuration.
 ---
 apiVersion: v1
 kind: ConfigMap
