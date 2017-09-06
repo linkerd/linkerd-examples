@@ -79,6 +79,7 @@ spec:
         app: l5d
     spec:
       hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       volumes:
       - name: l5d-config
         configMap:
