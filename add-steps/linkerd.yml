@@ -1,3 +1,7 @@
+admin:
+  ip: 0.0.0.0
+  port: 9990
+
 # use the filesystem namer, read from the local /disco directory
 namers:
 - kind: io.l5d.fs
