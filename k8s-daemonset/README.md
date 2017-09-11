@@ -225,7 +225,7 @@ If you deployed namerd, view the namerd admin dashboard:
 
 ```bash
 NAMERD_INGRESS_LB=$(kubectl get svc namerd -o jsonpath="{.status.loadBalancer.ingress[0].*}")
-open http://$NAMERD_INGRESS_LB:9990 # on OS X
+open http://$NAMERD_INGRESS_LB:9991 # on OS X
 ```
 
 ### Zipkin
