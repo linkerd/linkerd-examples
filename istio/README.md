@@ -37,3 +37,8 @@ More information on ingress controllers can be found on the
 
 4) Calls to outside the cluster are now possible (ExternalName services not
  yet supported).
+
+# Istio on DC/OS
+
+For an example of running Istio on DC/OS, have a look at
+[this example](https://github.com/linkerd/linkerd-examples/tree/master/dcos/istio).

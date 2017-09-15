@@ -238,3 +238,8 @@ Hello (10.0.1.56) earth (10.0.1.56)!!
 http_proxy=$PUBLIC_NODE:4140 curl -H 'l5d-dtab: /svc/world-v1.hw.buoyant => /svc/world-v2.hw.buoyant' hello.hw.buoyant
 Hello (10.0.1.56) earth (10.0.1.56)!!
 ```
+
+### Istio
+
+This example demonstrates deploying Istio on Kubernetes on DC/OS on AWS. For
+more details have a look at that example's [`README.md`](istio/README.md).
