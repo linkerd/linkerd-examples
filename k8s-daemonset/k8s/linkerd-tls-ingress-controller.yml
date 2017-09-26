@@ -22,7 +22,7 @@ data:
         clearContext: true
         tls:
           certPath: /io.buoyant/linkerd/certs/tls.crt
-          keyPath: /io.buoyant/linkerd/certs/tls.key
+          keyPath: /io.buoyant/linkerd/certs/tls.pk8
       dtab: /svc => /#/io.l5d.k8s
 
     usage:
