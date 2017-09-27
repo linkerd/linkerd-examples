@@ -68,7 +68,7 @@ data:
         ip: 0.0.0.0
         tls:
           certPath: /io.buoyant/linkerd/certs/certificate.pem
-          keyPath: /io.buoyant/linkerd/certs/key.pem
+          keyPath: /io.buoyant/linkerd/certs/key.pk8
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet
