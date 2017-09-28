@@ -1,12 +1,12 @@
 ################################################################################
-# Linkerd Sevice Mesh
+# Linkerd Service Mesh
 #
 # This is a basic Kubernetes config file to deploy a service mesh of Linkerd
 # instances onto your Kubernetes cluster that is capable of handling HTTP,
 # HTTP/2 and gRPC calls with some reasonable defaults.
 #
 # To configure your applications to use Linkerd for HTTP traffic you can set the
-# `http_proxy` envionment variable to `$(NODE_NAME):4140` where `NODE_NAME` is
+# `http_proxy` environment variable to `$(NODE_NAME):4140` where `NODE_NAME` is
 # the name of node on which the application instance is running.  The
 # `NODE_NAME` environment variable can be set with the downward API.
 #
