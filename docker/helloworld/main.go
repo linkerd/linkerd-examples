@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"math/rand"
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
 	"time"
 
@@ -14,6 +16,10 @@ import (
 	httpServer "github.com/linkerd/linkerd-examples/docker/helloworld/http"
 	proto "github.com/linkerd/linkerd-examples/docker/helloworld/proto"
 	"google.golang.org/grpc"
+)
+
+const (
+	httpTimeout = 10 * time.Second
 )
 
 func dieIf(err error) {
@@ -25,6 +31,8 @@ func dieIf(err error) {
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt)
 
 	addr := flag.String("addr", ":7777", "address to serve on")
 	text := flag.String("text", "Hello", "text to serve")
@@ -44,17 +52,26 @@ func main() {
 
 	switch *protocol {
 	case "http":
+		if *latency > httpTimeout {
+			dieIf(fmt.Errorf("latency cannot exceed %s", httpTimeout))
+		}
+
 		server := &http.Server{
 			Addr:         *addr,
-			ReadTimeout:  5 * time.Second,
-			WriteTimeout: 10 * time.Second,
+			ReadTimeout:  httpTimeout + time.Second,
+			WriteTimeout: httpTimeout + time.Second,
 			Handler:      httpServer.New(serverText, *target, podIp, *latency, *failureRate, *json),
 		}
 
-		fmt.Println("starting HTTP server on", *addr)
+		go func() {
+			fmt.Println("starting HTTP server on", *addr)
+			server.ListenAndServe()
+		}()
 
-		err := server.ListenAndServe()
-		dieIf(err)
+		<-stop
+
+		fmt.Println("shutting down HTTP server on", *addr)
+		server.Shutdown(context.Background())
 
 	case "grpc":
 		lis, err := net.Listen("tcp", *addr)
@@ -70,10 +87,16 @@ func main() {
 			proto.RegisterWorldServer(s, server)
 		}
 
-		fmt.Println("starting gRPC server on", *addr)
+		go func() {
+			fmt.Println("starting gRPC server on", *addr)
+			s.Serve(lis)
+		}()
 
-		err = s.Serve(lis)
-		dieIf(err)
+		<-stop
+
+		fmt.Println("shutting down gRPC server on", *addr)
+		s.GracefulStop()
+
 	default:
 		dieIf(fmt.Errorf("unsupported protocol: %s", *protocol))
 	}
