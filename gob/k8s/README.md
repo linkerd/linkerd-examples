@@ -6,7 +6,7 @@ This doc explains how to get Gob's Microservice up and running.  It describes:
 - canary & blue-green deployments with traffic management
 - fallback
 
-We you assume you already have some familiarity with
+We assume you already have some familiarity with
 [linkerd](https://linkerd.io/doc/introduction/) and
 [kubernetes](http://kubernetes.io/docs/user-guide/).
 
