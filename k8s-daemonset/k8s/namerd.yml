@@ -33,9 +33,31 @@ data:
     - kind: io.l5d.thriftNameInterpreter
       ip: 0.0.0.0
       port: 4100
+    - kind: io.l5d.thriftNameInterpreter
+      ip: 0.0.0.0
+      port: 4101
+      tls:
+        certPath: /io.buoyant/namerd/certs/certificate.pem
+        keyPath: /io.buoyant/namerd/certs/key.pk8
     - kind: io.l5d.httpController
       ip: 0.0.0.0
       port: 4180
+    - kind: io.l5d.httpController
+      ip: 0.0.0.0
+      port: 4181
+      tls:
+        certPath: /io.buoyant/namerd/certs/certificate.pem
+        keyPath: /io.buoyant/namerd/certs/key.pk8
+    - kind: io.l5d.mesh
+      ip: 0.0.0.0
+      port: 4321
+    - kind: io.l5d.mesh
+      ip: 0.0.0.0
+      port: 4322
+      tls:
+        certPath: /io.buoyant/namerd/certs/certificate.pem
+        keyPath: /io.buoyant/namerd/certs/key.pk8
+
 ---
 kind: ReplicationController
 apiVersion: v1
@@ -55,6 +77,9 @@ spec:
       - name: namerd-config
         configMap:
           name: namerd-config
+      - name: certificates
+        secret:
+          secretName: certificates
       containers:
       - name: namerd
         image: buoyantio/namerd:1.2.0
@@ -63,13 +88,24 @@ spec:
         ports:
         - name: thrift
           containerPort: 4100
+        - name: thrift-tls
+          containerPort: 4101
         - name: http
           containerPort: 4180
+        - name: http-tls
+          containerPort: 4181
+        - name: mesh
+          containerPort: 4321
+        - name: mesh-tls
+          containerPort: 4322
         - name: admin
           containerPort: 9991
         volumeMounts:
         - name: "namerd-config"
           mountPath: "/io.buoyant/namerd/config"
+          readOnly: true
+        - name: "certificates"
+          mountPath: "/io.buoyant/namerd/certs"
           readOnly: true
       - name: kubectl
         image: buoyantio/kubectl:v1.4.0
@@ -89,8 +125,16 @@ spec:
   ports:
   - name: thrift
     port: 4100
+  - name: thrift-tls
+    port: 4101
   - name: http
     port: 4180
+  - name: http-tls
+    port: 4181
+  - name: mesh
+    port: 4321
+  - name: mesh-tls
+    port: 4322
   - name: admin
     port: 9991
 ---

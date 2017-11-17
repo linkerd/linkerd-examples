@@ -1,0 +1,273 @@
+# runs linkerd in a daemonset, in linker-to-linker mode, using namerd to route
+# requests, for CNI setups such as Calico and Weave.
+#
+# this configuration does not support Kubernetes versions
+# earlier than 1.6, use `linkerd-cni-legacy.yml` instead.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: l5d-config
+data:
+  config.yaml: |-
+    admin:
+      ip: 0.0.0.0
+      port: 9990
+
+    telemetry:
+    - kind: io.l5d.prometheus
+    - kind: io.l5d.recentRequests
+      sampleRate: 0.25
+
+    usage:
+      orgId: linkerd-examples-daemonset-namerd-cni
+
+    routers:
+    - protocol: http
+      label: outgoing
+      interpreter:
+        kind: io.l5d.namerd
+        dst: /$/inet/namerd.default.svc.cluster.local/4100
+        namespace: internal
+        transformers:
+        - kind: io.l5d.k8s.daemonset
+          namespace: default
+          port: incoming
+          service: l5d
+          hostNetwork: true
+      servers:
+      - port: 4140
+        ip: 0.0.0.0
+      service:
+        responseClassifier:
+          kind: io.l5d.http.retryableRead5XX
+
+    - protocol: http
+      label: incoming
+      interpreter:
+        kind: io.l5d.namerd
+        dst: /$/inet/namerd.default.svc.cluster.local/4100
+        namespace: internal
+        transformers:
+        - kind: io.l5d.k8s.localnode
+          hostNetwork: true
+      servers:
+      - port: 4141
+        ip: 0.0.0.0
+
+    - protocol: http
+      label: outgoing-tls
+      interpreter:
+        kind: io.l5d.namerd
+        dst: /$/inet/namerd.default.svc.cluster.local/4101
+        namespace: internal
+        tls:
+          commonName: linkerd
+          caCert: /io.buoyant/linkerd/certs/cacertificate.pem
+        transformers:
+        - kind: io.l5d.k8s.daemonset
+          namespace: default
+          port: incoming-tls
+          service: l5d
+          hostNetwork: true
+      servers:
+      - port: 4142
+        ip: 0.0.0.0
+      service:
+        responseClassifier:
+          kind: io.l5d.http.retryableRead5XX
+
+    - protocol: http
+      label: incoming-tls
+      interpreter:
+        kind: io.l5d.namerd
+        dst: /$/inet/namerd.default.svc.cluster.local/4101
+        namespace: internal
+        tls:
+          commonName: linkerd
+          caCert: /io.buoyant/linkerd/certs/cacertificate.pem
+        transformers:
+        - kind: io.l5d.k8s.localnode
+          hostNetwork: true
+      servers:
+      - port: 4143
+        ip: 0.0.0.0
+
+    - protocol: http
+      label: outgoing-mesh
+      interpreter:
+        kind: io.l5d.mesh
+        experimental: true
+        dst: /$/inet/namerd.default.svc.cluster.local/4321
+        root: /internal
+        transformers:
+        - kind: io.l5d.k8s.daemonset
+          namespace: default
+          port: incoming-mesh
+          service: l5d
+          hostNetwork: true
+      servers:
+      - port: 4144
+        ip: 0.0.0.0
+      service:
+        responseClassifier:
+          kind: io.l5d.http.retryableRead5XX
+
+    - protocol: http
+      label: incoming-mesh
+      interpreter:
+        kind: io.l5d.mesh
+        experimental: true
+        dst: /$/inet/namerd.default.svc.cluster.local/4321
+        root: /internal
+        transformers:
+        - kind: io.l5d.k8s.localnode
+          hostNetwork: true
+      servers:
+      - port: 4145
+        ip: 0.0.0.0
+
+    - protocol: http
+      label: out-mesh-tls
+      interpreter:
+        kind: io.l5d.mesh
+        experimental: true
+        dst: /$/inet/namerd.default.svc.cluster.local/4322
+        root: /internal
+        tls:
+          commonName: linkerd
+          trustCerts:
+          - /io.buoyant/linkerd/certs/cacertificate.pem
+        transformers:
+        - kind: io.l5d.k8s.daemonset
+          namespace: default
+          port: in-mesh-tls
+          service: l5d
+          hostNetwork: true
+      servers:
+      - port: 4146
+        ip: 0.0.0.0
+      service:
+        responseClassifier:
+          kind: io.l5d.http.retryableRead5XX
+
+    - protocol: http
+      label: in-mesh-tls
+      interpreter:
+        kind: io.l5d.mesh
+        experimental: true
+        dst: /$/inet/namerd.default.svc.cluster.local/4322
+        root: /internal
+        tls:
+          commonName: linkerd
+          trustCerts:
+          - /io.buoyant/linkerd/certs/cacertificate.pem
+        transformers:
+        - kind: io.l5d.k8s.localnode
+          hostNetwork: true
+      servers:
+      - port: 4147
+        ip: 0.0.0.0
+
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  labels:
+    app: l5d
+  name: l5d
+spec:
+  template:
+    metadata:
+      labels:
+        app: l5d
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      volumes:
+      - name: l5d-config
+        configMap:
+          name: "l5d-config"
+      - name: certificates
+        secret:
+          secretName: certificates
+      containers:
+      - name: l5d
+        image: buoyantio/linkerd:1.2.0
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        args:
+        - /io.buoyant/linkerd/config/config.yaml
+        ports:
+        - name: outgoing
+          containerPort: 4140
+          hostPort: 4140
+        - name: incoming
+          containerPort: 4141
+          hostPort: 4141
+        - name: outgoing-tls
+          containerPort: 4142
+          hostPort: 4142
+        - name: incoming-tls
+          containerPort: 4143
+          hostPort: 4143
+        - name: outgoing-mesh
+          containerPort: 4144
+          hostPort: 4144
+        - name: incoming-mesh
+          containerPort: 4145
+          hostPort: 4145
+        - name: out-mesh-tls
+          containerPort: 4146
+          hostPort: 4146
+        - name: in-mesh-tls
+          containerPort: 4147
+          hostPort: 4147
+        - name: admin
+          containerPort: 9990
+          hostPort: 9990
+        volumeMounts:
+        - name: "l5d-config"
+          mountPath: "/io.buoyant/linkerd/config"
+          readOnly: true
+        - name: "certificates"
+          mountPath: "/io.buoyant/linkerd/certs"
+          readOnly: true
+
+      - name: kubectl
+        image: buoyantio/kubectl:v1.4.0
+        args:
+        - "proxy"
+        - "-p"
+        - "8001"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: l5d
+spec:
+  selector:
+    app: l5d
+  type: LoadBalancer
+  ports:
+  - name: outgoing
+    port: 4140
+  - name: incoming
+    port: 4141
+  - name: outgoing-tls
+    port: 4142
+  - name: incoming-tls
+    port: 4143
+  - name: outgoing-mesh
+    port: 4144
+  - name: incoming-mesh
+    port: 4145
+  - name: out-mesh-tls
+    port: 4146
+  - name: in-mesh-tls
+    port: 4147
+  - name: admin
+    port: 9990

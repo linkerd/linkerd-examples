@@ -76,6 +76,40 @@ To deploy this configuration, you can run:
 kubectl apply -f k8s/linkerd-cni.yml
 ```
 
+#### Daemonsets CNI + TLS + namerd
+
+If you are using CNI such as Calico or Weave, you need a slightly modified
+config as described [here](https://github.com/linkerd/linkerd/wiki/Flavors-of-Kubernetes#cnicalicoweave).
+
+To deploy this configuration, you can run:
+
+```bash
+kubectl apply -f k8s/certificates.yml
+kubectl apply -f k8s/namerd.yml
+kubectl apply -f k8s/linkerd-namerd-cni.yml
+```
+
+This configuration enables routing via io.l5d.namerd on port 4140, and
+io.l5d.mesh on port 4142:
+
+```bash
+# via io.l5d.namerd
+http_proxy=$L5D_INGRESS_LB:4140 curl -s http://hello
+http_proxy=$L5D_INGRESS_LB:4140 curl -s http://world
+
+# via io.l5d.namerd tls
+http_proxy=$L5D_INGRESS_LB:4142 curl -s http://hello
+http_proxy=$L5D_INGRESS_LB:4142 curl -s http://world
+
+# via io.l5d.mesh
+http_proxy=$L5D_INGRESS_LB:4144 curl -s http://hello
+http_proxy=$L5D_INGRESS_LB:4144 curl -s http://world
+
+# via io.l5d.mesh tls
+http_proxy=$L5D_INGRESS_LB:4146 curl -s http://hello
+http_proxy=$L5D_INGRESS_LB:4146 curl -s http://world
+```
+
 #### Daemonsets + TLS
 
 For a linkerd configuration that adds TLS to all service-to-service calls, run:
