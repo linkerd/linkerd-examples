@@ -13,7 +13,7 @@
           "container": {
             "type": "DOCKER",
             "docker": {
-              "image": "buoyantio/helloworld:0.1.4",
+              "image": "buoyantio/helloworld:0.1.6",
               "network": "BRIDGE",
               "portMappings": [
                 { "containerPort": 0, "hostPort": 0, "protocol": "tcp" }
@@ -43,7 +43,7 @@
           "container": {
             "type": "DOCKER",
             "docker": {
-              "image": "buoyantio/helloworld:0.1.4",
+              "image": "buoyantio/helloworld:0.1.6",
               "network": "BRIDGE",
               "portMappings": [
                 { "containerPort": 0, "hostPort": 0, "protocol": "tcp" }
@@ -73,7 +73,7 @@
           "container": {
             "type": "DOCKER",
             "docker": {
-              "image": "buoyantio/helloworld:0.1.4",
+              "image": "buoyantio/helloworld:0.1.6",
               "network": "BRIDGE",
               "portMappings": [
                 { "containerPort": 0, "hostPort": 0, "protocol": "tcp" }
