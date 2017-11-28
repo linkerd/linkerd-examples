@@ -9,7 +9,7 @@ import (
 
 func linkerdContext(ctx context.Context) context.Context {
 	pairs := make([]string, 0)
-	if md, ok := metadata.FromContext(ctx); ok {
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
 		for key, values := range md {
 			if strings.HasPrefix(strings.ToLower(key), "l5d-ctx") {
 				for _, value := range values {
@@ -18,5 +18,5 @@ func linkerdContext(ctx context.Context) context.Context {
 			}
 		}
 	}
-	return metadata.NewContext(context.Background(), metadata.Pairs(pairs...))
+	return metadata.NewOutgoingContext(context.Background(), metadata.Pairs(pairs...))
 }
