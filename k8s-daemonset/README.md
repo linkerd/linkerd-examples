@@ -384,13 +384,13 @@ Send a unary gRPC request using the `helloworld-client` script provided by the
 buoyantio/helloworld docker image:
 
 ```bash
-docker run --rm --entrypoint=helloworld-client buoyantio/helloworld:0.1.4 $L5D_INGRESS_LB:4140
+docker run --rm --entrypoint=helloworld-client buoyantio/helloworld:0.1.6 $L5D_INGRESS_LB:4140
 ```
 
 Add the `-streaming` flag to send a streaming gRPC request:
 
 ```bash
-docker run --rm --entrypoint=helloworld-client buoyantio/helloworld:0.1.4 -streaming $L5D_INGRESS_LB:4140
+docker run --rm --entrypoint=helloworld-client buoyantio/helloworld:0.1.6 -streaming $L5D_INGRESS_LB:4140
 ```
 
 ## RBAC
