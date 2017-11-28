@@ -11,7 +11,7 @@ To build the [buoyantio/helloworld](https://hub.docker.com/r/buoyantio/helloworl
 Docker image, run:
 
 ```bash
-$ ./dockerize <tag-name>
+$ docker build -t buoyantio/helloworld:<tag-name> .
 ```
 
 Where `<tag-name>` is the tag of the image that you want to build.
