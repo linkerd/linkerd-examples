@@ -108,7 +108,7 @@ services:
     - "-redis.addr=redis://redis2:6379"
 
   linkerd-viz:
-    image: buoyantio/linkerd-viz:0.1.4
+    image: buoyantio/linkerd-viz:0.1.6
     environment:
     - SCRAPE_INTERVAL=5s
     ports:
