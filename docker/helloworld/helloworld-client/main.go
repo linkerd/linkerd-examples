@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"time"
 
 	proto "github.com/linkerd/linkerd-examples/docker/helloworld/proto"
 	"golang.org/x/net/context"
@@ -55,7 +56,9 @@ func main() {
 			fmt.Println(resp.Message)
 		}
 	} else {
-		resp, err := client.Greeting(context.Background(), req)
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		defer cancel()
+		resp, err := client.Greeting(ctx, req)
 		dieIf(err)
 		fmt.Println(resp.Message)
 	}
