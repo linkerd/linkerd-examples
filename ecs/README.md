@@ -20,7 +20,9 @@ GROUP_ID=$(aws ec2 create-security-group --group-name l5d-demo-sg --description 
 aws ec2 authorize-security-group-ingress --group-id $GROUP_ID \
   --ip-permissions \
   FromPort=22,IpProtocol=tcp,ToPort=22,IpRanges=[{CidrIp="0.0.0.0/0"}] \
+  FromPort=9991,IpProtocol=tcp,ToPort=9991,IpRanges=[{CidrIp="0.0.0.0/0"}] \
   FromPort=4140,IpProtocol=tcp,ToPort=4140,IpRanges=[{CidrIp="0.0.0.0/0"}] \
+  FromPort=4142,IpProtocol=tcp,ToPort=4142,IpRanges=[{CidrIp="0.0.0.0/0"}] \
   FromPort=9990,IpProtocol=tcp,ToPort=9990,IpRanges=[{CidrIp="0.0.0.0/0"}] \
   FromPort=3000,IpProtocol=tcp,ToPort=3000,IpRanges=[{CidrIp="0.0.0.0/0"}] \
   FromPort=8500,IpProtocol=tcp,ToPort=8500,IpRanges=[{CidrIp="0.0.0.0/0"}] \
@@ -30,7 +32,7 @@ aws ec2 authorize-security-group-ingress --group-id $GROUP_ID \
 ## `consul-server`
 
 ```bash
-aws ec2 run-instances --image-id ami-7d664a1d \
+aws ec2 run-instances --image-id ami-62e0d802 \
   --instance-type m4.xlarge \
   --user-data file://consul-server-user-data.txt \
   --placement AvailabilityZone=us-west-1a \
@@ -53,10 +55,12 @@ aws iam put-role-policy --role-name ecsInstanceRole --policy-name l5dDemoPolicy 
 ### Register Task Definitions
 
 ```bash
+aws ecs register-task-definition --cli-input-json file://namerd-task-definition.json
 aws ecs register-task-definition --cli-input-json file://linkerd-task-definition.json
 aws ecs register-task-definition --cli-input-json file://linkerd-viz-task-definition.json
 aws ecs register-task-definition --cli-input-json file://consul-agent-task-definition.json
 aws ecs register-task-definition --cli-input-json file://consul-registrator-task-definition.json
+aws ecs register-task-definition --cli-input-json file://namerctl-task-definition.json
 aws ecs register-task-definition --cli-input-json file://hello-world-task-definition.json
 ```
 
@@ -65,7 +69,7 @@ aws ecs register-task-definition --cli-input-json file://hello-world-task-defini
 ```bash
 aws autoscaling create-launch-configuration \
   --launch-configuration-name l5d-demo-lc \
-  --image-id ami-7d664a1d \
+  --image-id ami-62e0d802 \
   --instance-type m4.xlarge \
   --user-data file://ecs-user-data.txt \
   --iam-instance-profile ecsInstanceRole \
@@ -79,7 +83,7 @@ aws autoscaling create-launch-configuration \
 aws autoscaling create-auto-scaling-group \
   --auto-scaling-group-name l5d-demo-asg \
   --launch-configuration-name l5d-demo-lc \
-  --min-size 1 --max-size 3 --desired-capacity 2 \
+  --min-size 5 --max-size 5 --desired-capacity 5 \
   --tags ResourceId=l5d-demo-asg,ResourceType=auto-scaling-group,Key=Name,Value=l5d-demo-ecs,PropagateAtLaunch=true \
   --availability-zones us-west-1a
 ```
@@ -87,7 +91,13 @@ aws autoscaling create-auto-scaling-group \
 ### Deploy `hello-world`
 
 ```bash
-aws ecs run-task --cluster l5d-demo --task-definition hello-world --count 2
+aws ecs run-task --cluster l5d-demo --task-definition hello-world --count 5
+```
+
+### Deploy `namerctl`
+
+```bash
+aws ecs run-task --cluster l5d-demo --task-definition namerctl --count 1
 ```
 
 ## Test everything worked
@@ -101,15 +111,16 @@ ECS_NODE=$( \
 )
 
 # test routing via linkerd
-http_proxy=$ECS_NODE:4140 curl hello
+http_proxy=$ECS_NODE:4142 curl hello
 Hello (172.31.20.160) World (172.31.19.35)!!
 
 # test dynamic routing to world-v2
-http_proxy=$ECS_NODE:4140 curl -H 'l5d-dtab: /svc/world => /svc/world-v2' hello
+http_proxy=$ECS_NODE:4142 curl -H 'l5d-dtab: /svc/world => /svc/world-v2' hello
 Hello (172.31.20.160) World-V2 (172.31.19.35)!!
 
-# view linkerd and Consul UIs (osx)
+# view linkerd, namerd, and Consul UIs (osx)
 open http://$ECS_NODE:9990
+open http://$ECS_NODE:9991
 open http://$ECS_NODE:8500
 ```
 
@@ -118,7 +129,7 @@ open http://$ECS_NODE:8500
 Put some load on our example app
 
 ```bash
-while true; do http_proxy=$ECS_NODE:4140 curl -s -o /dev/null hello; done
+while true; do http_proxy=$ECS_NODE:4142 curl -s -o /dev/null hello; done
 ```
 
 Deploy linkerd-viz
@@ -147,3 +158,18 @@ This example setup is based on these excellent blog posts:
 ## TODO
 
 - rolling a new linkerd version
+
+## Teardown
+
+```bash
+CONSUL_SERVER_INSTANCE=$(aws ec2 describe-instances --filters Name=instance-state-name,Values=running Name=tag:Name,Values=l5d-demo-consul-server --query Reservations[*].Instances[*].[InstanceId] --output text)
+aws ec2 terminate-instances --instance-id $CONSUL_SERVER_INSTANCE
+aws autoscaling update-auto-scaling-group --auto-scaling-group-name l5d-demo-asg --min-size 0 --max-size 0 --desired-capacity 0
+until (aws autoscaling delete-auto-scaling-group --auto-scaling-group-name l5d-demo-asg); do
+  echo "waiting to delete auto scaling group"
+  sleep 1
+done
+aws autoscaling delete-launch-configuration --launch-configuration-name l5d-demo-lc
+aws ecs delete-cluster --cluster l5d-demo
+aws ec2 delete-security-group --group-name l5d-demo-sg
+```

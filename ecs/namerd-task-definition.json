@@ -1,0 +1,84 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "namerd",
+      "image": "docker.io/buoyantio/namerd:1.3.2",
+      "command": [
+        "-log.level=DEBUG",
+        "/etc/namerd/namerd.yaml"
+      ],
+      "memory": 1024,
+      "portMappings": [
+        {
+          "hostPort": 4100,
+          "containerPort": 4100,
+          "protocol": "tcp"
+        },
+        {
+          "hostPort": 4101,
+          "containerPort": 4101,
+          "protocol": "tcp"
+        },
+        {
+          "hostPort": 4180,
+          "containerPort": 4180,
+          "protocol": "tcp"
+        },
+        {
+          "hostPort": 4181,
+          "containerPort": 4181,
+          "protocol": "tcp"
+        },
+        {
+          "hostPort": 4321,
+          "containerPort": 4321,
+          "protocol": "tcp"
+        },
+        {
+          "hostPort": 4322,
+          "containerPort": 4322,
+          "protocol": "tcp"
+        },
+        {
+          "hostPort": 9991,
+          "containerPort": 9991,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "mountPoints": [
+        {
+          "containerPath": "/etc/namerd",
+          "sourceVolume": "namerd-config",
+          "readOnly": true
+        },
+        {
+          "containerPath": "/io.buoyant/namerd/certs",
+          "sourceVolume": "namerd-certs",
+          "readOnly": true
+        }
+      ],
+      "environment": [
+        {
+          "name": "SERVICE_9991_NAME",
+          "value": "namerd"
+        }
+      ]
+    }
+  ],
+  "volumes": [
+    {
+      "host": {
+        "sourcePath": "/etc/namerd"
+      },
+      "name": "namerd-config"
+    },
+    {
+      "host": {
+        "sourcePath": "/io.buoyant/namerd/certs"
+      },
+      "name": "namerd-certs"
+    }
+  ],
+  "family": "namerd"
+}

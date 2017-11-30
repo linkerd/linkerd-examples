@@ -20,6 +20,16 @@
           "protocol": "tcp"
         },
         {
+          "hostPort": 4142,
+          "containerPort": 4142,
+          "protocol": "tcp"
+        },
+        {
+          "hostPort": 4143,
+          "containerPort": 4143,
+          "protocol": "tcp"
+        },
+        {
           "hostPort": 9990,
           "containerPort": 9990,
           "protocol": "tcp"
@@ -31,13 +41,27 @@
           "containerPath": "/etc/linkerd",
           "sourceVolume": "linkerd-config",
           "readOnly": true
+        },
+        {
+          "containerPath": "/io.buoyant/linkerd/certs/",
+          "sourceVolume": "linkerd-certs",
+          "readOnly": true
         }
       ],
       "environment": [
         {
           "name": "SERVICE_9990_NAME",
           "value": "linkerd"
-        }
+        },
+        {
+          "name": "JVM_HEAP_MIN",
+          "value": "768M"
+        },
+        {
+          "name": "JVM_HEAP_MAX",
+          "value": "768M"
+        },
+
       ]
     }
   ],
@@ -47,6 +71,12 @@
         "sourcePath": "/etc/linkerd"
       },
       "name": "linkerd-config"
+    },
+    {
+      "host": {
+        "sourcePath": "/io.buoyant/linkerd/certs/"
+      },
+      "name": "linkerd-certs"
     }
   ],
   "family": "linkerd"

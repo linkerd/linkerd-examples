@@ -10,7 +10,8 @@ Content-Type: text/text/x-shellscript; charset="us-ascii"
 # This script generates config to be used by their respective Task Definitions:
 # 1. consul-registrator startup script
 # 2. Consul Agent config
-# 3. linkerd config
+# 3. namerd config
+# 4. linkerd config
 
 # Specify the cluster that the container instance should register into
 cluster=l5d-demo
@@ -62,6 +63,241 @@ cat << EOF > /opt/consul/config/consul-agent.json
 EOF
 
 #
+# Generate namerd certs
+#
+
+# The namerd ECS task definition is configured to mount these certs into its own
+# Docker environment.
+
+mkdir -p /io.buoyant/namerd/certs
+
+cat << EOF > /io.buoyant/namerd/certs/certificate.pem
+Certificate:
+    Data:
+        Version: 1 (0x0)
+        Serial Number: 1 (0x1)
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=US, CN=My CA
+        Validity
+            Not Before: Oct 20 20:54:21 2016 GMT
+            Not After : Sep 26 20:54:21 2116 GMT
+        Subject: CN=linkerd, C=US
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public Key: (2048 bit)
+                Modulus (2048 bit):
+                    00:cf:4e:69:de:9d:e8:85:09:e9:b2:66:07:26:a9:
+                    d7:ea:80:fe:81:64:34:8a:2a:ab:43:23:98:b5:68:
+                    29:a9:c5:bd:3c:e2:c6:bd:d8:21:90:db:b3:25:0b:
+                    db:5f:3d:d8:d5:5d:f1:ff:8c:7d:14:cb:21:64:f0:
+                    9e:97:9f:17:fe:33:94:18:ca:69:e6:cf:03:7d:fd:
+                    b5:f7:69:fb:d7:43:92:d2:e4:b7:6a:7d:fa:22:95:
+                    c7:e2:ad:f8:10:57:1f:e3:8f:99:9e:c8:83:77:84:
+                    65:ab:13:e1:a5:86:0a:67:3f:9a:2e:9e:ed:19:54:
+                    47:a6:05:f7:67:0c:2b:29:da:34:2e:44:70:5d:be:
+                    d1:75:06:29:78:3b:24:c0:83:63:50:52:c8:2a:64:
+                    d1:57:f6:f4:34:cf:5c:3e:1d:af:4c:e6:b5:d8:4f:
+                    67:6f:f2:f8:57:31:67:89:d4:62:0d:70:d1:2a:83:
+                    92:02:17:c3:a0:b4:21:55:3c:b9:3f:9f:3c:f4:54:
+                    61:52:8d:aa:c3:4b:7b:6c:32:92:6b:fc:6c:ee:e9:
+                    71:16:32:f4:2f:82:04:1b:c5:35:b9:3c:8e:82:72:
+                    1d:70:e7:c2:5b:c8:cb:12:9e:51:6d:8e:7c:9c:b5:
+                    14:cc:71:d7:28:c6:5b:05:57:4b:08:fb:f1:10:78:
+                    db:9f
+                Exponent: 65537 (0x10001)
+    Signature Algorithm: sha256WithRSAEncryption
+        5b:c3:8f:6f:9f:81:b7:49:e6:6c:68:5b:11:af:6e:9c:ba:ac:
+        54:09:56:36:9a:ea:75:35:66:e0:17:c1:a4:14:77:50:8e:0d:
+        d0:62:fb:37:34:72:5f:f8:13:50:3b:10:55:0a:6f:7b:11:28:
+        48:54:86:e8:2d:1f:00:c3:c2:c1:da:9e:e0:e7:82:1d:00:c1:
+        35:c8:12:c7:3b:61:a3:5d:de:b9:9b:b0:87:ba:d8:f8:c6:e7:
+        68:5b:0d:d2:5c:80:5d:0f:e2:93:80:90:5c:75:17:1f:b1:43:
+        e7:1e:99:70:b1:3f:df:16:83:c7:f2:76:46:cf:c9:38:3c:88:
+        5f:24:9a:d8:ba:12:a4:d9:6e:35:ca:1f:ae:cc:b1:87:d6:dd:
+        37:91:2c:5a:ff:aa:c2:c0:6f:67:d1:4f:54:da:cb:d7:bf:b4:
+        8f:1b:cd:0b:64:34:a4:9a:da:a7:8a:07:e3:00:a2:91:22:d5:
+        01:c6:e9:1c:70:f4:14:c4:d1:77:03:d7:6e:6f:cf:a7:f2:75:
+        b9:a6:77:e4:98:8c:cb:51:26:30:5a:29:39:87:4b:03:60:4e:
+        11:c6:b3:00:38:fa:cf:c9:ef:35:d3:e4:65:73:1b:17:59:b2:
+        79:39:4b:78:86:42:a2:b2:93:78:63:fe:20:6e:f8:64:34:68:
+        b3:69:f6:e1
+-----BEGIN CERTIFICATE-----
+MIICsjCCAZoCAQEwDQYJKoZIhvcNAQELBQAwHTELMAkGA1UEBhMCVVMxDjAMBgNV
+BAMMBU15IENBMCAXDTE2MTAyMDIwNTQyMVoYDzIxMTYwOTI2MjA1NDIxWjAfMRAw
+DgYDVQQDDAdsaW5rZXJkMQswCQYDVQQGEwJVUzCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBAM9Oad6d6IUJ6bJmByap1+qA/oFkNIoqq0MjmLVoKanFvTzi
+xr3YIZDbsyUL21892NVd8f+MfRTLIWTwnpefF/4zlBjKaebPA339tfdp+9dDktLk
+t2p9+iKVx+Kt+BBXH+OPmZ7Ig3eEZasT4aWGCmc/mi6e7RlUR6YF92cMKynaNC5E
+cF2+0XUGKXg7JMCDY1BSyCpk0Vf29DTPXD4dr0zmtdhPZ2/y+FcxZ4nUYg1w0SqD
+kgIXw6C0IVU8uT+fPPRUYVKNqsNLe2wykmv8bO7pcRYy9C+CBBvFNbk8joJyHXDn
+wlvIyxKeUW2OfJy1FMxx1yjGWwVXSwj78RB4258CAwEAATANBgkqhkiG9w0BAQsF
+AAOCAQEAW8OPb5+Bt0nmbGhbEa9unLqsVAlWNprqdTVm4BfBpBR3UI4N0GL7NzRy
+X/gTUDsQVQpvexEoSFSG6C0fAMPCwdqe4OeCHQDBNcgSxztho13euZuwh7rY+Mbn
+aFsN0lyAXQ/ik4CQXHUXH7FD5x6ZcLE/3xaDx/J2Rs/JODyIXySa2LoSpNluNcof
+rsyxh9bdN5EsWv+qwsBvZ9FPVNrL17+0jxvNC2Q0pJrap4oH4wCikSLVAcbpHHD0
+FMTRdwPXbm/Pp/J1uaZ35JiMy1EmMFopOYdLA2BOEcazADj6z8nvNdPkZXMbF1my
+eTlLeIZCorKTeGP+IG74ZDRos2n24Q==
+-----END CERTIFICATE-----
+
+EOF
+
+cat << EOF > /io.buoyant/namerd/certs/key.pk8
+-----BEGIN PRIVATE KEY-----
+MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDPTmneneiFCemy
+ZgcmqdfqgP6BZDSKKqtDI5i1aCmpxb084sa92CGQ27MlC9tfPdjVXfH/jH0UyyFk
+8J6Xnxf+M5QYymnmzwN9/bX3afvXQ5LS5LdqffoilcfirfgQVx/jj5meyIN3hGWr
+E+GlhgpnP5ounu0ZVEemBfdnDCsp2jQuRHBdvtF1Bil4OyTAg2NQUsgqZNFX9vQ0
+z1w+Ha9M5rXYT2dv8vhXMWeJ1GINcNEqg5ICF8OgtCFVPLk/nzz0VGFSjarDS3ts
+MpJr/Gzu6XEWMvQvggQbxTW5PI6Cch1w58JbyMsSnlFtjnyctRTMcdcoxlsFV0sI
++/EQeNufAgMBAAECggEAHD2yboFUi8st6v+7OakpoOixwy7DeY8Wha7zvsLR6i7l
++MVsDbDD4dgML5/N4suqHmcN8KJS5+JESlv9PuqNejPMmRP6GVdaQm+tumbVyB2M
+gu5ljjxbNxrwgBDzGkbEMVv+sYLfZgjDUOsEcmgwQqCHgJJl+m1g1V06tu8RckHo
+y5gYNwn6U98dWnoSWX7Rlui1ydDwTbagnIPWBt0hNIb6SmiThbNdsJTTRwM51nMj
+S6xQa6HScrbOvoxRoKa3dWC0ePKVF9pp4wRE9easM84+ZFAevHHpmR9m8UQo/7hV
+b/jbax6UrPJEWwCZ/c62rf5DRGWAXTqQLNLGz2U2AQKBgQDuolDPRUuMvm2iwT4j
+qPM6lCzcTntyb4D6mQcnA1zuUExg2Vp507XHVNgp5hMwjVF2XaLhP0C9tlQM/7az
+hINA3MtIFCBR/RzrZ/DNEgYKj0UYxpzTDq0h/Klrb/sR/wo3WNKnGY6aH0ZYiZuW
+lZSQLvgz2AV3/Mar3JarXkevuQKBgQDeZHiRECEbfA9QwymY2K00Ck3uFJuL6EMZ
+LKEjfS+MLeqnE/p+LQQ0kPUdpPHMv/rU3sgHPjAU7NzTfgmwBpGotKnZMkvpcygW
++Nca2hZwS51mdbU9NmAt9npMGiRJ76PZ7Xb1hkyMYFWkGBuWPtlHO5ztj9BZUh2K
+xnYkmf2iFwKBgFZhZRUSRV3GFNOkVcT8xEbBGlgJBMCQwkR0HlWt7vbJFEy+gPS2
+gQeNm83W3b1mekV5cZtNlTbXCCfIbK8g2Y4iHmeR+X0UPWKtNkpVKuCpqd5lDqGL
+n3o9BmrAl0aVZnJQcbhRFQCPL5ye+zYQIT3r8qZ5nMkpNBVD/To9H3/pAoGAGoTy
+l6HLwOJHVUMgh7h21vjPmC9e6Q0WSz82K+w2qkmjbK8GNNubX8VVZWaQ6vCNsaqr
+QanZw/UG1DV4ZEQ0RGDezCaiRMFVq3+a7vnIqTVrHJe2uAju6Sw2IzMO1r471LXr
+dJXCNQ8bx0iUqZLvB/6E1RNMLgqLuUu3NOAkDZsCgYBUoiUKsVZ320kHGqSR7iNH
+3y10hGFEAuis1BVSPvWb88v+eTi8AQilTelo246Lwcv8gnuoLx9lNw5NgqXKLDTF
+36ir70DLYnoobnYC/QomKpkB2WdnRoNeN9/YPjfSMYlO2hORGjFxbDQdVzMUCtIi
+ZrccImOlPiKzWIDMoQYIcQ==
+-----END PRIVATE KEY-----
+
+EOF
+
+#
+# Generate namerctl config files
+#
+
+mkdir -p /etc/namerctl
+
+cat << EOF > /etc/namerctl/run.sh
+#!/bin/sh
+
+export NAMERCTL_BASE_URL=http://${EC2_INSTANCE_IP_ADDRESS}:4180
+until (namerctl dtab create default /etc/namerctl/httproutes.dtab); do
+  echo "waiting for namerd to start"
+  sleep 1
+done
+while true; do
+  sleep 30
+  namerctl dtab update default /etc/namerctl/httproutes-deploy.dtab
+  sleep 30
+  namerctl dtab update default /etc/namerctl/httproutes.dtab
+done
+
+EOF
+
+chmod a+x /etc/namerctl/run.sh
+
+cat << EOF > /etc/namerctl/httproutes.dtab
+/srv => /#/io.l5d.consul/dc1;
+/svc => /srv;
+/svc/world => 1 * /srv/world & 0 * /srv/world-v2;
+
+EOF
+
+cat << EOF > /etc/namerctl/httproutes-deploy.dtab
+/srv => /#/io.l5d.consul/dc1;
+/svc => /srv;
+/svc/world => 1 * /srv/world & 1 * /srv/world-v2;
+
+EOF
+
+#
+# Generate namerd config files
+#
+
+mkdir -p /etc/namerd
+
+# The namerd ECS task definition is configured to mount this config file into
+# its own Docker environment.
+
+cat << EOF > /etc/namerd/namerd.yaml
+admin:
+  ip: 0.0.0.0
+  port: 9991
+
+namers:
+- kind: io.l5d.consul
+  host: ${EC2_INSTANCE_IP_ADDRESS}
+  port: 8500
+
+storage:
+  kind: io.l5d.consul
+  experimental: true
+  host: ${EC2_INSTANCE_IP_ADDRESS}
+  port: 8500
+  datacenter: dc1
+  failFast: true
+
+interfaces:
+- kind: io.l5d.thriftNameInterpreter
+  ip: 0.0.0.0
+  port: 4100
+- kind: io.l5d.thriftNameInterpreter
+  ip: 0.0.0.0
+  port: 4101
+  tls:
+    certPath: /io.buoyant/namerd/certs/certificate.pem
+    keyPath: /io.buoyant/namerd/certs/key.pk8
+- kind: io.l5d.httpController
+  ip: 0.0.0.0
+  port: 4180
+- kind: io.l5d.httpController
+  ip: 0.0.0.0
+  port: 4181
+  tls:
+    certPath: /io.buoyant/namerd/certs/certificate.pem
+    keyPath: /io.buoyant/namerd/certs/key.pk8
+- kind: io.l5d.mesh
+  ip: 0.0.0.0
+  port: 4321
+- kind: io.l5d.mesh
+  ip: 0.0.0.0
+  port: 4322
+  tls:
+    certPath: /io.buoyant/namerd/certs/certificate.pem
+    keyPath: /io.buoyant/namerd/certs/key.pk8
+
+EOF
+
+#
+# Generate linkerd cert
+#
+
+mkdir -p /io.buoyant/linkerd/certs/
+
+cat << EOF > /io.buoyant/linkerd/certs/cacertificate.pem
+-----BEGIN CERTIFICATE-----
+MIICtjCCAZ4CCQDikbR63IolnjANBgkqhkiG9w0BAQsFADAdMQswCQYDVQQGEwJV
+UzEOMAwGA1UEAwwFTXkgQ0EwHhcNMTYxMDIwMjA1MjUwWhcNMTYxMTE5MjA1MjUw
+WjAdMQswCQYDVQQGEwJVUzEOMAwGA1UEAwwFTXkgQ0EwggEiMA0GCSqGSIb3DQEB
+AQUAA4IBDwAwggEKAoIBAQC8PYz1r4c6v+F5Ugctp7qCGqDahWRxF4K6wzIAM9mf
+mY05lXET+dcgK+hH3x3nL5XqpXbybh9hFtK1g+e3nXvTucGzGLacxPn51HYUe58Q
+Gb3kvuLl8sgjLk8dqwsgzLWefhxurGPJUNmqWp7tsU40mj4nhFfGMU0DgwESJwKZ
+j/uc4EPXbeuUlDsEzBU121oYQlY3rgq75zkHIHrTg6SS2lHJbU8uYEALeqt6ObwN
+Hsxt0CoQeBP8sxOG61AIvpOUrABnUjZfRpFUoVbD8V56c3iLkivnXtU0TGm/xhMC
+P4x0EYeBvD1IFYG82D0N/VUxS/LU8de27nE8ZvSyRKCHAgMBAAEwDQYJKoZIhvcN
+AQELBQADggEBAKxBldnOv9Hpe9wePKGZSoM6T70giWFhuALyI0A7jD0PeNZoTscn
+NusP85t1YknTLhXMseYfitSVDpREe7G4mtX8/lMvn4tqyn4jXYZKa3JuyUPfylfD
+pJHtVmiM2WQRW6w0kxaEQyJCqY9KCGaRwlOlk8X84bvGUZtGYW8QTKYoEHvLLL8M
+BSAN52G4k4XRlh5MKaZ5byBmnjIWKzPZM6uwGiw3cYL7jAcaxzbjeMOZA4uiW0cq
+oszlAter/Vf8mYfg4Ry/8Uxenayz0tN0USz/BmjvxbLYnAevf1n/i9H88yWgxR/O
+LdVRH4XJx6QJGV9AAtYdJYLiQ7gAq1Wg9SY=
+-----END CERTIFICATE-----
+
+EOF
+
+#
 # Generate linkerd config file
 #
 
@@ -95,27 +331,79 @@ routers:
   - ip: 0.0.0.0
     port: 4140
   interpreter:
-    kind: default
+    kind: io.l5d.namerd
+    dst: /#/io.l5d.consul/dc1/namerd-4100
+    namespace: default
     transformers:
     # tranform all outgoing requests to deliver to incoming linkerd port 4141
     - kind: io.l5d.port
       port: 4141
-  dtab: |
-    /svc => /#/io.l5d.consul/dc1;
 - protocol: http
   label: incoming
   servers:
   - ip: 0.0.0.0
     port: 4141
   interpreter:
-    kind: default
+    kind: io.l5d.namerd
+    dst: /#/io.l5d.consul/dc1/namerd-4100
+    namespace: default
     transformers:
     # filter instances to only include those on this host
     - kind: io.l5d.specificHost
       host: ${EC2_INSTANCE_IP_ADDRESS}
-  dtab: |
-    /svc => /#/io.l5d.consul/dc1;
+
+- protocol: http
+  label: outgoing-tls
+  servers:
+  - ip: 0.0.0.0
+    port: 4142
+  interpreter:
+    kind: io.l5d.namerd
+    dst: /#/io.l5d.consul/dc1/namerd-4101
+    namespace: default
+    tls:
+      commonName: linkerd
+      caCert: /io.buoyant/linkerd/certs/cacertificate.pem
+    transformers:
+    # tranform all outgoing requests to deliver to incoming linkerd port 4143
+    - kind: io.l5d.port
+      port: 4143
+- protocol: http
+  label: incoming-tls
+  servers:
+  - ip: 0.0.0.0
+    port: 4143
+  interpreter:
+    kind: io.l5d.namerd
+    dst: /#/io.l5d.consul/dc1/namerd-4101
+    namespace: default
+    tls:
+      commonName: linkerd
+      caCert: /io.buoyant/linkerd/certs/cacertificate.pem
+    transformers:
+    # filter instances to only include those on this host
+    - kind: io.l5d.specificHost
+      host: ${EC2_INSTANCE_IP_ADDRESS}
 EOF
+
+#
+# Generate hello world load executable
+#
+
+mkdir -p /usr/local/bin
+
+cat << EOF > /usr/local/bin/load.sh
+#!/bin/sh
+
+export http_proxy=${EC2_INSTANCE_IP_ADDRESS}:4142
+
+while true; do
+  curl -s -o /dev/null hello
+done
+
+EOF
+
+chmod a+x /usr/local/bin/load.sh
 
 --==BOUNDARY==
 Content-Type: text/text/upstart-job; charset="us-ascii"
@@ -140,6 +428,7 @@ script
 
   aws ecs start-task --cluster $cluster --task-definition consul-agent --container-instances $instance_arn --started-by $instance_arn --region $region
   aws ecs start-task --cluster $cluster --task-definition consul-registrator --container-instances $instance_arn --started-by $instance_arn --region $region
+  aws ecs start-task --cluster $cluster --task-definition namerd --container-instances $instance_arn --started-by $instance_arn --region $region
   aws ecs start-task --cluster $cluster --task-definition linkerd --container-instances $instance_arn --started-by $instance_arn --region $region
 end script
 --==BOUNDARY==--

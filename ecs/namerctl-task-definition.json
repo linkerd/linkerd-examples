@@ -1,0 +1,27 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "namerctl",
+      "image": "linkerd/namerctl:0.8.6",
+      "entryPoint": ["/etc/namerctl/run.sh"],
+      "memory": 128,
+      "essential": true,
+      "mountPoints": [
+        {
+          "containerPath": "/etc/namerctl",
+          "sourceVolume": "namerctl",
+          "readOnly": true
+        }
+      ]
+    }
+  ],
+  "volumes": [
+    {
+      "host": {
+        "sourcePath": "/etc/namerctl"
+      },
+      "name": "namerctl"
+    }
+  ],
+  "family": "namerctl"
+}
