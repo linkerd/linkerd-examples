@@ -3,9 +3,10 @@
     {
       "name": "linkerd",
       "image": "docker.io/buoyantio/linkerd:1.3.2",
+      "entryPoint": ["/bin/bash"],
       "command": [
-        "-log.level=DEBUG",
-        "/etc/linkerd/linkerd.yaml"
+        "-c",
+        "POD_IP=$(curl http://169.254.169.254/latest/meta-data/local-ipv4) /io.buoyant/linkerd/1.3.2/bundle-exec -log.level=DEBUG /etc/linkerd/linkerd.yaml"
       ],
       "memory": 1024,
       "portMappings": [
@@ -60,8 +61,7 @@
         {
           "name": "JVM_HEAP_MAX",
           "value": "768M"
-        },
-
+        }
       ]
     }
   ],

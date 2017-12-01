@@ -297,6 +297,27 @@ LdVRH4XJx6QJGV9AAtYdJYLiQ7gAq1Wg9SY=
 
 EOF
 
+cat << EOF > /io.buoyant/linkerd/certs/cacertificate-gke.pem
+-----BEGIN CERTIFICATE-----
+MIICtjCCAZ4CCQCqsmfE5bkxPTANBgkqhkiG9w0BAQsFADAdMQswCQYDVQQGEwJV
+UzEOMAwGA1UEAwwFTXkgQ0EwHhcNMTcwMTI0MDA1MTQ4WhcNMTcwMjIzMDA1MTQ4
+WjAdMQswCQYDVQQGEwJVUzEOMAwGA1UEAwwFTXkgQ0EwggEiMA0GCSqGSIb3DQEB
+AQUAA4IBDwAwggEKAoIBAQDBW7wHvnXeIw8av+pDvCiIYGgygaLpjJnppeHBqaoe
+F8iCxOiK/PJlNdw4HvoFx6K5R0bUiUsmaPQBoUuxGRdC+6lIoQ+RlHLnDVYiozeY
+rlwVPUWmv9FVmoMdhG93yIaiYiwB4Xq/7WpB3T9zsIPwfIgwt5CXDDJSMlLN+F62
+dlGQWhBhEadTDDgGpF/Cm+YkMHo/X6Y9l7DxgB39PLVNg4VF2xLblYU+o1mqH6wx
+mCXIX8l2tM2e9V6RJbPybxdwv8qOJ6RSBH5cyXltVUS9H+swFa1b+HmtVHGQ7B/f
+3K3psxFxRULPM6z76mgFFimlhaNzD9B23Ef/ZTkb9AObAgMBAAEwDQYJKoZIhvcN
+AQELBQADggEBAAvexNSHO8IlyjilDDRZbktZvxTyIYxrCA97XphpWYQfXAhdH/oE
+EpFftM/DamaBFm1Zd7KGVL13jTAZSCY3lc1Pdb1Tz7Q7dtHhzbdNidLEYMH1ABCN
+aI4+KnxprUqHBuh7npfBCVOj3Nj7BpfzuCUwxlN9BBRPVdiiuiHFWyd7OwBU0Tfo
+fglisBL50IVxRst/Ml8TBGc3T4MQcKfGrqMSuWdJ6srE57C52qhyRZhWcJVMO/Jc
+GwObcmYwn0AuEDPFmByK5p7UaiqzDHr81IfqL+FzuA9p4YlAa4rG+b/9Jg8DJX47
+Y67vZ1DH1Rb4ZJZPMmwcOtduUzGBBjS4q4E=
+-----END CERTIFICATE-----
+
+EOF
+
 #
 # Generate linkerd config file
 #
@@ -326,31 +347,36 @@ usage:
 
 routers:
 - protocol: http
-  label: outgoing
+  label: outgoing-tls-gke
   servers:
   - ip: 0.0.0.0
     port: 4140
   interpreter:
     kind: io.l5d.namerd
-    dst: /#/io.l5d.consul/dc1/namerd-4100
+    dst: /$/inet/35.188.52.234/4101
     namespace: default
+    tls:
+      commonName: namerd
+      caCert: /io.buoyant/linkerd/certs/cacertificate-gke.pem
     transformers:
-    # tranform all outgoing requests to deliver to incoming linkerd port 4141
-    - kind: io.l5d.port
-      port: 4141
+    - kind: io.l5d.k8s.daemonset
+      namespace: test
+      port: incoming
+      service: l5d
 - protocol: http
-  label: incoming
+  label: incoming-tls-gke
   servers:
   - ip: 0.0.0.0
     port: 4141
   interpreter:
     kind: io.l5d.namerd
-    dst: /#/io.l5d.consul/dc1/namerd-4100
+    dst: /$/inet/35.188.52.234/4101
     namespace: default
+    tls:
+      commonName: namerd
+      caCert: /io.buoyant/linkerd/certs/cacertificate-gke.pem
     transformers:
-    # filter instances to only include those on this host
-    - kind: io.l5d.specificHost
-      host: ${EC2_INSTANCE_IP_ADDRESS}
+    - kind: io.l5d.k8s.localnode
 
 - protocol: http
   label: outgoing-tls
