@@ -28,13 +28,7 @@ data:
       interpreter:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.default.svc.cluster.local/4100
-        namespace: internal
-        transformers:
-        - kind: io.l5d.k8s.daemonset
-          namespace: default
-          port: incoming
-          service: l5d
-          hostNetwork: true
+        namespace: k8s-thrift-ds
       servers:
       - port: 4140
         ip: 0.0.0.0
@@ -60,16 +54,10 @@ data:
       interpreter:
         kind: io.l5d.namerd
         dst: /$/inet/namerd.default.svc.cluster.local/4101
-        namespace: internal
+        namespace: k8s-thrift-ds-tls
         tls:
           commonName: linkerd
           caCert: /io.buoyant/linkerd/certs/cacertificate.pem
-        transformers:
-        - kind: io.l5d.k8s.daemonset
-          namespace: default
-          port: incoming-tls
-          service: l5d
-          hostNetwork: true
       servers:
       - port: 4142
         ip: 0.0.0.0
@@ -99,13 +87,7 @@ data:
         kind: io.l5d.mesh
         experimental: true
         dst: /$/inet/namerd.default.svc.cluster.local/4321
-        root: /internal
-        transformers:
-        - kind: io.l5d.k8s.daemonset
-          namespace: default
-          port: incoming-mesh
-          service: l5d
-          hostNetwork: true
+        root: /k8s-mesh-ds
       servers:
       - port: 4144
         ip: 0.0.0.0
@@ -133,17 +115,11 @@ data:
         kind: io.l5d.mesh
         experimental: true
         dst: /$/inet/namerd.default.svc.cluster.local/4322
-        root: /internal
+        root: /k8s-mesh-ds-tls
         tls:
           commonName: linkerd
           trustCerts:
           - /io.buoyant/linkerd/certs/cacertificate.pem
-        transformers:
-        - kind: io.l5d.k8s.daemonset
-          namespace: default
-          port: in-mesh-tls
-          service: l5d
-          hostNetwork: true
       servers:
       - port: 4146
         ip: 0.0.0.0

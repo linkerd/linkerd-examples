@@ -23,6 +23,52 @@ data:
       host: localhost
       port: 8001
 
+    - kind: io.l5d.k8s
+      prefix: /k8s-thrift-ds
+      experimental: true
+      host: localhost
+      port: 8001
+      transformers:
+      - kind: io.l5d.k8s.daemonset
+        namespace: default
+        port: incoming
+        service: l5d
+        hostNetwork: true
+    - kind: io.l5d.k8s
+      prefix: /k8s-thrift-ds-tls
+      experimental: true
+      host: localhost
+      port: 8001
+      transformers:
+      - kind: io.l5d.k8s.daemonset
+        namespace: default
+        port: incoming-tls
+        service: l5d
+        hostNetwork: true
+
+    - kind: io.l5d.k8s
+      prefix: /k8s-mesh-ds
+      experimental: true
+      host: localhost
+      port: 8001
+      transformers:
+      - kind: io.l5d.k8s.daemonset
+        namespace: default
+        port: incoming-mesh
+        service: l5d
+        hostNetwork: true
+    - kind: io.l5d.k8s
+      prefix: /k8s-mesh-ds-tls
+      experimental: true
+      host: localhost
+      port: 8001
+      transformers:
+      - kind: io.l5d.k8s.daemonset
+        namespace: default
+        port: in-mesh-tls
+        service: l5d
+        hostNetwork: true
+
     storage:
       kind: io.l5d.k8s
       host: localhost
@@ -167,6 +213,54 @@ data:
       /svc        => /host;
       /host/world => /srv/world-v1;
       " | namerctl dtab create internal -
+    fi
+
+    if namerctl dtab get k8s-thrift-ds > /dev/null 2>&1; then
+      echo "k8s-thrift-ds namespace already exists"
+    else
+      echo "
+      /srv        => /#/k8s-thrift-ds/default/http;
+      /host       => /srv;
+      /tmp        => /srv;
+      /svc        => /host;
+      /host/world => /srv/world-v1;
+      " | namerctl dtab create k8s-thrift-ds -
+    fi
+
+    if namerctl dtab get k8s-thrift-ds-tls > /dev/null 2>&1; then
+      echo "k8s-thrift-ds-tls namespace already exists"
+    else
+      echo "
+      /srv        => /#/k8s-thrift-ds-tls/default/http;
+      /host       => /srv;
+      /tmp        => /srv;
+      /svc        => /host;
+      /host/world => /srv/world-v1;
+      " | namerctl dtab create k8s-thrift-ds-tls -
+    fi
+
+    if namerctl dtab get k8s-mesh-ds > /dev/null 2>&1; then
+      echo "k8s-mesh-ds namespace already exists"
+    else
+      echo "
+      /srv        => /#/k8s-mesh-ds/default/http;
+      /host       => /srv;
+      /tmp        => /srv;
+      /svc        => /host;
+      /host/world => /srv/world-v1;
+      " | namerctl dtab create k8s-mesh-ds -
+    fi
+
+    if namerctl dtab get k8s-mesh-ds-tls > /dev/null 2>&1; then
+      echo "k8s-mesh-ds-tls namespace already exists"
+    else
+      echo "
+      /srv        => /#/k8s-mesh-ds-tls/default/http;
+      /host       => /srv;
+      /tmp        => /srv;
+      /svc        => /host;
+      /host/world => /srv/world-v1;
+      " | namerctl dtab create k8s-mesh-ds-tls -
     fi
 ---
 kind: Job
