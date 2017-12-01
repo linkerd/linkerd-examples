@@ -133,6 +133,7 @@ To run linkerd and [namerd](https://linkerd.io/in-depth/namerd/) together, with
 linkerd running in DaemonSets and serving edge traffic, run:
 
 ```bash
+kubectl apply -f k8s/certificates.yml
 kubectl apply -f k8s/namerd.yml
 kubectl apply -f k8s/linkerd-namerd.yml
 ```
