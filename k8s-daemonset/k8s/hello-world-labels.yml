@@ -1,0 +1,102 @@
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: hello1
+spec:
+  replicas: 3
+  selector:
+    app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+        version: hello1
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.1.6
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        args:
+        - "-addr=:7777"
+        - "-text=Hello1"
+        ports:
+        - name: service
+          containerPort: 7777
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: hello2
+spec:
+  replicas: 3
+  selector:
+    app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+        version: hello2
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.1.6
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        args:
+        - "-addr=:7777"
+        - "-text=Hello2"
+        ports:
+        - name: service
+          containerPort: 7777
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: hello3
+spec:
+  replicas: 3
+  selector:
+    app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+        version: hello3
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.1.6
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        args:
+        - "-addr=:7777"
+        - "-text=Hello3"
+        ports:
+        - name: service
+          containerPort: 7777
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello
+spec:
+  selector:
+    app: hello
+  clusterIP: None
+  ports:
+  - name: http
+    port: 7777
