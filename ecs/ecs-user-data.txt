@@ -183,34 +183,52 @@ cat << EOF > /etc/namerctl/run.sh
 #!/bin/sh
 
 export NAMERCTL_BASE_URL=http://${EC2_INSTANCE_IP_ADDRESS}:4180
-until (namerctl dtab create default /etc/namerctl/httproutes.dtab); do
+until (namerctl dtab create outgoing /etc/namerctl/httproutes-outgoing.dtab); do
   echo "waiting for namerd to start"
   sleep 1
 done
+namerctl dtab create incoming /etc/namerctl/httproutes-incoming.dtab
 while true; do
   sleep 30
-  namerctl dtab update default /etc/namerctl/httproutes-deploy.dtab
+  namerctl dtab update outgoing /etc/namerctl/httproutes-outgoing-deploy.dtab
+  namerctl dtab update incoming /etc/namerctl/httproutes-incoming-deploy.dtab
   sleep 30
-  namerctl dtab update default /etc/namerctl/httproutes.dtab
+  namerctl dtab update outgoing /etc/namerctl/httproutes-outgoing.dtab
+  namerctl dtab update incoming /etc/namerctl/httproutes-incoming.dtab
 done
 
 EOF
 
 chmod a+x /etc/namerctl/run.sh
 
-cat << EOF > /etc/namerctl/httproutes.dtab
-/srv => /#/io.l5d.consul/dc1;
+cat << EOF > /etc/namerctl/httproutes-outgoing.dtab
+/srv => /#/http-consul-local-namer/dc1;
 /svc => /srv;
 /svc/world => 1 * /srv/world & 0 * /srv/world-v2;
 
 EOF
 
-cat << EOF > /etc/namerctl/httproutes-deploy.dtab
-/srv => /#/io.l5d.consul/dc1;
+cat << EOF > /etc/namerctl/httproutes-outgoing-deploy.dtab
+/srv => /#/http-consul-local-namer/dc1;
 /svc => /srv;
 /svc/world => 1 * /srv/world & 1 * /srv/world-v2;
 
 EOF
+
+cat << EOF > /etc/namerctl/httproutes-incoming.dtab
+/srv => /#/http-consul-mesh-namer/dc1;
+/svc => /srv;
+/svc/world => 1 * /srv/world & 0 * /srv/world-v2;
+
+EOF
+
+cat << EOF > /etc/namerctl/httproutes-incoming-deploy.dtab
+/srv => /#/http-consul-mesh-namer/dc1;
+/svc => /srv;
+/svc/world => 1 * /srv/world & 1 * /srv/world-v2;
+
+EOF
+
 
 #
 # Generate namerd config files
@@ -228,8 +246,19 @@ admin:
 
 namers:
 - kind: io.l5d.consul
+  prefix: /http-consul-local-namer
   host: ${EC2_INSTANCE_IP_ADDRESS}
   port: 8500
+  failFast: false
+  transformers:
+  # tranform all outgoing requests to deliver to incoming linkerd port 4143
+  - kind: io.l5d.port
+    port: 4143
+- kind: io.l5d.consul
+  prefix: /http-consul-mesh-namer
+  host: ${EC2_INSTANCE_IP_ADDRESS}
+  port: 8500
+  failFast: false
 
 storage:
   kind: io.l5d.consul
@@ -386,14 +415,10 @@ routers:
   interpreter:
     kind: io.l5d.namerd
     dst: /#/io.l5d.consul/dc1/namerd-4101
-    namespace: default
+    namespace: outgoing
     tls:
       commonName: linkerd
       caCert: /io.buoyant/linkerd/certs/cacertificate.pem
-    transformers:
-    # tranform all outgoing requests to deliver to incoming linkerd port 4143
-    - kind: io.l5d.port
-      port: 4143
 - protocol: http
   label: incoming-tls
   servers:
@@ -402,7 +427,7 @@ routers:
   interpreter:
     kind: io.l5d.namerd
     dst: /#/io.l5d.consul/dc1/namerd-4101
-    namespace: default
+    namespace: incoming
     tls:
       commonName: linkerd
       caCert: /io.buoyant/linkerd/certs/cacertificate.pem
