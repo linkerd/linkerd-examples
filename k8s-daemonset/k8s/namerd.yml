@@ -129,7 +129,7 @@ spec:
           secretName: certificates
       containers:
       - name: namerd
-        image: buoyantio/namerd:1.3.2
+        image: buoyantio/namerd:1.3.3-SNAPSHOT-strip-mesh
         args:
         - /io.buoyant/namerd/config/config.yml
         ports:
