@@ -21,6 +21,21 @@ services:
     ports:
       - 9990:9990
       - 4140:4140
+      - 4141:4141
+    depends_on:
+      - namerd
+
+  namerd:
+    image: buoyantio/namerd:1.3.2
+    command: ['/config.yaml']
+    links:
+      - consul
+    volumes:
+      - ./namerd.yml:/config.yaml
+    ports:
+      - 9991:9991
+      - 4100:4100
+      - 4180:4180
     depends_on:
       - consul-registrator
 
