@@ -2,7 +2,7 @@
   "containerDefinitions": [
     {
       "name": "linkerd-viz",
-      "image": "docker.io/buoyantio/linkerd-viz:0.1.6",
+      "image": "docker.io/buoyantio/linkerd-viz:0.1.7",
       "command": [
         "consul"
       ],
