@@ -336,7 +336,7 @@ spec:
       # Run `kubectl proxy` as a sidecar to give us authenticated access to the
       # Kubernetes API.
       - name: kubectl
-        image: buoyantio/kubectl:v1.4.0
+        image: buoyantio/kubectl:v1.8.5
         args:
         - "proxy"
         - "-p"

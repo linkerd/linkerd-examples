@@ -61,7 +61,7 @@ spec:
         # We run a kubectl proxy container so that linkerd can talk to the
         # Kubernetes master API.
       - name: kubectl
-        image: buoyantio/kubectl:v1.4.0
+        image: buoyantio/kubectl:v1.8.5
         args:
         - proxy
         - "-p"

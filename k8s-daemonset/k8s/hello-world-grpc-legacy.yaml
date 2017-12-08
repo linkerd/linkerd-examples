@@ -37,7 +37,7 @@ spec:
         - name: service
           containerPort: 7777
       - name: kubectl
-        image: buoyantio/kubectl:v1.4.0
+        image: buoyantio/kubectl:v1.8.5
         args:
         - proxy
         - "-p"

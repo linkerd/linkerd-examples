@@ -108,7 +108,7 @@ spec:
           mountPath: "/io.buoyant/namerd/certs"
           readOnly: true
       - name: kubectl
-        image: buoyantio/kubectl:v1.4.0
+        image: buoyantio/kubectl:v1.8.5
         args:
         - "proxy"
         - "-p"
