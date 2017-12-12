@@ -30,7 +30,7 @@ aws ec2 authorize-security-group-ingress --group-id $GROUP_ID \
 ## `consul-server`
 
 ```bash
-aws ec2 run-instances --image-id ami-7d664a1d \
+aws ec2 run-instances --image-id ami-62e0d802 \
   --instance-type m4.xlarge \
   --user-data file://consul-server-user-data.txt \
   --placement AvailabilityZone=us-west-1a \
@@ -65,7 +65,7 @@ aws ecs register-task-definition --cli-input-json file://hello-world-task-defini
 ```bash
 aws autoscaling create-launch-configuration \
   --launch-configuration-name l5d-demo-lc \
-  --image-id ami-7d664a1d \
+  --image-id ami-62e0d802 \
   --instance-type m4.xlarge \
   --user-data file://ecs-user-data.txt \
   --iam-instance-profile ecsInstanceRole \
@@ -147,3 +147,18 @@ This example setup is based on these excellent blog posts:
 ## TODO
 
 - rolling a new linkerd version
+
+## Teardown
+
+```bash
+CONSUL_SERVER_INSTANCE=$(aws ec2 describe-instances --filters Name=instance-state-name,Values=running Name=tag:Name,Values=l5d-demo-consul-server --query Reservations[*].Instances[*].[InstanceId] --output text)
+aws ec2 terminate-instances --instance-id $CONSUL_SERVER_INSTANCE
+aws autoscaling update-auto-scaling-group --auto-scaling-group-name l5d-demo-asg --min-size 0 --max-size 0 --desired-capacity 0
+until (aws autoscaling delete-auto-scaling-group --auto-scaling-group-name l5d-demo-asg); do
+  echo "waiting to delete auto scaling group"
+  sleep 1
+done
+aws autoscaling delete-launch-configuration --launch-configuration-name l5d-demo-lc
+aws ecs delete-cluster --cluster l5d-demo
+aws ec2 delete-security-group --group-name l5d-demo-sg
+```
