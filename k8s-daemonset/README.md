@@ -63,7 +63,7 @@ also add a Kuberentes Service for granting external access to linkerd.
 
 This configuration is covered in more detail in:
 
-* [A Service Mesh for Kubernetes, Part II: Pods Are Great Until They're Not](https://blog.buoyant.io/2016/10/14/a-service-mesh-for-kubernetes-part-ii-pods-are-great-until-theyre-not/)
+* [A Service Mesh for Kubernetes, Part II: Pods Are Great Until They're Not](https://buoyant.io/a-service-mesh-for-kubernetes-part-ii-pods-are-great-until-theyre-not/)
 
 #### Daemonsets + CNI
 
@@ -125,7 +125,7 @@ DaemonSet and encrypt all traffic between linkerd instances using TLS.
 
 This configuration is covered in more detail in:
 
-* [A Service Mesh for Kubernetes, Part III: Encrypting all the things](https://blog.buoyant.io/2016/10/24/a-service-mesh-for-kubernetes-part-iii-encrypting-all-the-things/)
+* [A Service Mesh for Kubernetes, Part III: Encrypting all the things](https://buoyant.io/a-service-mesh-for-kubernetes-part-iii-encrypting-all-the-things/)
 
 #### Daemonsets + namerd + edge routing
 
@@ -150,7 +150,7 @@ linkerd will also run an edge router for handling external web traffic.
 
 This configuration is covered in more detail in:
 
-* [A Service Mesh for Kubernetes, Part IV: Continuous deployment via traffic shifting](https://blog.buoyant.io/2016/11/04/a-service-mesh-for-kubernetes-part-iv-continuous-deployment-via-traffic-shifting/)
+* [A Service Mesh for Kubernetes, Part IV: Continuous deployment via traffic shifting](https://buoyant.io/a-service-mesh-for-kubernetes-part-iv-continuous-deployment-via-traffic-shifting/)
 
 #### Daemonsets + ingress + NGINX
 
@@ -170,7 +170,7 @@ service.
 
 This configuration is covered in more detail in:
 
-* [A Service Mesh for Kubernetes, Part V: Dogfood environments, ingress and edge routing](https://blog.buoyant.io/2016/11/18/a-service-mesh-for-kubernetes-part-v-dogfood-environments-ingress-and-edge-routing/)
+* [A Service Mesh for Kubernetes, Part V: Dogfood environments, ingress and edge routing](https://buoyant.io/a-service-mesh-for-kubernetes-part-v-dogfood-environments-ingress-and-edge-routing/)
 
 #### Daemonsets + Zipkin
 
@@ -188,7 +188,7 @@ the `io.l5d.zipkin` tracer.
 
 This configuration is covered in more detail in:
 
-* [A Service Mesh for Kubernetes, Part VII: Distributed tracing made easy](https://blog.buoyant.io/2017/03/14/a-service-mesh-for-kubernetes-part-vii-distributed-tracing-made-easy/)
+* [A Service Mesh for Kubernetes, Part VII: Distributed tracing made easy](https://buoyant.io/a-service-mesh-for-kubernetes-part-vii-distributed-tracing-made-easy/)
 
 #### Daemonsets + Ingress Controller
 
