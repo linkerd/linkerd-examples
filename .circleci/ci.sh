@@ -41,7 +41,7 @@ shutdown_linkerd() {
     fi
   done
 
-  echo "Could not shutdown linkerd, forcing on pid $(cat $LINKERD_PID)"
+  echo "Could not shutdown linkerd, forcing on pid $(cat $LINKERD_PID) and failing"
   kill -9 "$(cat $LINKERD_PID)"
   for i in $(seq $WAIT); do
     if ps -o pid|grep $(cat $LINKERD_PID) > /dev/null; then
@@ -50,7 +50,7 @@ shutdown_linkerd() {
     else
       echo "Forced shutdown complete on pid $(cat $LINKERD_PID)"
       rm -f $LINKERD_PID
-      return 0
+      return 1
     fi
   done
 
