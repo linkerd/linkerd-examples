@@ -10,7 +10,7 @@ rules:
     resources: ["endpoints", "services", "pods"] # pod access is required for the *-legacy.yml examples in this folder
     verbs: ["get", "watch", "list"]
 ---
-# grant namerd permisisons to third party resources for dtab storage
+# grant namerd permissions to custom resource definitions in k8s 1.8+ and third party resources in k8s < 1.8 for dtab storage
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:

@@ -132,16 +132,25 @@ This configuration is covered in more detail in:
 To run linkerd and [namerd](https://linkerd.io/in-depth/namerd/) together, with
 linkerd running in DaemonSets and serving edge traffic, run:
 
+If using Kubernetes prior to version 1.8
+```bash
+kubectl apply -f k8s/certificates.yml
+kubectl apply -f k8s/namerd-legacy.yml
+kubectl apply -f k8s/linkerd-namerd.yml
+```
+
+
+If using Kubernetes version 1.8+
 ```bash
 kubectl apply -f k8s/certificates.yml
 kubectl apply -f k8s/namerd.yml
 kubectl apply -f k8s/linkerd-namerd.yml
 ```
 
-Note: namerd stores dtabs with the Kubernetes master via the [ThirdPartyResource
-APIs](https://kubernetes.io/docs/user-guide/thirdpartyresources/), which
-requires a cluster running Kubernetes 1.2+ with the ThirdPartyResource feature
-enabled.
+Note: namerd stores dtabs with the Kubernetes master via the [CustomResourceDefinitions
+APIs](https://kubernetes.io/docs/tasks/access-kubernetes-api/extend-api-custom-resource-definitions/), which
+requires a cluster running Kubernetes 1.8+. If using a cluster running Kubernetes < 1.8, and ThirdPartyResources are enabled in the cluster, you can use [namerd-legacy.yml](/k8s/namerd-legact.yml) to
+store dtabs with ThirdPartyResources since CustomResourceDefinitions are not supported.
 
 Those commands will create the dtab resource, create the namerd config file,
 start namerd, create the "external" and "internal" namespaces in namerd, create
@@ -421,7 +430,7 @@ this config.
 
 The `linkerd-endpoints-reader` role grants access to the `endpoints` and
 `services` resources. The `namerd-dtab-storage` role grants access to the
-`d-tab.l5d.io` third party resource. These roles are applied to the `default`
+`dtabs.l5d.io` custom resource definition. These roles are applied to the `default`
 `ServiceAccount`. In cases where you don't want to grant these perimissions on
 the default service account, you should create a service account for linkerd
 (and namerd, if applicable), and use that in the `RoleBinding`.
@@ -452,6 +461,6 @@ You may also want to use a `Role` in a specified namespace rather than
 applying the rules cluster-wide with `ClusterRole`.
 
 If you're using `namerd.yml`, note that namerd needs access to the
-`d-tab.l5d.io` `ThirdPartyResource`. We've already configured this under the
+`dtabs.l5d.io` `CustomResourceDefinition`. We've already configured this under the
 `namerd-dtab-storage` role. If you've modified the name of this resource, be
 sure to update the role.
