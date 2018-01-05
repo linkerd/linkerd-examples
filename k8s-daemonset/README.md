@@ -132,6 +132,15 @@ This configuration is covered in more detail in:
 To run linkerd and [namerd](https://linkerd.io/in-depth/namerd/) together, with
 linkerd running in DaemonSets and serving edge traffic, run:
 
+If using Kubernetes prior to version 1.8
+```bash
+kubectl apply -f k8s/certificates.yml
+kubectl apply -f k8s/namerd-legacy.yml
+kubectl apply -f k8s/linkerd-namerd.yml
+```
+
+
+If using Kubernetes version 1.8+
 ```bash
 kubectl apply -f k8s/certificates.yml
 kubectl apply -f k8s/namerd.yml
@@ -140,7 +149,8 @@ kubectl apply -f k8s/linkerd-namerd.yml
 
 Note: namerd stores dtabs with the Kubernetes master via the [CustomResourceDefinitions
 APIs](https://kubernetes.io/docs/tasks/access-kubernetes-api/extend-api-custom-resource-definitions/), which
-requires a cluster running Kubernetes 1.8+.
+requires a cluster running Kubernetes 1.8+. If using a cluster running Kubernetes < 1.8, and ThirdPartyResources are enabled in the cluster, you can use [namerd-legacy.yml](/k8s/namerd-legact.yml) to
+store dtabs with ThirdPartyResources since CustomResourceDefinitions are not supported.
 
 Those commands will create the dtab resource, create the namerd config file,
 start namerd, create the "external" and "internal" namespaces in namerd, create
