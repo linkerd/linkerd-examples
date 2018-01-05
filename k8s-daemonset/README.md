@@ -51,6 +51,14 @@ one is best for your use case.
 
 #### Daemonsets
 
+If cluster enable RBAC please setting up the permission:
+
+```bash
+kubectl apply -f k8s/linkerd-rbac-beta.yml
+```
+
+* [Using Linkerd with Kubernetes RBAC](https://buoyant.io/2017/07/24/using-linkerd-kubernetes-rbac/)
+
 For the most basic linkerd DaemonSets configuration, you can run:
 
 ```bash
@@ -86,7 +94,15 @@ To deploy this configuration, you can run:
 ```bash
 kubectl apply -f k8s/certificates.yml
 kubectl apply -f k8s/namerd.yml
-kubectl apply -f k8s/linkerd-namerd-cni.yml
+kubectl apply -f k8s/linkerd-namerd-cni-tls.yml
+```
+
+If Kubernets version < 1.8, you can run:
+
+```bash
+kubectl apply -f k8s/certificates.yml
+kubectl apply -f k8s/namerd-legacy.yml
+kubectl apply -f k8s/linkerd-namerd-cni-tls.yml
 ```
 
 This configuration enables routing via io.l5d.namerd on port 4140, and
