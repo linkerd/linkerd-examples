@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: buoyantio/linkerd:1.3.2
+      - image: buoyantio/linkerd:1.3.5
         parallelism: 1 # TODO: parallelize tests
     working_directory: ~/linkerd-examples
 
