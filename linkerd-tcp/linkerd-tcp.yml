@@ -1,18 +1,21 @@
 # the admin section defines where to serve the admin interface, and how
-# frequently to refresh metrics served
+# frequently to refresh metrics served.
 admin:
-  addr: 0.0.0.0:9992
+  ip: 0.0.0.0
+  port: 9992
   metricsIntervalSecs: 5
 
-# the proxies section defines a list of proxies. each proxy defines one or more
-# servers, each serving on a different address. proxies resolve routes using a
-# configured namerd address, namespace, and static path.
-proxies:
+# the routers section defines a list of routers. each router defines one or more
+# servers, each serving on a different address. routers resolve routes using a
+# configured interpreter, in this case the namerd http interpreter.
+routers:
 - label: redis
   servers:
-  - kind: io.l5d.tcp
-    addr: 0.0.0.0:7474
-  namerd:
-    url: http://namerd:4180
-    path: /svc/redis
-    intervalSecs: 5
+  - ip: 0.0.0.0
+    port: 7474
+    dstName: /svc/redis
+  interpreter:
+    kind: io.l5d.namerd.http
+    baseUrl: http://namerd:4180
+    namespace: default
+    periodSecs: 20
