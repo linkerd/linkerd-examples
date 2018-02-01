@@ -83,7 +83,7 @@ services:
     - "/io.buoyant/namerd/config.yml"
 
   linkerd-tcp:
-    image: linkerd/linkerd-tcp:0.0.3
+    image: linkerd/linkerd-tcp:0.1.1
     ports:
     - 9992:9992
     volumes:
