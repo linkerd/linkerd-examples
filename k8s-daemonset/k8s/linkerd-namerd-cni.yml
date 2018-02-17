@@ -59,11 +59,8 @@ data:
       label: outgoing-tls
       interpreter:
         kind: io.l5d.namerd
-        dst: /$/inet/namerd.default.svc.cluster.local/4101
+        dst: /$/inet/namerd.default.svc.cluster.local/4100
         namespace: internal
-        tls:
-          commonName: linkerd
-          caCert: /io.buoyant/linkerd/certs/cacertificate.pem
         transformers:
         - kind: io.l5d.k8s.daemonset
           namespace: default
@@ -81,11 +78,8 @@ data:
       label: incoming-tls
       interpreter:
         kind: io.l5d.namerd
-        dst: /$/inet/namerd.default.svc.cluster.local/4101
+        dst: /$/inet/namerd.default.svc.cluster.local/4100
         namespace: internal
-        tls:
-          commonName: linkerd
-          caCert: /io.buoyant/linkerd/certs/cacertificate.pem
         transformers:
         - kind: io.l5d.k8s.localnode
           hostNetwork: true
@@ -132,12 +126,8 @@ data:
       interpreter:
         kind: io.l5d.mesh
         experimental: true
-        dst: /$/inet/namerd.default.svc.cluster.local/4322
+        dst: /$/inet/namerd.default.svc.cluster.local/4321
         root: /internal
-        tls:
-          commonName: linkerd
-          trustCerts:
-          - /io.buoyant/linkerd/certs/cacertificate.pem
         transformers:
         - kind: io.l5d.k8s.daemonset
           namespace: default
@@ -156,12 +146,8 @@ data:
       interpreter:
         kind: io.l5d.mesh
         experimental: true
-        dst: /$/inet/namerd.default.svc.cluster.local/4322
+        dst: /$/inet/namerd.default.svc.cluster.local/4321
         root: /internal
-        tls:
-          commonName: linkerd
-          trustCerts:
-          - /io.buoyant/linkerd/certs/cacertificate.pem
         transformers:
         - kind: io.l5d.k8s.localnode
           hostNetwork: true
