@@ -6,7 +6,7 @@ def finagle(mod: String) =
   "com.twitter" %% s"finagle-$mod" % "6.45.0"
 
 def linkerd(mod: String) =
-  "io.buoyant" %% s"linkerd-$mod" % "1.3.5"
+  "io.buoyant" %% s"linkerd-$mod" % "1.3.6"
 
 val headerClassifier =
   project.in(file("header-classifier")).

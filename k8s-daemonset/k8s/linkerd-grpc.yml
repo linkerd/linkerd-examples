@@ -12,7 +12,6 @@ data:
 
     namers:
     - kind: io.l5d.k8s
-      experimental: true
       host: localhost
       port: 8001
 
@@ -27,7 +26,6 @@ data:
     routers:
     - protocol: h2
       label: outgoing
-      experimental: true
       dtab: |
         /srv        => /#/io.l5d.k8s/default/grpc;
         /grpc       => /srv;
@@ -49,7 +47,6 @@ data:
 
     - protocol: h2
       label: incoming
-      experimental: true
       dtab: |
         /srv        => /#/io.l5d.k8s/default/grpc;
         /grpc       => /srv;
@@ -84,7 +81,7 @@ spec:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.3.5
+        image: buoyantio/linkerd:1.3.6
         env:
         - name: POD_IP
           valueFrom:

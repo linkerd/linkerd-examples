@@ -173,7 +173,6 @@ data:
 
     - label: h2-outgoing
       protocol: h2
-      experimental: true
       servers:
       - port: 4240
         ip: 0.0.0.0
@@ -196,7 +195,6 @@ data:
 
     - label: h2-incoming
       protocol: h2
-      experimental: true
       servers:
       - port: 4241
         ip: 0.0.0.0
@@ -214,7 +212,6 @@ data:
 
     - label: grpc-outgoing
       protocol: h2
-      experimental: true
       servers:
       - port: 4340
         ip: 0.0.0.0
@@ -236,7 +233,6 @@ data:
 
     - label: gprc-incoming
       protocol: h2
-      experimental: true
       servers:
       - port: 4341
         ip: 0.0.0.0
@@ -265,7 +261,6 @@ data:
 
     # HTTP/2 Ingress Controller listening on port 8080
     - protocol: h2
-      experimental: true
       label: h2-ingress
       servers:
         - port: 8080
@@ -296,7 +291,7 @@ spec:
           name: "l5d-config"
       containers:
       - name: l5d
-        image: buoyantio/linkerd:1.3.5
+        image: buoyantio/linkerd:1.3.6
         env:
         - name: POD_IP
           valueFrom:

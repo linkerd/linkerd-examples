@@ -12,7 +12,6 @@ routers:
     ip: 0.0.0.0
 
 - protocol: h2
-  experimental: true
   interpreter:
     kind: io.l5d.namerd
     dst: /$/inet/namerd.marathon.slave.mesos/4100
