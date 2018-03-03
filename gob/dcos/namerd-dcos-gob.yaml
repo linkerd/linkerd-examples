@@ -3,7 +3,6 @@ admin:
   port: 9991
 storage:
   kind: io.l5d.zk
-  experimental: true
   zkAddrs:
   - host: master.mesos
     port: 2181
@@ -11,7 +10,6 @@ storage:
   sessionTimeoutMs: 10000
 namers:
 - kind:      io.l5d.marathon
-  experimental: true
   prefix:    /io.l5d.marathon
   host:      marathon.mesos
   port:      8080

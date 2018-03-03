@@ -62,7 +62,7 @@ services:
     - "-redis-addr=linkerd-tcp:7474"
 
   linkerd:
-    image: buoyantio/linkerd:1.3.5
+    image: buoyantio/linkerd:1.3.6
     ports:
     - 4140:4140 # expose for testing only
     - 9990:9990
@@ -72,7 +72,7 @@ services:
     - "/io.buoyant/linkerd/config.yml"
 
   namerd:
-    image: buoyantio/namerd:1.3.5
+    image: buoyantio/namerd:1.3.6
     ports:
     - 4180:4180
     - 9991:9991
@@ -108,7 +108,7 @@ services:
     - "-redis.addr=redis://redis2:6379"
 
   linkerd-viz:
-    image: buoyantio/linkerd-viz:0.1.7
+    image: buoyantio/linkerd-viz:0.1.8
     environment:
     - SCRAPE_INTERVAL=5s
     ports:

@@ -24,7 +24,6 @@ data:
 
     namers:
     - kind: io.l5d.k8s
-      experimental: true
       host: localhost
       port: 8001
 
@@ -65,7 +64,7 @@ spec:
           name: namerd-config
       containers:
       - name: namerd
-        image: buoyantio/namerd:1.3.5
+        image: buoyantio/namerd:1.3.6
         args:
         - /io.buoyant/namerd/config/config.yml
         ports:

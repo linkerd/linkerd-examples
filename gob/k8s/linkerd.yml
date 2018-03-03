@@ -17,7 +17,6 @@ data:
       dtab: /svc => /$/inet/127.1/8080
 
     - protocol: h2
-      experimental: true
       servers:
       - port: 4180
         ip: 0.0.0.0
