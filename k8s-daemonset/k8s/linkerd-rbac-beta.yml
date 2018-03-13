@@ -9,6 +9,9 @@ rules:
   - apiGroups: [""] # "" indicates the core API group
     resources: ["endpoints", "services", "pods"] # pod access is required for the *-legacy.yml examples in this folder
     verbs: ["get", "watch", "list"]
+  - apiGroups: [ "extensions" ]
+    resources: [ "ingresses" ]
+    verbs: ["get", "watch", "list"]
 ---
 # grant namerd permissions to custom resource definitions in k8s 1.8+ and third party resources in k8s < 1.8 for dtab storage
 kind: ClusterRole
