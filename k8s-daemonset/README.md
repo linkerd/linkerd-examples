@@ -421,7 +421,7 @@ kubectl api-versions | grep rbac
 
 If you do, you'll need to grant linkerd/namerd access:
 ```
-kubectl apply -f k8s/linkerd-rbac-beta.yml
+kubectl apply -f k8s/linkerd-rbac.yml
 ```
 
 Note that this is a beta RBAC config. If your cluster only supports alpha RBAC
