@@ -1,0 +1,1796 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: add-steps
+
+### RBAC configs for linkerd ###
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: linkerd
+  namespace: add-steps
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: linkerd
+rules:
+- apiGroups: [""]
+  resources: ["endpoints", "services"]
+  verbs: ["get", "watch", "list"]
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: linkerd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: linkerd
+subjects:
+- kind: ServiceAccount
+  name: linkerd
+  namespace: add-steps
+
+### RBAC configs for Prometheus ###
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: add-steps-prometheus
+  namespace: add-steps
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: add-steps-prometheus
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["list", "watch"]
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: add-steps-prometheus
+  namespace: add-steps
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: add-steps-prometheus
+subjects:
+- kind: ServiceAccount
+  name: add-steps-prometheus
+  namespace: add-steps
+
+### Linkerd ###
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: l5d-config
+  namespace: add-steps
+data:
+  config.yml: |-
+    admin:
+      ip: 0.0.0.0
+      port: 9990
+    namers:
+    - kind: io.l5d.k8s
+      host: localhost
+      port: 8001
+    routers:
+    - protocol: http
+      servers:
+      - ip: 0.0.0.0
+        port: 4140
+      dtab: |
+        /svc => /#/io.l5d.k8s/add-steps/service
+      service:
+        responseClassifier:
+          kind: io.l5d.http.retryableRead5XX
+      client:
+        loadBalancer:
+          kind: ewma
+        failureAccrual:
+          kind: io.l5d.successRate
+          successRate: 0.9
+          requests: 20
+          backoff:
+            kind: constant
+            ms: 10000
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  labels:
+    app: l5d
+  name: l5d
+  namespace: add-steps
+spec:
+  template:
+    metadata:
+      labels:
+        app: l5d
+    spec:
+      volumes:
+      - name: l5d-config
+        configMap:
+          name: "l5d-config"
+      containers:
+      - name: l5d
+        image: buoyantio/linkerd:1.3.6
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        args:
+        - /io.buoyant/linkerd/config/config.yml
+        ports:
+        - name: incoming
+          containerPort: 4140
+          hostPort: 4140
+        volumeMounts:
+        - name: "l5d-config"
+          mountPath: "/io.buoyant/linkerd/config"
+          readOnly: true
+      - name: kubectl
+        image: buoyantio/kubectl:v1.8.5
+        args:
+        - "proxy"
+        - "-p"
+        - "8001"
+
+### Baseline App ###
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: baseline-app1
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: baseline-app
+  template:
+    metadata:
+      labels:
+        app: baseline-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: baseline-app
+        args:
+        - --latency=0ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: baseline-app2
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: baseline-app
+  template:
+    metadata:
+      labels:
+        app: baseline-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: baseline-app
+        args:
+        - --latency=10ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: baseline-app3
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: baseline-app
+  template:
+    metadata:
+      labels:
+        app: baseline-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: baseline-app
+        args:
+        - --latency=20ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: baseline-app4
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: baseline-app
+  template:
+    metadata:
+      labels:
+        app: baseline-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: baseline-app
+        args:
+        - --latency=40ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: baseline-app5
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: baseline-app
+  template:
+    metadata:
+      labels:
+        app: baseline-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: baseline-app
+        args:
+        - --latency=80ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: baseline-app6
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: baseline-app
+  template:
+    metadata:
+      labels:
+        app: baseline-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: baseline-app
+        args:
+        - --latency=160ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: baseline-app7
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: baseline-app
+  template:
+    metadata:
+      labels:
+        app: baseline-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: baseline-app
+        args:
+        - --latency=320ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: baseline-app8
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: baseline-app
+  template:
+    metadata:
+      labels:
+        app: baseline-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: baseline-app
+        args:
+        - --latency=640ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: baseline-app9
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: baseline-app
+  template:
+    metadata:
+      labels:
+        app: baseline-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: baseline-app
+        args:
+        - --latency=1s
+        - --success-rate=0.6
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: baseline-app10
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: baseline-app
+  template:
+    metadata:
+      labels:
+        app: baseline-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: baseline-app
+        args:
+        - --latency=2s
+        - --success-rate=0.4
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: baseline-app
+  namespace: add-steps
+spec:
+  selector:
+    app: baseline-app
+  clusterIP: None
+  ports:
+  - name: service
+    port: 8888
+    targetPort: service
+
+### Linkerd App ###
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: linkerd-app1
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkerd-app
+  template:
+    metadata:
+      labels:
+        app: linkerd-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: linkerd-app
+        args:
+        - --latency=0ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: linkerd-app2
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkerd-app
+  template:
+    metadata:
+      labels:
+        app: linkerd-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: linkerd-app
+        args:
+        - --latency=10ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: linkerd-app3
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkerd-app
+  template:
+    metadata:
+      labels:
+        app: linkerd-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: linkerd-app
+        args:
+        - --latency=20ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: linkerd-app4
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkerd-app
+  template:
+    metadata:
+      labels:
+        app: linkerd-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: linkerd-app
+        args:
+        - --latency=40ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: linkerd-app5
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkerd-app
+  template:
+    metadata:
+      labels:
+        app: linkerd-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: linkerd-app
+        args:
+        - --latency=80ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: linkerd-app6
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkerd-app
+  template:
+    metadata:
+      labels:
+        app: linkerd-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: linkerd-app
+        args:
+        - --latency=160ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: linkerd-app7
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkerd-app
+  template:
+    metadata:
+      labels:
+        app: linkerd-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: linkerd-app
+        args:
+        - --latency=320ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: linkerd-app8
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkerd-app
+  template:
+    metadata:
+      labels:
+        app: linkerd-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: linkerd-app
+        args:
+        - --latency=640ms
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: linkerd-app9
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkerd-app
+  template:
+    metadata:
+      labels:
+        app: linkerd-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: linkerd-app
+        args:
+        - --latency=1s
+        - --success-rate=0.6
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: linkerd-app10
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkerd-app
+  template:
+    metadata:
+      labels:
+        app: linkerd-app
+    spec:
+      containers:
+      - image: buoyantio/add-steps-app:v1
+        name: linkerd-app
+        args:
+        - --latency=2s
+        - --success-rate=0.4
+        ports:
+        - containerPort: 8501
+          name: service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: linkerd-app
+  namespace: add-steps
+spec:
+  selector:
+    app: linkerd-app
+  clusterIP: None
+  ports:
+  - name: service
+    port: 8888
+    targetPort: service
+
+## Prometheus ##
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - args:
+        - --storage.tsdb.retention=6h
+        - --config.file=/etc/prometheus/prometheus.yml
+        image: prom/prometheus:v2.2.1
+        name: prometheus
+        ports:
+        - containerPort: 9090
+          name: admin-http
+        volumeMounts:
+        - mountPath: /etc/prometheus
+          name: prometheus-config
+          readOnly: true
+      serviceAccount: add-steps-prometheus
+      volumes:
+      - configMap:
+          name: prometheus-config
+        name: prometheus-config
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: prometheus
+  namespace: add-steps
+  labels:
+    app: prometheus
+spec:
+  selector:
+    app: prometheus
+  type: ClusterIP
+  ports:
+  - name: admin-http
+    port: 9090
+    targetPort: 9090
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: prometheus-config
+  namespace: add-steps
+data:
+  prometheus.yml: |-
+    global:
+      scrape_interval: 10s
+      evaluation_interval: 10s
+    scrape_configs:
+    - job_name: 'baseline-app'
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - source_labels:
+        - __meta_kubernetes_namespace
+        - __meta_kubernetes_pod_container_port_name
+        action: keep
+        regex: ^add-steps;service$
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: pod
+    - job_name: 'slow-cooker'
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - source_labels:
+        - __meta_kubernetes_namespace
+        - __meta_kubernetes_pod_container_port_name
+        action: keep
+        regex: ^add-steps;metrics$
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: pod
+
+## Slow Cookers ##
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: baseline-slow-cooker
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: baseline-slow-cooker
+  template:
+    metadata:
+      labels:
+        app: baseline-slow-cooker
+    spec:
+      containers:
+      - name: baseline-slow-cooker
+        image: buoyantio/slow_cooker:1.1.0-golang1.8rc2
+        command:
+        - "/bin/sh"
+        args:
+        - "-c"
+        - |
+          sleep 30 # wait for pods to start
+          slow_cooker \
+            -noreuse \
+            -metric-addr :8505 \
+            -qps 10 \
+            -concurrency 50 \
+            -interval 5s \
+            -totalRequests 10000000 \
+            http://baseline-app.add-steps.svc.cluster.local:8501
+        ports:
+        - name: metrics
+          containerPort: 8505
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: linkerd-slow-cooker
+  namespace: add-steps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkerd-slow-cooker
+  template:
+    metadata:
+      labels:
+        app: linkerd-slow-cooker
+    spec:
+      containers:
+      - name: linkerd-slow-cooker
+        image: buoyantio/slow_cooker:1.1.0-golang1.8rc2
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: http_proxy
+          value: http://$(NODE_NAME):4140
+        command:
+        - "/bin/sh"
+        args:
+        - "-c"
+        - |
+          sleep 30 # wait for pods to start
+          slow_cooker \
+            -noreuse \
+            -metric-addr :8505 \
+            -qps 10 \
+            -concurrency 50 \
+            -interval 5s \
+            -totalRequests 10000000 \
+            http://linkerd-app
+        ports:
+        - name: metrics
+          containerPort: 8505
+
+### Grafana ###
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: add-steps
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - image: grafana/grafana:5.1.0
+        name: grafana
+        ports:
+        - containerPort: 3000
+          name: http
+        volumeMounts:
+        - mountPath: /etc/grafana
+          name: grafana-config
+          readOnly: true
+        - mountPath: /var/lib/grafana/dashboards
+          name: grafana-dashboards
+        - mountPath: /usr/share/grafana/public/dashboards
+          name: grafana-dashboard-home
+          readOnly: true
+      volumes:
+      - configMap:
+          items:
+          - key: grafana.ini
+            path: grafana.ini
+          - key: dashboards.yaml
+            path: provisioning/dashboards/dashboards.yaml
+          - key: datasources.yaml
+            path: provisioning/datasources/datasources.yaml
+          name: grafana-config
+        name: grafana-config
+      - configMap:
+          name: grafana-config
+        name: grafana-dashboards
+      - configMap:
+          items:
+          - key: making-things-faster-by-adding-more-steps.json
+            path: home.json
+          name: grafana-config
+        name: grafana-dashboard-home
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: grafana-config
+  namespace: add-steps
+data:
+  grafana.ini: |-
+    instance_name = add-steps-grafana
+    [auth]
+    disable_login_form = true
+    [auth.anonymous]
+    enabled = true
+    org_role = Editor
+    [auth.basic]
+    enabled = false
+    [analytics]
+    check_for_updates = false
+  datasources.yaml: |-
+    apiVersion: 1
+    datasources:
+    - name: prometheus
+      type: prometheus
+      access: proxy
+      orgId: 1
+      url: http://prometheus.add-steps.svc.cluster.local:9090
+      isDefault: true
+      jsonData:
+        timeInterval: "5s"
+      version: 1
+      editable: true
+  dashboards.yaml: |-
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: true
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards
+        homeDashboardId: making-things-faster-by-adding-more-steps
+  making-things-faster-by-adding-more-steps.json: |-
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": "-- Grafana --",
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "gnetId": null,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 49,
+          "panels": [],
+          "repeat": null,
+          "title": "Top-line",
+          "type": "row"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": true,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(0, 140, 160, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": "prometheus",
+          "decimals": null,
+          "format": "rps",
+          "gauge": {
+            "maxValue": 500,
+            "minValue": 0,
+            "show": true,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 1
+          },
+          "id": 46,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": true,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "$$hashKey": "object:167",
+              "expr": "rate(requests{pod=~\"linkerd-slow-cooker-.*\"}[1m])",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "rps",
+              "refId": "A",
+              "step": 4
+            }
+          ],
+          "thresholds": "200",
+          "title": "linkerd",
+          "transparent": true,
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": true,
+          "colors": [
+            "rgba(255, 122, 0, 0.89)",
+            "rgba(255, 122, 0, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": "prometheus",
+          "decimals": null,
+          "format": "rps",
+          "gauge": {
+            "maxValue": 500,
+            "minValue": 0,
+            "show": true,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 1
+          },
+          "id": 47,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": true,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "$$hashKey": "object:215",
+              "expr": "rate(requests{pod=~\"baseline-slow-cooker-.*\"}[1m])",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "",
+              "refId": "A",
+              "step": 4
+            }
+          ],
+          "thresholds": "50,200",
+          "title": "baseline",
+          "transparent": true,
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 8
+          },
+          "id": 50,
+          "panels": [],
+          "repeat": null,
+          "title": "Latency",
+          "type": "row"
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "prometheus",
+          "editable": true,
+          "error": false,
+          "fill": 1,
+          "grid": {},
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 0,
+            "y": 9
+          },
+          "id": 20,
+          "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": false,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "connected",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [
+            {
+              "alias": "baseline_slow_cooker:8505",
+              "color": "#ff7a00"
+            },
+            {
+              "alias": "linkerd_slow_cooker:8505",
+              "color": "#008ca0"
+            }
+          ],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:119",
+              "expr": "histogram_quantile(0.5, sum(rate(latency_ms_bucket[1m])) by (le, pod))",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "{{pod}}",
+              "refId": "A",
+              "step": 2
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "p50 latency",
+          "tooltip": {
+            "msResolution": false,
+            "shared": true,
+            "sort": 2,
+            "value_type": "cumulative"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "ms",
+              "label": "",
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "prometheus",
+          "editable": true,
+          "error": false,
+          "fill": 1,
+          "grid": {},
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 8,
+            "y": 9
+          },
+          "id": 40,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": false,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "connected",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [
+            {
+              "alias": "baseline_slow_cooker:8505",
+              "color": "#ff7a00"
+            },
+            {
+              "alias": "linkerd_slow_cooker:8505",
+              "color": "#008ca0"
+            }
+          ],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:269",
+              "expr": "histogram_quantile(0.95, sum(rate(latency_ms_bucket[1m])) by (le, pod))",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "{{pod}}",
+              "refId": "A",
+              "step": 2
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "p95 latency",
+          "tooltip": {
+            "msResolution": false,
+            "shared": true,
+            "sort": 2,
+            "value_type": "cumulative"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "ms",
+              "label": "",
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "prometheus",
+          "editable": true,
+          "error": false,
+          "fill": 1,
+          "grid": {},
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 16,
+            "y": 9
+          },
+          "id": 41,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": false,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "connected",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [
+            {
+              "alias": "baseline_slow_cooker:8505",
+              "color": "#ff7a00"
+            },
+            {
+              "alias": "linkerd_slow_cooker:8505",
+              "color": "#008ca0"
+            }
+          ],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:323",
+              "expr": "histogram_quantile(0.99, sum(rate(latency_ms_bucket[1m])) by (le, pod))",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "{{pod}}",
+              "refId": "A",
+              "step": 2
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "p99 latency",
+          "tooltip": {
+            "msResolution": false,
+            "shared": true,
+            "sort": 2,
+            "value_type": "cumulative"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "ms",
+              "label": "",
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 16
+          },
+          "id": 51,
+          "panels": [],
+          "repeat": null,
+          "title": "Requests",
+          "type": "row"
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "prometheus",
+          "fill": 1,
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 0,
+            "y": 17
+          },
+          "id": 42,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": false,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [
+            {
+              "alias": "baseline_slow_cooker:8505",
+              "color": "#ff7a00"
+            },
+            {
+              "alias": "linkerd_slow_cooker:8505",
+              "color": "#008ca0"
+            }
+          ],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:377",
+              "expr": "rate(requests{job=\"slow-cooker\"}[1m])",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "{{pod}}",
+              "refId": "A",
+              "step": 2
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "request volume",
+          "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "rps",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "prometheus",
+          "fill": 1,
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 8,
+            "y": 17
+          },
+          "id": 48,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": false,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:431",
+              "expr": "rate(requests{job=\"linkerd_apps\"}[1m])",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "{{instance}}",
+              "refId": "A",
+              "step": 2
+            },
+            {
+              "$$hashKey": "object:432",
+              "expr": "rate(requests{job=\"baseline_apps\"}[1m])",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "{{instance}}",
+              "refId": "B",
+              "step": 2
+            },
+            {
+              "$$hashKey": "object:475",
+              "expr": "rate(requests{job=\"baseline-app\"}[1m])",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod}}",
+              "refId": "C"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "requests volume per instance",
+          "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "rps",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "prometheus",
+          "fill": 1,
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 16,
+            "y": 17
+          },
+          "id": 43,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": false,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [
+            {
+              "alias": "baseline_slow_cooker:8505",
+              "color": "#ff7a00"
+            },
+            {
+              "alias": "linkerd_slow_cooker:8505",
+              "color": "#008ca0"
+            }
+          ],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:532",
+              "expr": "rate(successes{job=\"slow-cooker\"}[1m]) / rate(requests{job=\"slow-cooker\"}[1m])",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "{{pod}}",
+              "refId": "A",
+              "step": 2
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "success rate",
+          "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "percentunit",
+              "label": "",
+              "logBase": 1,
+              "max": "1",
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        }
+      ],
+      "refresh": "5s",
+      "schemaVersion": 16,
+      "style": "dark",
+      "tags": [],
+      "templating": {
+        "list": []
+      },
+      "time": {
+        "from": "now-5m",
+        "to": "now"
+      },
+      "timepicker": {
+        "refresh_intervals": [
+          "5s",
+          "10s",
+          "30s",
+          "1m",
+          "5m",
+          "15m",
+          "30m",
+          "1h",
+          "2h",
+          "1d"
+        ],
+        "time_options": [
+          "5m",
+          "15m",
+          "1h",
+          "6h",
+          "12h",
+          "24h",
+          "2d",
+          "7d",
+          "30d"
+        ]
+      },
+      "timezone": "browser",
+      "title": "Making Things Faster by Adding More Steps",
+      "uid": "COBh2TMmz",
+      "version": 1
+    }
