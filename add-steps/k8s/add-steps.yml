@@ -76,7 +76,7 @@ metadata:
   name: l5d-config
   namespace: add-steps
 data:
-  config.yml: |-
+  linkerd.yml: |-
     admin:
       ip: 0.0.0.0
       port: 9990
@@ -135,7 +135,7 @@ spec:
             fieldRef:
               fieldPath: spec.nodeName
         args:
-        - /io.buoyant/linkerd/config/config.yml
+        - /io.buoyant/linkerd/config/linkerd.yml
         ports:
         - name: incoming
           containerPort: 4140
