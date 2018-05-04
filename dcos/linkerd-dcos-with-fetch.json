@@ -1,0 +1,34 @@
+{
+  "id": "linkerd",
+  "instances": 4,
+  "cpus": 0.25,
+  "mem": 256.0,
+  "acceptedResourceRoles": ["*", "slave_public"],
+  "constraints": [["hostname", "UNIQUE"]],
+  "fetch": [
+    {
+      "uri": "https://<URL TO PRIVATE LINKERD YAML>",
+      "extract": false,
+      "executable": false,
+      "cache": false
+    }
+  ],
+  "container": {
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "/io.buoyant/linkerd/1.3.6/config.yml",
+        "hostPath": "./config.yml",
+        "mode": "RW"
+      }
+    ],
+    "docker": {
+      "image": "buoyantio/linkerd:1.3.6",
+      "network": "HOST",
+      "privileged": true
+    }
+  },
+  "args": [
+    "./config.yml"
+  ]
+}
