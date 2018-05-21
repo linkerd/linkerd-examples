@@ -14,11 +14,13 @@ dcos marathon app add webapp.json
 Note the `linkerd-dcos.json` files assume 4 nodes. Modify this to equal the
 total number of public+private nodes in your cluster.
 
-Note that the `linkerd-dcos.json` is one of many ways you can setup
-Linkerd to run in DC\OS. Unfortunately using `linkerd-dcos.json` might make it
-difficult to send operating system signals to Linkerd e.g. `SIGTERM` for
-graceful shutdown. An [alternative](/linkerd-dcos-with-fetch.json) is one way to
-can set up the Linkerd so that it can catch os signals.
+Note that the [simple-proxy/linkerd-dcos.json](simple-proxy/linkerd-dcos.json)
+is one of many ways you can setup Linkerd to run in DC/OS. Unfortunately using
+`linkerd-dcos.json` might make it difficult to send operating system signals to
+Linkerd e.g. `SIGTERM` for graceful shutdown. An
+[alternative](simple-proxy/linkerd-dcos-with-fetch.json)is one way to set up Linkerd so
+that it can catch os signals. This application definition uses the `fetch`
+API available in DC/OS 1.10. You can use a top-level `uri` list for DC/OS <= 1.9
 
 Multiple linkerd configurations are described below. Pick the one that's most
 appropriate for your setup. When testing configurations, be sure to set the
