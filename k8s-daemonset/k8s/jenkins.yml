@@ -27,7 +27,6 @@ metadata:
 spec:
   selector:
     app: jenkins
-  type: LoadBalancer
   ports:
   - name: http
     port: 80
