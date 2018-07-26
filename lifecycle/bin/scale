@@ -1,0 +1,32 @@
+#!/bin/sh
+
+set -e
+
+NAMESPACES=${1:-1}
+REPLICAS=${2:-1}
+
+function scale() {
+  echo "\nScaling $1 to $REPLICAS replicas..."
+  kubectl -n $1 scale --replicas=$REPLICAS deploy/bb-broadcast deploy/bb-p2p deploy/bb-terminus
+}
+
+if [ "$NAMESPACES" -gt 100 ]; then
+  echo "Don't deploy more than 100 namespaces"
+  exit 1
+fi
+
+if [ "$REPLICAS" -gt 100 ]; then
+  echo "Don't scale more than 100 replicas"
+  exit 1
+fi
+
+echo "Scaling $NAMESPACES injected, TLS, and baseline namespaces to $REPLICAS replicas..."
+
+for i in `seq 1 $NAMESPACES`;
+do
+  NS=lifecycle$i
+
+  scale "$NS"
+  scale "$NS-tls"
+  scale "$NS-baseline"
+done
