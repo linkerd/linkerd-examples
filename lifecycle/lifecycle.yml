@@ -1,0 +1,425 @@
+#
+# Linkerd lifecycle test configuration
+#
+# slow_cooker ->(HTTP/1.1)->
+#   bb-p2p ->(gRPC)->
+#     bb-broadcast ->(gRPC)->
+#       bb-terminus1
+#       bb-terminus2
+#       ...
+#       bb-terminus10
+#
+
+#
+# slow_cooker
+#
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: slow-cooker
+  name: slow-cooker
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: slow-cooker
+    spec:
+      containers:
+      - image: buoyantio/slow_cooker:1.1.1
+        imagePullPolicy: IfNotPresent
+        name: slow-cooker
+        command:
+        - "/bin/sh"
+        args:
+        - "-c"
+        - |
+          sleep 30 # wait for pods to start
+          slow_cooker \
+            -qps 10 \
+            -concurrency 10 \
+            -interval 30s \
+            -metric-addr 0.0.0.0:9990 \
+            http://bb-p2p:7070
+        ports:
+        - name: slow-cooker
+          containerPort: 9990
+---
+
+#
+# bb point-to-point
+#
+kind: Service
+apiVersion: v1
+metadata:
+  name: bb-p2p
+spec:
+  selector:
+    app: bb-p2p
+  ports:
+  - name: bb-p2p-http1
+    port: 7070
+    targetPort: 7070
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: bb-p2p
+  name: bb-p2p
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bb-p2p
+    spec:
+      containers:
+      - image: buoyantio/bb:v0.0.3
+        imagePullPolicy: IfNotPresent
+        name: bb-p2p
+        command:
+        - "/bin/bash"
+        args:
+        - "-c"
+        - |
+          exec \
+          /out/bb point-to-point-channel \
+          --grpc-downstream-server=bb-broadcast:8080 \
+          --h1-server-port=7070
+        ports:
+        - containerPort: 7070
+          name: bb-p2p-http1
+---
+
+#
+# bb broadcast
+#
+kind: Service
+apiVersion: v1
+metadata:
+  name: bb-broadcast
+spec:
+  selector:
+    app: bb-broadcast
+  ports:
+  - name: bb-bcast-grpc
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: bb-broadcast
+  name: bb-broadcast
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bb-broadcast
+    spec:
+      containers:
+      - image: buoyantio/bb:v0.0.3
+        imagePullPolicy: IfNotPresent
+        name: bb-broadcast
+        command:
+        - "/bin/bash"
+        args:
+        - "-c"
+        - |
+          exec \
+          /out/bb broadcast-channel \
+          --grpc-downstream-server=bb-terminus1:9090 \
+          --grpc-downstream-server=bb-terminus2:9090 \
+          --grpc-downstream-server=bb-terminus3:9090 \
+          --grpc-downstream-server=bb-terminus4:9090 \
+          --grpc-downstream-server=bb-terminus5:9090 \
+          --grpc-downstream-server=bb-terminus6:9090 \
+          --grpc-downstream-server=bb-terminus7:9090 \
+          --grpc-downstream-server=bb-terminus8:9090 \
+          --grpc-downstream-server=bb-terminus9:9090 \
+          --grpc-downstream-server=bb-terminus10:9090 \
+          --grpc-server-port=8080
+        ports:
+        - containerPort: 8080
+          name: bb-bcast-grpc
+---
+
+#
+# bb terminus
+#
+kind: Service
+apiVersion: v1
+metadata:
+  name: bb-terminus1
+spec:
+  selector:
+    app: bb-terminus
+  ports:
+  - name: bb-term-grpc
+    port: 9090
+    targetPort: 9090
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: bb-terminus2
+spec:
+  selector:
+    app: bb-terminus
+  ports:
+  - name: bb-term-grpc
+    port: 9090
+    targetPort: 9090
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: bb-terminus3
+spec:
+  selector:
+    app: bb-terminus
+  ports:
+  - name: bb-term-grpc
+    port: 9090
+    targetPort: 9090
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: bb-terminus4
+spec:
+  selector:
+    app: bb-terminus
+  ports:
+  - name: bb-term-grpc
+    port: 9090
+    targetPort: 9090
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: bb-terminus5
+spec:
+  selector:
+    app: bb-terminus
+  ports:
+  - name: bb-term-grpc
+    port: 9090
+    targetPort: 9090
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: bb-terminus6
+spec:
+  selector:
+    app: bb-terminus
+  ports:
+  - name: bb-term-grpc
+    port: 9090
+    targetPort: 9090
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: bb-terminus7
+spec:
+  selector:
+    app: bb-terminus
+  ports:
+  - name: bb-term-grpc
+    port: 9090
+    targetPort: 9090
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: bb-terminus8
+spec:
+  selector:
+    app: bb-terminus
+  ports:
+  - name: bb-term-grpc
+    port: 9090
+    targetPort: 9090
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: bb-terminus9
+spec:
+  selector:
+    app: bb-terminus
+  ports:
+  - name: bb-term-grpc
+    port: 9090
+    targetPort: 9090
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: bb-terminus10
+spec:
+  selector:
+    app: bb-terminus
+  ports:
+  - name: bb-term-grpc
+    port: 9090
+    targetPort: 9090
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: bb-terminus
+  name: bb-terminus
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bb-terminus
+    spec:
+      containers:
+      - image: buoyantio/bb:v0.0.3
+        imagePullPolicy: IfNotPresent
+        name: bb-terminus
+        command:
+        - "/bin/bash"
+        args:
+        - "-c"
+        - |
+          exec \
+          /out/bb terminus \
+          --grpc-server-port=9090 \
+          --response-text=BANANA0
+        ports:
+        - containerPort: 9090
+          name: bb-term-grpc
+---
+
+#
+# Redeploy via kubectl
+#
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: redeployer
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: lifecycle:redeployer
+rules:
+- apiGroups: ["extensions"]
+  resources: ["deployments"]
+  verbs: ["get", "patch"]
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["create", "delete", "get", "list"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: lifecycle:redeployer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: lifecycle:redeployer
+subjects:
+- kind: ServiceAccount
+  name: redeployer
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redeployer
+data:
+  redeployer: |-
+    #!/bin/sh
+
+    # give deployment time to fully roll out
+    sleep 60
+
+    LAST=$(date +%s)
+
+    while true; do
+      PODS=$(kubectl -n $LIFECYCLE_NS get po --field-selector=status.phase=Running --selector=app=bb-terminus -o jsonpath='{.items[*].metadata.name}')
+
+      SPACES=$(echo "${PODS}" | awk -F" " '{print NF-1}')
+      POD_COUNT=$(($SPACES+1))
+      echo "found ${POD_COUNT} running pods"
+
+      # restart each pod every minute
+      SLEEP_TIME=$(( 60 / $POD_COUNT ))
+      if [ $SLEEP_TIME = 0 ]; then
+        SLEEP_TIME=1
+      fi
+
+      for POD in ${PODS}; do
+        kubectl -n $LIFECYCLE_NS delete po $POD
+
+        # bounce services every 30 seconds
+        NOW=$(date +%s)
+        if [ $(( NOW - LAST )) -gt 30 ]; then
+          echo "bouncing services..."
+          for i in `seq 1 10`; do
+            SVC=$(kubectl -n $LIFECYCLE_NS get svc/bb-terminus$i -o json)
+            kubectl -n $LIFECYCLE_NS delete svc/bb-terminus$i
+            echo $SVC | kubectl -n $LIFECYCLE_NS apply -f -
+          done
+          LAST=NOW
+        fi
+
+        echo "sleeping for ${SLEEP_TIME} seconds..."
+        sleep $SLEEP_TIME
+      done
+
+      # redeploy the whole bb-terminus deployment
+      echo "redeploying bb-terminus deployment"
+      DEPLOY=$(kubectl -n $LIFECYCLE_NS get deploy/bb-terminus -o json)
+      echo $DEPLOY | sed -E 's/BANANA[0-9]+/BANANA'$(date +'%s')'/g' | kubectl -n $LIFECYCLE_NS apply -f -
+
+      # give the new deployment time to roll out, before we start deleting pods again
+      echo "sleeping for 60 seconds..."
+      sleep 60
+    done
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: redeployer
+  name: redeployer
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redeployer
+    spec:
+      serviceAccount: redeployer
+      containers:
+      - image: lachlanevenson/k8s-kubectl:v1.10.3
+        imagePullPolicy: IfNotPresent
+        name: redeployer
+        command:
+        - "/data/redeployer"
+        env:
+        - name: LIFECYCLE_NS
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - name: redeployer
+          mountPath: /data
+      volumes:
+      - name: redeployer
+        configMap:
+          name: redeployer
+          defaultMode: 0744

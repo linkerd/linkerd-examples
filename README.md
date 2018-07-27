@@ -117,6 +117,12 @@ Mesh for Kubernetes" series of blog posts. More information:
 * [A Service Mesh for Kubernetes, Part I: Top-Line Service Metrics](https://blog.buoyant.io/2016/10/04/a-service-mesh-for-kubernetes-part-i-top-line-service-metrics/)
 * [Getting Started: Running in Kubernetes with DaemonSets](https://linkerd.io/getting-started/k8s-daemonset/)
 
+## lifecycle
+
+* [`lifecycle/`](lifecycle/)
+
+Production testing [Linkerd2's](https://github.com/linkerd/linkerd2) discovery & caching.
+
 ## linkerd-tcp
 
 * [`linkerd-tcp/`](linkerd-tcp/)
