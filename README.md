@@ -138,6 +138,12 @@ Provides helpful configuration files and dashboards for all components.
 Demonstrates running linkerd and a sample hello world app on Mesos and Marathon,
 without DC/OS.
 
+## Perf baseline
+
+* [`perf-baseline/`](perf-baseline/)
+
+Demonstrates baseline performance metrics for the Linkerd2 Proxy.
+
 ## Plugins
 
 * [`plugins/`](plugins/)
