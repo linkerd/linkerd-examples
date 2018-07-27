@@ -1,0 +1,473 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: perf-baseline
+---
+#
+# baseline-h1
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: baseline-h1
+  namespace: perf-baseline
+spec:
+  selector:
+    matchLabels:
+      app: baseline-h1
+  template:
+    metadata:
+      labels:
+        app: baseline-h1
+    spec:
+      containers:
+      - name: slow-cooker
+        image: buoyantio/slow_cooker:1.1.1
+        args:
+        - "-metric-addr=0.0.0.0:9998"
+        - "-qps=100"
+        - "-concurrency=10"
+        - "-interval=10s"
+        - "http://localhost:8080"
+        ports:
+        - name: slow-cooker
+          containerPort: 9998
+      - name: helloworld
+        image: buoyantio/helloworld:0.1.6
+        args:
+        - -addr=:8080
+        - -text=Hello
+        ports:
+        - name: http
+          containerPort: 8080
+---
+#
+# baseline-h2
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: baseline-h2
+  namespace: perf-baseline
+spec:
+  selector:
+    matchLabels:
+      app: baseline-h2
+  template:
+    metadata:
+      labels:
+        app: baseline-h2
+    spec:
+      containers:
+      - name: strest-server
+        image: buoyantio/strest-grpc:0.0.6
+        args:
+        - server
+        - --address=0.0.0.0:8080
+        - --metricAddr=0.0.0.0:9998
+        ports:
+        - name: grpc
+          containerPort: 8080
+        - name: strest-server
+          containerPort: 9998
+      - name: strest-client
+        image: buoyantio/strest-grpc:0.0.6
+        args:
+        - client
+        - --totalTargetRps=1000
+        - --address=localhost:8080
+        - --connections=10
+        - --streams=1
+        - --interval=10s
+        - --metricAddr=0.0.0.0:9999
+        ports:
+        - name: strest-client
+          containerPort: 9999
+---
+#
+# linkerd2-h1
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linkerd2-h1
+  namespace: perf-baseline
+  labels:
+    proxy: challenge
+    protocol: h1
+spec:
+  selector:
+    matchLabels:
+      app: linkerd2
+      protocol: h1
+  template:
+    metadata:
+      labels:
+        app: linkerd2
+        protocol: h1
+    spec:
+      containers:
+      - image: gcr.io/linkerd-io/proxy:git-1a18ca8f
+        name: linkerd2
+        env:
+        - name: LINKERD2_PROXY_METRICS_LISTENER
+          value: tcp://0.0.0.0:4191
+        - name: LINKERD2_PROXY_PUBLIC_LISTENER
+          value: tcp://0.0.0.0:4143
+        - name: LINKERD2_PROXY_PRIVATE_FORWARD
+          value: tcp://127.0.0.1:8080
+        - name: LINKERD2_PROXY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        ports:
+        - containerPort: 4143
+          name: linkerd2-proxy
+        - containerPort: 4191
+          name: l5d2-metrics
+      - name: slow-cooker
+        image: buoyantio/slow_cooker:1.1.1
+        args:
+        - "-metric-addr=0.0.0.0:9998"
+        - "-qps=100"
+        - "-concurrency=10"
+        - "-interval=10s"
+        - "http://localhost:4143"
+        ports:
+        - name: slow-cooker
+          containerPort: 9998
+      - name: helloworld
+        image: buoyantio/helloworld:0.1.6
+        args:
+        - -addr=:8080
+        - -text=Hello
+        ports:
+        - name: http
+          containerPort: 8080
+---
+#
+# linkerd2-h2
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linkerd2-h2
+  namespace: perf-baseline
+  labels:
+    proxy: challenge
+    protocol: h2
+spec:
+  selector:
+    matchLabels:
+      app: linkerd2
+      protocol: h2
+  template:
+    metadata:
+      labels:
+        app: linkerd2
+        protocol: h2
+    spec:
+      containers:
+      - image: gcr.io/linkerd-io/proxy:git-1a18ca8f
+        name: linkerd2
+        env:
+        - name: LINKERD2_PROXY_METRICS_LISTENER
+          value: tcp://0.0.0.0:4191
+        - name: LINKERD2_PROXY_PUBLIC_LISTENER
+          value: tcp://0.0.0.0:4143
+        - name: LINKERD2_PROXY_PRIVATE_FORWARD
+          value: tcp://127.0.0.1:8080
+        - name: LINKERD2_PROXY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        ports:
+        - containerPort: 4143
+          name: linkerd2-proxy
+        - containerPort: 4191
+          name: l5d2-metrics
+      - name: strest-server
+        image: buoyantio/strest-grpc:0.0.6
+        args:
+        - server
+        - --address=0.0.0.0:8080
+        - --metricAddr=0.0.0.0:9998
+        ports:
+        - name: grpc
+          containerPort: 8080
+        - name: strest-server
+          containerPort: 9998
+      - name: strest-client
+        image: buoyantio/strest-grpc:0.0.6
+        args:
+        - client
+        - --totalTargetRps=1000
+        - --address=localhost:4143
+        - --connections=10
+        - --streams=1
+        - --interval=10s
+        - --metricAddr=0.0.0.0:9999
+        ports:
+        - name: strest-client
+          containerPort: 9999
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: prometheus
+  namespace: perf-baseline
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: perf-baseline-prometheus
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "nodes/proxy", "pods"]
+  verbs: ["get", "list", "watch"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: perf-baseline-prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: perf-baseline-prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: perf-baseline
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: prometheus
+  namespace: perf-baseline
+  labels:
+    app: prometheus
+spec:
+  type: ClusterIP
+  selector:
+    app: prometheus
+  ports:
+  - name: admin-http
+    port: 9090
+    targetPort: 9090
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: prometheus-config
+  namespace: perf-baseline
+  labels:
+    app: prometheus
+data:
+  prometheus.yml: |-
+    global:
+      scrape_interval: 15s
+      scrape_timeout: 15s
+      evaluation_interval: 15s
+
+    scrape_configs:
+    - job_name: 'prometheus'
+      static_configs:
+      - targets: ['localhost:9090']
+
+    # from https://grafana.com/dashboards/315
+    - job_name: kubernetes-nodes-cadvisor
+      scheme: https  # remove if you want to scrape metrics on insecure port
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kubernetes_sd_configs:
+      - role: node
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      # Only for Kubernetes ^1.7.3.
+      # See: https://github.com/prometheus/prometheus/issues/2916
+      - target_label: __address__
+        replacement: kubernetes.default.svc:443
+      - source_labels: [__meta_kubernetes_node_name]
+        regex: (.+)
+        target_label: __metrics_path__
+        replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+      metric_relabel_configs:
+      - action: replace
+        source_labels: [id]
+        regex: '^/machine\.slice/machine-rkt\\x2d([^\\]+)\\.+/([^/]+)\.service$'
+        target_label: rkt_container_name
+        replacement: '${2}-${1}'
+      - action: replace
+        source_labels: [id]
+        regex: '^/system\.slice/(.+)\.service$'
+        target_label: systemd_service_name
+        replacement: '${1}'
+      - source_labels:
+        - namespace
+        action: keep
+        regex: ^perf-baseline$
+    - job_name: 'strest-server'
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - source_labels:
+        - __meta_kubernetes_namespace
+        - __meta_kubernetes_pod_container_port_name
+        action: keep
+        regex: ^perf-baseline;strest-server$
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+
+    - job_name: 'strest-client'
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - source_labels:
+        - __meta_kubernetes_namespace
+        - __meta_kubernetes_pod_container_port_name
+        action: keep
+        regex: ^perf-baseline;strest-client$
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+
+    - job_name: 'slow-cooker'
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - source_labels:
+        - __meta_kubernetes_namespace
+        - __meta_kubernetes_pod_container_port_name
+        action: keep
+        regex: ^perf-baseline;slow-cooker$
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: perf-baseline
+  labels:
+    app: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccount: prometheus
+      volumes:
+      - configMap:
+          name: prometheus-config
+        name: prometheus-config
+      containers:
+      - image: prom/prometheus:v2.3.1
+        name: prometheus
+        args:
+        - --storage.tsdb.retention=6h
+        - --config.file=/etc/prometheus/prometheus.yml
+        ports:
+        - containerPort: 9090
+          name: admin-http
+        volumeMounts:
+        - mountPath: /etc/prometheus
+          name: prometheus-config
+          readOnly: true
+#
+# Grafana
+#
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: grafana-config
+  namespace: perf-baseline
+  labels:
+    app: grafana
+data:
+  grafana.ini: |-
+    instance_name = perf-baseline-grafana
+
+    [auth]
+    disable_login_form = true
+
+    [auth.anonymous]
+    enabled = true
+    org_role = Editor
+
+    [auth.basic]
+    enabled = false
+
+    [analytics]
+    check_for_updates = false
+
+  datasources.yaml: |-
+    apiVersion: 1
+    datasources:
+    - name: prometheus
+      type: prometheus
+      access: proxy
+      orgId: 1
+      url: http://prometheus.perf-baseline.svc.cluster.local:9090
+      isDefault: true
+      jsonData:
+        timeInterval: "5s"
+      version: 1
+      editable: true
+
+  dashboards.yaml: |-
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: true
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards
+        homeDashboardId: grafana-proxy-challenge
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: perf-baseline
+  labels:
+    app: grafana
+spec:
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - image: gcr.io/linkerd-io/grafana:proxy-challenge
+        imagePullPolicy: Always
+        name: grafana
+        ports:
+        - containerPort: 3000
+          name: http
+        volumeMounts:
+        - mountPath: /etc/grafana
+          name: grafana-config
+          readOnly: true
+      volumes:
+      - configMap:
+          items:
+          - key: grafana.ini
+            path: grafana.ini
+          - key: datasources.yaml
+            path: provisioning/datasources/datasources.yaml
+          - key: dashboards.yaml
+            path: provisioning/dashboards/dashboards.yaml
+          name: grafana-config
+        name: grafana-config
