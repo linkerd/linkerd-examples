@@ -231,16 +231,18 @@ kubectl apply -f k8s/linkerd-egress.yml
 #### Daemonsets + Linkerd2
 
 Running Linkerd 1.x together with Linkerd2 is relatively simple and only
-requires a few minor changes. Linkerd 1.x relies on dtabs and service names
-in this format `/svc/residual service name>`.In Linkerd2, traffic routing
-is based on a Kubernetes DNS name with a port number e.g.
+requires a few minor changes. These changes pertain to they way both proxies
+identify services to route traffic to. Linkerd 1.x relies on dtabs and
+service names in the `/svc/residual service name>` format while Linkerd2
+uses Kubernetes's DNS name format with port number e.g.
 `<service>.svc.default.cluster.local:7777`.
 
 Linkerd 1.x and Linkerd2 work well when Linkerd 1.x is running as a daemonset
-in Kubernetes. This example walks you through the setup using the helloworld
-sample app.
+in Kubernetes. This example walks you through how to set this up using
+the helloworld sample app.
 
-In your k8s environment, apply a Linkerd 1.x daemonset configuration. In this
+##### Installing Linkerd 1.x
+In your k8s environment, install a Linkerd 1.x daemonset configuration. In this
 example, we use the `servicemesh.yml` available in the Linkerd examples repo.
 
 First, create a `linkerd` namespace in your environment.
@@ -248,10 +250,10 @@ First, create a `linkerd` namespace in your environment.
 kubectl create ns linkerd
 ```
 
-Then, apply RBAC permissions for Linkerd 1.x k8s service discovery. We first
-make changes to the `linkerd-rbac.yml` where we change lines 33 and 46 to
-`linkerd` so that the default account gets RBAC permissions for the `linkerd`
-namespace. We then apply the file:
+Then, apply RBAC permissions for Linkerd 1.x's k8s service discovery. We first
+make changes to the `linkerd-rbac.yml` file in the k8s-daemonset directory
+We change lines 33 and 46 to `linkerd` so that the default account gets RBAC
+permissions for the `linkerd` namespace. We then apply the file:
 
 ```bash
 kubectl -n linkerd apply -f linkerd-rbac.yml
@@ -271,11 +273,12 @@ NAME        READY     STATUS    RESTARTS   AGE
 l5d-dswzp   2/2       Running   0          14h
 ```
 
-Next save the YAML configuration below as `hello-world.yml` and install the
+Next, save the YAML configuration below as `hello-world.yml` and install the
 `hello-world` using `kubectl apply -f hello-world.yml`
 
 Notice that we are applying this to the `default` namespace instead of
-`linkerd`.
+`linkerd`. We want to seperate our sample app in its own data plane and not
+add it to the `linkerd` namespace, which is our control plane.
 
 ```yaml
 ---
@@ -428,27 +431,25 @@ container logs and observe the results. You should see a line similar to:
 The "good" column indicates the number of requests that were successful.
 We also see that our success rate is 100%. So everything is looking great.
 
-### Installing Linkerd2
+##### Installing Linkerd2
 
 Now that we've confirmed that Linkerd 1.x is working as expected, let's install
 Linkerd2. Use the [Getting Started](https://github.com/linkerd/linkerd2#getting-started-with-linkerd2)
 guide to quickly get Linkerd2 running in your Kubernetes environment.
 
-After running `linkerd dashboard` you should see the default namespace with
-0/7 meshed pods. Clicking the `default` link takes you to a detailed page
-showing the pods that are installed. Next, we will inject the
-proxy into these pods so that we can start see traffic being routed to the pods.
-
-Before we can inject the hello world sample app with the Linkerd 2 proxy, we
-need a few modifications to the `hello-world.yml`
+After running the `linkerd dashboard` command you should see the default
+namespace with 0/7 meshed pods. Clicking the `default` link takes you to
+a detailed page showing pods that are installed. Before we inject the
+hello world sample app with the Linkerd2 proxy, we need to make a few
+modifications to our `hello-world.yml`
 
 In our Linkerd 1.x setup, our hello app sent traffic to `http://world-v1`
-using `http_proxy` environment variable set. With Linkerd 2, we no longer
+using an `http_proxy` environment variable. With Linkerd2, we no longer
 need to have this environment variable set due to Linkerd2's transparent
 traffic routing. All we have to do in our `hello-world.yml` is to remove the
-`http_proxy` env variable and change the `-target` URL to `world-v1 on Line 33
-to the Kubernetes DNS name of the world-v1 app. The new `hello` pod section
-config yaml should look like this:
+`http_proxy` env variable and change the `-target` URL to
+`world-v1.default.svc.cluster.local:7778` on line 33 of our `hello-world.yml`.
+The new `hello` pod section config yaml should look like this:
 
 ```YAML
 ...
@@ -479,17 +480,16 @@ spec:
 ....
 # world-v1 configuration
 ```
-Once we make the necessary changes, we can now inject our apps with the Linkerd2
-proxy.
+Once we've made the necessary changes, we can now inject our apps with the
+Linkerd2 proxy.
 
 ```bash
+kubectl delete -f hello-world.yml
 linkerd inject hello-world.yml | kubectl apply -f -
 ```
 
 If you have the Linkerd2 dashboard up, you should see traffic statistics showing
 up for both hello and world-v1 pods.
-
-
 
 ### linkerd-viz
 
