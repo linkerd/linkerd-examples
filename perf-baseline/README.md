@@ -2,10 +2,12 @@
 
 Demonstrates baseline performance metrics for the Linkerd2 Proxy.
 
+A performance test for Linkerd1 may be found at [`linkerd1-perf/`](linkerd1-perf/).
+
 ## Test setup
 
 - 1 pod with 3 containers: load generator -> linkerd2 -> backend
-- 1000qps spread across 10 connections
+- 1000 RPS spread across 10 connections
 - HTTP/1.1 load via [slow_cooker](https://github.com/BuoyantIO/slow_cooker)
 - HTTP/2 load via [strest-grpc](https://github.com/BuoyantIO/strest-grpc)
 - Observability via Prometheus and Grafana
