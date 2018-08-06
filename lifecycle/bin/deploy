@@ -2,7 +2,50 @@
 
 set -e
 
-NAMESPACES=${1:-1}
+usage() {
+  cat <<EOM
+Usage: $0 [NAMESPACES] [options]
+
+Arguments:
+  NAMESPACES                  The number of namespaces to deploy. [default 1]
+
+Options:
+  -n, --ns-prefix <PREFIX>    The prefix of the created lifecycle namespaces. [default 'lifecycle']
+  -l, --ctrl-prefix <PREFIX>  The prefix of the control plane namespaces to use (must already exist). [default 'linkerd-lifecycle']
+      -- <INJECT_ARG>...      Any arguments following a "--" will be passed to the 'linkerd inject' command.
+  -h, --help                  Show this message.
+EOM
+}
+
+NAMESPACES=1
+INJECT_ARGS=""
+NS_PREFIX="lifecycle"
+CTRL_NS_PREFIX="linkerd-lifecycle"
+
+while [ "$1" != "" ]; do
+  case $1 in
+    -h | --help)        usage
+                        exit 0
+                        ;;
+    -n | --ns-prefix)   shift
+                        NS_PREFIX="${1:-$NS_PREFIX}"
+                        ;;
+    -l | --ctrl-prefix) shift
+                        CTRL_NS_PREFIX="${1:-$CTRL_NS_PREFIX}"
+                        ;;
+    --)                 shift
+                        INJECT_ARGS="$*"
+                        break
+                        ;;
+    *[!0-9]*)           echo "Error: Unknown argument '$1'" >&2
+                        usage
+                        exit 1
+                        ;;
+    *)                  NAMESPACES="$1"
+                        ;;
+  esac
+  shift
+done
 
 if [ "$NAMESPACES" -gt 100 ]; then
   echo "Don't deploy more than 100 namespaces"
@@ -11,26 +54,26 @@ fi
 
 echo "Deploying $NAMESPACES injected, TLS, and baseline namespaces..."
 
-for i in `seq 1 $NAMESPACES`;
+for i in $(seq 1 "$NAMESPACES");
 do
-  NS=lifecycle$i
-  NS_TLS=$NS-tls
-  NS_BASELINE=$NS-baseline
+  NS="$NS_PREFIX""$i"
+  NS_TLS="$NS"-tls
+  NS_BASELINE="$NS"-baseline
 
   echo "\nDeploying $NS..."
-  kubectl create ns $NS
+  kubectl create ns "$NS"
   cat lifecycle.yml |
-    linkerd inject --linkerd-namespace linkerd-lifecycle - |
-    kubectl -n $NS apply -f -
+    linkerd inject --linkerd-namespace "$CTRL_NS_PREFIX" $INJECT_ARGS - |
+    kubectl -n "$NS" apply -f -
 
   echo "\nDeploying $NS_TLS..."
-  kubectl create ns $NS_TLS
+  kubectl create ns "$NS_TLS"
   cat lifecycle.yml |
-    linkerd inject --linkerd-namespace linkerd-lifecycle-tls --tls optional - |
-    kubectl -n $NS_TLS apply -f -
+    linkerd inject --linkerd-namespace "$CTRL_NS_PREFIX"-tls $INJECT_ARGS - |
+    kubectl -n "$NS_TLS" apply -f -
 
   echo "\nDeploying $NS_BASELINE..."
-  kubectl create ns $NS_BASELINE
+  kubectl create ns "$NS_BASELINE"
   cat lifecycle.yml |
-    kubectl -n $NS_BASELINE apply -f -
+    kubectl -n "$NS_BASELINE" apply -f -
 done

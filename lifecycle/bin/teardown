@@ -2,17 +2,49 @@
 
 set -e
 
-NAMESPACES=${1:-1}
+usage() {
+  cat <<EOM
+Usage: $0 [NAMESPACES] [options]
+
+Arguments:
+  NAMESPACES                A positive integer that sets the number of namespaces to tear down. [default 1]
+
+Options:
+  -n, --ns-prefix <PREFIX>  Set the prefix of the lifecycle namespaces to tear down. [default 'lifecycle']
+  -h, --help                Show this message.
+EOM
+}
+
+NAMESPACES=1
+NS_PREFIX="lifecycle"
+
+while [ "$1" != "" ]; do
+  case $1 in
+    -h | --help)        usage
+                        exit 0
+                        ;;
+    -n | --ns-prefix)   shift
+                        NS_PREFIX="${1:-$NS_PREFIX}"
+                        ;;
+    *[!0-9]*)           echo "Error: Unknown argument '$1'" >&2
+                        usage
+                        exit 1
+                        ;;
+    *)                  NAMESPACES="$1"
+                        ;;
+  esac
+  shift
+done
 
 echo "Tearing down $NAMESPACES injected, TLS, and baseline namespaces...\n"
 
-for i in `seq 1 $NAMESPACES`;
+TO_DELETE=""
+for i in $(seq 1 "$NAMESPACES");
 do
-  NS=lifecycle$i
-  NS_TLS=$NS-tls
-  NS_BASELINE=$NS-baseline
+  NS="$NS_PREFIX""$i"
+  NS_TLS="$NS"-tls
+  NS_BASELINE="$NS"-baseline
 
-  kubectl delete ns $NS || true
-  kubectl delete ns $NS_TLS || true
-  kubectl delete ns $NS_BASELINE || true
+  TO_DELETE="$TO_DELETE $NS $NS_TLS $NS_BASELINE"
 done
+kubectl delete ns "$TO_DELETE" || true
