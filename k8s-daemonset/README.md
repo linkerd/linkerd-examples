@@ -228,6 +228,268 @@ configuration:
 ```bash
 kubectl apply -f k8s/linkerd-egress.yml
 ```
+#### Daemonsets + Linkerd2
+
+Running Linkerd 1.x together with Linkerd2 is relatively simple and only
+requires a few minor changes. These changes relate to the way both proxies
+identify services for traffic routing. Linkerd 1.x relies on dtabs and
+service names in the `/svc/service name>` format while Linkerd2
+uses Kubernetes's DNS name format with port number e.g.
+`<service>.<namespace>.svc.<cluster>.local:7777`.
+
+Linkerd 1.x and Linkerd2 work well when Linkerd 1.x is running as a daemonset
+in Kubernetes. This example walks you through how to set this up using
+the helloworld sample app.
+
+##### Installing Linkerd 1.x
+In your k8s environment, install a Linkerd 1.x daemonset configuration. In this
+example, we use the `servicemesh.yml` available in the Linkerd examples repo.
+
+First, create a `linkerd` namespace in your environment.
+```bash
+kubectl create ns linkerd
+```
+
+Then, apply RBAC permissions for Linkerd 1.x's k8s service discovery. We first
+make changes to the `linkerd-rbac.yml` file in the k8s-daemonset directory
+We change lines 33 and 46 to `linkerd` so that the default account gets RBAC
+permissions for the `linkerd` namespace. We then apply the file:
+
+```bash
+kubectl -n linkerd apply -f linkerd-rbac.yml
+```
+
+Next, install Linkerd 1.x servicemesh config to the `linkerd` namespace.
+
+```bash
+$ kubectl apply -f k8s/servicemesh.yml
+```
+
+Confirm that Linkerd 1.x daemonset pods are up and running.
+
+```bash
+$ kubectl get pods -n linkerd
+NAME        READY     STATUS    RESTARTS   AGE
+l5d-dswzp   2/2       Running   0          14h
+```
+
+Next, save the YAML configuration below as `hello-world.yml` and install the
+`hello-world` using `kubectl apply -f hello-world.yml`
+
+Notice that we are applying this to the `default` namespace instead of
+`linkerd`. We want to seperate our sample app in its own data plane and not
+add it to the `linkerd` namespace, which is our control plane.
+
+```yaml
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: hello
+spec:
+  replicas: 3
+  selector:
+    app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.1.6
+        env:
+        - name: NODE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.hostIP
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: http_proxy
+          value: $(NODE_IP):4140
+        args:
+        - "-addr=:7777"
+        - "-text=Hello"
+        - "-target=world"
+        ports:
+        - name: service
+          containerPort: 7777
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello
+spec:
+  selector:
+    app: hello
+  clusterIP: None
+  ports:
+  - name: http
+    port: 7777
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: world-v1
+spec:
+  replicas: 3
+  selector:
+    app: world-v1
+  template:
+    metadata:
+      labels:
+        app: world-v1
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.1.6
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: TARGET_WORLD
+          value: world
+        args:
+        - "-addr=:7778"
+        ports:
+        - name: service
+          containerPort: 7778
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: world-v1
+spec:
+  selector:
+    app: world-v1
+  clusterIP: None
+  ports:
+  - name: http
+    port: 7778
+```
+
+To make things simple, we've provided a slow cooker app that generates requests
+to the `hello-world` endpoint periodically. This will help us see Linkerd 1.x
+stats without having to manually generate requests.
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: slow-cooker1
+spec:
+  template:
+    metadata:
+      name: slow-cooker1
+      labels:
+        testrun: test1
+    spec:
+      containers:
+      - name: slow-cooker
+        image: buoyantio/slow_cooker:1.1.0
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: http_proxy
+          value: http://l5d.linkerd.svc.cluster.local:4140
+        command:
+        - "/bin/bash"
+        args:
+        - "-c"
+        - |
+          slow_cooker \
+            -qps 10 \
+            -concurrency 1 \
+            -interval 30s \
+            http://hello
+        ports:
+        - name: slow-cooker
+          containerPort: 9991
+      restartPolicy: OnFailure
+```
+
+Install slow cooker in the default namespace like so:
+
+```bash
+kubectl apply -f slow-cooker.yml
+```
+Confirm that traffic is routing successfully by accessing the slow cooker
+container logs and observe the results. You should see a line similar to:
+
+```bash
+                      good/b/f t   good%   min [p50 p95 p99  p999]  max change
+2018-07-31T21:37:31Z    300/0/0 300 100% 30s   6 [  8  25  50   81 ]   81
+...
+```
+The "good" column indicates the number of requests that were successful.
+We also see that our success rate is 100%. So everything is looking great.
+
+##### Installing Linkerd2
+
+Now that we've confirmed that Linkerd 1.x is working as expected, let's install
+Linkerd2. Use the [Getting Started](https://github.com/linkerd/linkerd2#getting-started-with-linkerd2)
+guide to quickly get Linkerd2 running in your Kubernetes environment.
+
+After running the `linkerd dashboard` command you should see the default
+namespace with 0/7 meshed pods. Clicking the `default` link takes you to
+a detailed page showing pods that are installed. Before we inject the
+hello world sample app with the Linkerd2 proxy, we need to make a few
+modifications to our `hello-world.yml`
+
+In our Linkerd 1.x setup, our hello app sent traffic to `http://world-v1`
+using an `http_proxy` environment variable. With Linkerd2, we no longer
+need to have this environment variable set due to Linkerd2's transparent
+traffic routing. All we have to do in our `hello-world.yml` is to remove the
+`http_proxy` env variable and change the `-target` URL to
+`world-v1.default.svc.cluster.local:7778` on line 33 of our `hello-world.yml`.
+The new `hello` pod section config yaml should look like this:
+
+```YAML
+...
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: hello
+spec:
+  replicas: 3
+  selector:
+    app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+      - name: service
+        image: buoyantio/helloworld:0.1.6
+        args:
+        - "-addr=:7777"
+        - "-text=Hello"
+        - "-target=world-v1.default.svc.cluster.local:7778"
+        ports:
+        - name: service
+          containerPort: 7777
+....
+# world-v1 configuration
+```
+Once we've made the necessary changes, we can now inject our apps with the
+Linkerd2 proxy.
+
+```bash
+kubectl delete -f hello-world.yml
+linkerd inject hello-world.yml | kubectl apply -f -
+```
+
+If you have the Linkerd2 dashboard up, you should see traffic statistics showing
+up for both hello and world-v1 pods.
 
 ### linkerd-viz
 
