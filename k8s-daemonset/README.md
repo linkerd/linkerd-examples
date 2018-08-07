@@ -231,11 +231,11 @@ kubectl apply -f k8s/linkerd-egress.yml
 #### Daemonsets + Linkerd2
 
 Running Linkerd 1.x together with Linkerd2 is relatively simple and only
-requires a few minor changes. These changes pertain to they way both proxies
-identify services to route traffic to. Linkerd 1.x relies on dtabs and
-service names in the `/svc/residual service name>` format while Linkerd2
+requires a few minor changes. These changes relate to the way both proxies
+identify services for traffic routing. Linkerd 1.x relies on dtabs and
+service names in the `/svc/service name>` format while Linkerd2
 uses Kubernetes's DNS name format with port number e.g.
-`<service>.svc.default.cluster.local:7777`.
+`<service>.<namespace>.svc.<cluster>.local:7777`.
 
 Linkerd 1.x and Linkerd2 work well when Linkerd 1.x is running as a daemonset
 in Kubernetes. This example walks you through how to set this up using
