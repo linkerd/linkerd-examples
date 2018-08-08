@@ -47,4 +47,4 @@ do
 
   TO_DELETE="$TO_DELETE $NS $NS_TLS $NS_BASELINE"
 done
-kubectl delete ns "$TO_DELETE" || true
+kubectl delete ns $TO_DELETE || true
