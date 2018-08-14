@@ -1,3 +1,10 @@
-FROM golang:1.8-onbuild
+FROM golang:1.10.3 as builder
+WORKDIR /go/src/github.com/linkerd/linkerd-examples/linkerd-tcp/
+RUN go get -d -v github.com/go-redis/redis
+COPY web.go .
+RUN CGO_ENABLED=0 GOOS=linux go build -o app .
 
-ENTRYPOINT ["app"]
+FROM alpine:3.8
+WORKDIR /root/
+COPY --from=builder /go/src/github.com/linkerd/linkerd-examples/linkerd-tcp/app .
+ENTRYPOINT ["./app"]
