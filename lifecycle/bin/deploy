@@ -69,7 +69,7 @@ do
   echo "\nDeploying $NS_TLS..."
   kubectl create ns "$NS_TLS"
   cat lifecycle.yml |
-    linkerd inject --linkerd-namespace "$CTRL_NS_PREFIX"-tls $INJECT_ARGS - |
+    linkerd inject --linkerd-namespace "$CTRL_NS_PREFIX"-tls --tls optional $INJECT_ARGS - |
     kubectl -n "$NS_TLS" apply -f -
 
   echo "\nDeploying $NS_BASELINE..."
