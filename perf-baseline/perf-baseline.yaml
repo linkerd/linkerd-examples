@@ -4,6 +4,30 @@ metadata:
   name: l5d-perf
 ---
 #
+# reporter
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reporter
+  namespace: l5d-perf
+spec:
+  selector:
+    matchLabels:
+      app: reporter
+  template:
+    metadata:
+      labels:
+        app: reporter
+    spec:
+      containers:
+      - name: reporter
+        image: gcr.io/linkerd-io/reporter:latest
+        imagePullPolicy: Always
+        args:
+        - "--namespace=l5d-perf"
+---
+#
 # baseline-h1
 #
 apiVersion: apps/v1
@@ -87,12 +111,12 @@ spec:
           containerPort: 9999
 ---
 #
-# linkerd2-h1
+# linkerd-proxy-h1
 #
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: linkerd2-h1
+  name: linkerd-proxy-h1
   namespace: l5d-perf
   labels:
     proxy: challenge
@@ -100,12 +124,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: linkerd2
+      app: linkerd-proxy
       protocol: h1
   template:
     metadata:
       labels:
-        app: linkerd2
+        app: linkerd-proxy
         protocol: h1
     spec:
       containers:
@@ -149,12 +173,12 @@ spec:
           containerPort: 8080
 ---
 #
-# linkerd2-h2
+# linkerd-proxy-h2
 #
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: linkerd2-h2
+  name: linkerd-proxy-h2
   namespace: l5d-perf
   labels:
     proxy: challenge
@@ -162,12 +186,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: linkerd2
+      app: linkerd-proxy
       protocol: h2
   template:
     metadata:
       labels:
-        app: linkerd2
+        app: linkerd-proxy
         protocol: h2
     spec:
       containers:
