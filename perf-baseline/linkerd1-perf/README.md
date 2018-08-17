@@ -49,7 +49,7 @@ cores. Also setting `JVM_HEAP_MIN` and `JVM_HEAP_MAX` to a high value (and the
 same value), can help with memory fragmentation and GC pressure. For example:
 
 ```yaml
-image: buoyantio/linkerd:1.4.5
+image: buoyantio/linkerd:1.4.6
 env:
 - name: FINAGLE_WORKERS
   value: "32"
