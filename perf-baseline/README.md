@@ -2,7 +2,7 @@
 
 Demonstrates baseline performance metrics for the Linkerd2 Proxy.
 
-<img width="1158" alt="l5d-perf" src="https://user-images.githubusercontent.com/236915/44239654-4839f600-a16f-11e8-807b-f9686d8dc4c4.png">
+<img width="1228" alt="l5d-perf" src="https://user-images.githubusercontent.com/236915/44286934-ba6a1380-a21f-11e8-9055-3ed294fe637f.png">
 
 ## Deploy
 
@@ -12,11 +12,13 @@ cat perf-baseline.yaml | kubectl apply -f -
 
 ## Observe
 
-### Prometheus
+### Reporter
+
+The [`reporter/`](reporter/) process queries Prometheus and prints a report to
+stdout:
 
 ```bash
-kubectl -n l5d-perf port-forward $(kubectl -n l5d-perf get po --selector=app=prometheus -o jsonpath='{.items[*].metadata.name}') 9090:9090
-open http://localhost:9090
+kubectl -n l5d-perf logs -f $(kubectl -n l5d-perf get po --selector=app=reporter -o jsonpath='{.items[*].metadata.name}')
 ```
 
 ### Grafana
@@ -24,6 +26,13 @@ open http://localhost:9090
 ```bash
 kubectl -n l5d-perf port-forward $(kubectl -n l5d-perf get po --selector=app=grafana -o jsonpath='{.items[*].metadata.name}') 3000:3000
 open http://localhost:3000
+```
+
+### Prometheus
+
+```bash
+kubectl -n l5d-perf port-forward $(kubectl -n l5d-perf get po --selector=app=prometheus -o jsonpath='{.items[*].metadata.name}') 9090:9090
+open http://localhost:9090
 ```
 
 ## Test setup
@@ -102,6 +111,13 @@ tolerations:
 ```
 
 ## Related configs
+
+### Reporter
+
+* [`reporter/`](reporter/)
+
+This tool gathers performance metrics from Prometheus and prints a report to
+stdout.
 
 ### Grafana
 
