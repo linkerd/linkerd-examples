@@ -391,7 +391,7 @@ spec:
     spec:
       containers:
       - name: slow-cooker
-        image: buoyantio/slow_cooker:1.1.0
+        image: buoyantio/slow_cooker:1.2.0
         env:
         - name: NODE_NAME
           valueFrom:

@@ -28,7 +28,7 @@ spec:
         app: slow-cooker
     spec:
       containers:
-      - image: buoyantio/slow_cooker:1.1.1
+      - image: buoyantio/slow_cooker:1.2.0
         imagePullPolicy: IfNotPresent
         name: slow-cooker
         command:
