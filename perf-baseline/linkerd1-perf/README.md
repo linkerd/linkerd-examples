@@ -5,7 +5,7 @@ purposes, this example hard-codes an OpenJ9 variant of Linkerd1.
 
 ## Test setup
 
-- 1 pod with 3 containers: load generator -> linkerd1 -> backend
+- each pod has 3 containers: load generator -> linkerd1 -> backend
 - 1000 RPS spread across 10 connections
 - HTTP/1.1 load via [slow_cooker](https://github.com/BuoyantIO/slow_cooker)
 - HTTP/2 load via [strest-grpc](https://github.com/BuoyantIO/strest-grpc)
@@ -35,9 +35,11 @@ This test suite boots:
 - 4 Linkerd's
 - 6 load testers at 1000 RPS
 - 6 backend servers
+- 1 Prometheus
+- 1 Grafana
 
 Reommended hardware:
-- 16 cores
+- 32 cores
 - 8GB memory
 
 ## Tuning
@@ -59,34 +61,3 @@ env:
 
 More details on Linkerd performance tuning may be found at:
 https://discourse.linkerd.io/t/linkerd-performance-tuning/447
-
-### Node affinity
-
-To achieve consistent results, consider pinning these processes to known
-hardware nodes, and also setting a taint on those nodes to prevent other
-processes from getting scheduled onto them.
-
-To set a taint:
-
-```bash
-kubectl taint nodes node2 dedicated=groupName:NoSchedule
-```
-
-Then in a PodSpec, specify tolerations for that taint, along with node affinity:
-
-```yaml
-tolerations:
-- key: "dedicated"
-  operator: "Equal"
-  value: "groupName"
-  effect: "NoSchedule"
-affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: kubernetes.io/hostname
-          operator: In
-          values:
-          - node2
-```

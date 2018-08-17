@@ -1,7 +1,7 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: perf-baseline
+  name: l5d-perf
 ---
 #
 # baseline-h1
@@ -10,7 +10,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: baseline-h1
-  namespace: perf-baseline
+  namespace: l5d-perf
 spec:
   selector:
     matchLabels:
@@ -22,12 +22,13 @@ spec:
     spec:
       containers:
       - name: slow-cooker
-        image: buoyantio/slow_cooker:1.1.1
+        image: buoyantio/slow_cooker:1.2.0
         args:
         - "-metric-addr=0.0.0.0:9998"
         - "-qps=100"
         - "-concurrency=10"
         - "-interval=10s"
+        - "-latencyUnit=us"
         - "http://localhost:8080"
         ports:
         - name: slow-cooker
@@ -48,7 +49,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: baseline-h2
-  namespace: perf-baseline
+  namespace: l5d-perf
 spec:
   selector:
     matchLabels:
@@ -60,7 +61,7 @@ spec:
     spec:
       containers:
       - name: strest-server
-        image: buoyantio/strest-grpc:0.0.6
+        image: buoyantio/strest-grpc:0.0.7
         args:
         - server
         - --address=0.0.0.0:8080
@@ -71,7 +72,7 @@ spec:
         - name: strest-server
           containerPort: 9998
       - name: strest-client
-        image: buoyantio/strest-grpc:0.0.6
+        image: buoyantio/strest-grpc:0.0.7
         args:
         - client
         - --totalTargetRps=1000
@@ -80,6 +81,7 @@ spec:
         - --streams=1
         - --interval=10s
         - --metricAddr=0.0.0.0:9999
+        - --latencyUnit=us
         ports:
         - name: strest-client
           containerPort: 9999
@@ -91,7 +93,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: linkerd2-h1
-  namespace: perf-baseline
+  namespace: l5d-perf
   labels:
     proxy: challenge
     protocol: h1
@@ -107,8 +109,8 @@ spec:
         protocol: h1
     spec:
       containers:
-      - image: gcr.io/linkerd-io/proxy:git-1a18ca8f
-        name: linkerd2
+      - image: gcr.io/linkerd-io/proxy:v18.8.1
+        name: linkerd-proxy
         env:
         - name: LINKERD2_PROXY_METRICS_LISTENER
           value: tcp://0.0.0.0:4191
@@ -122,16 +124,17 @@ spec:
               fieldPath: metadata.namespace
         ports:
         - containerPort: 4143
-          name: linkerd2-proxy
+          name: linkerd-proxy
         - containerPort: 4191
-          name: l5d2-metrics
+          name: linkerd-metrics
       - name: slow-cooker
-        image: buoyantio/slow_cooker:1.1.1
+        image: buoyantio/slow_cooker:1.2.0
         args:
         - "-metric-addr=0.0.0.0:9998"
         - "-qps=100"
         - "-concurrency=10"
         - "-interval=10s"
+        - "-latencyUnit=us"
         - "http://localhost:4143"
         ports:
         - name: slow-cooker
@@ -152,7 +155,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: linkerd2-h2
-  namespace: perf-baseline
+  namespace: l5d-perf
   labels:
     proxy: challenge
     protocol: h2
@@ -168,8 +171,8 @@ spec:
         protocol: h2
     spec:
       containers:
-      - image: gcr.io/linkerd-io/proxy:git-1a18ca8f
-        name: linkerd2
+      - image: gcr.io/linkerd-io/proxy:v18.8.1
+        name: linkerd-proxy
         env:
         - name: LINKERD2_PROXY_METRICS_LISTENER
           value: tcp://0.0.0.0:4191
@@ -183,11 +186,11 @@ spec:
               fieldPath: metadata.namespace
         ports:
         - containerPort: 4143
-          name: linkerd2-proxy
+          name: linkerd-proxy
         - containerPort: 4191
-          name: l5d2-metrics
+          name: linkerd-metrics
       - name: strest-server
-        image: buoyantio/strest-grpc:0.0.6
+        image: buoyantio/strest-grpc:0.0.7
         args:
         - server
         - --address=0.0.0.0:8080
@@ -198,7 +201,7 @@ spec:
         - name: strest-server
           containerPort: 9998
       - name: strest-client
-        image: buoyantio/strest-grpc:0.0.6
+        image: buoyantio/strest-grpc:0.0.7
         args:
         - client
         - --totalTargetRps=1000
@@ -207,20 +210,24 @@ spec:
         - --streams=1
         - --interval=10s
         - --metricAddr=0.0.0.0:9999
+        - --latencyUnit=us
         ports:
         - name: strest-client
           containerPort: 9999
+#
+# Prometheus
+#
 ---
 kind: ServiceAccount
 apiVersion: v1
 metadata:
   name: prometheus
-  namespace: perf-baseline
+  namespace: l5d-perf
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: perf-baseline-prometheus
+  name: l5d-perf-prometheus
 rules:
 - apiGroups: [""]
   resources: ["nodes", "nodes/proxy", "pods"]
@@ -229,21 +236,21 @@ rules:
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: perf-baseline-prometheus
+  name: l5d-perf-prometheus
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: perf-baseline-prometheus
+  name: l5d-perf-prometheus
 subjects:
 - kind: ServiceAccount
   name: prometheus
-  namespace: perf-baseline
+  namespace: l5d-perf
 ---
 kind: Service
 apiVersion: v1
 metadata:
   name: prometheus
-  namespace: perf-baseline
+  namespace: l5d-perf
   labels:
     app: prometheus
 spec:
@@ -259,7 +266,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: prometheus-config
-  namespace: perf-baseline
+  namespace: l5d-perf
   labels:
     app: prometheus
 data:
@@ -307,7 +314,28 @@ data:
       - source_labels:
         - namespace
         action: keep
-        regex: ^perf-baseline$
+        regex: ^l5d-perf$
+
+    - job_name: 'linkerd-proxy'
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - source_labels:
+        - __meta_kubernetes_namespace
+        - __meta_kubernetes_pod_container_name
+        - __meta_kubernetes_pod_container_port_name
+        action: keep
+        regex: ^l5d-perf;linkerd-proxy;linkerd-metrics$
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: pod
+      # __meta_kubernetes_pod_label_foo=bar => foo=bar
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+
     - job_name: 'strest-server'
       kubernetes_sd_configs:
       - role: pod
@@ -316,7 +344,7 @@ data:
         - __meta_kubernetes_namespace
         - __meta_kubernetes_pod_container_port_name
         action: keep
-        regex: ^perf-baseline;strest-server$
+        regex: ^l5d-perf;strest-server$
       - action: labelmap
         regex: __meta_kubernetes_pod_label_(.+)
 
@@ -328,7 +356,7 @@ data:
         - __meta_kubernetes_namespace
         - __meta_kubernetes_pod_container_port_name
         action: keep
-        regex: ^perf-baseline;strest-client$
+        regex: ^l5d-perf;strest-client$
       - action: labelmap
         regex: __meta_kubernetes_pod_label_(.+)
 
@@ -340,7 +368,7 @@ data:
         - __meta_kubernetes_namespace
         - __meta_kubernetes_pod_container_port_name
         action: keep
-        regex: ^perf-baseline;slow-cooker$
+        regex: ^l5d-perf;slow-cooker$
       - action: labelmap
         regex: __meta_kubernetes_pod_label_(.+)
 ---
@@ -348,7 +376,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus
-  namespace: perf-baseline
+  namespace: l5d-perf
   labels:
     app: prometheus
 spec:
@@ -385,27 +413,12 @@ spec:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: grafana-config
-  namespace: perf-baseline
-  labels:
-    app: grafana
+  name: grafana-datasources
+  namespace: l5d-perf
 data:
-  grafana.ini: |-
-    instance_name = perf-baseline-grafana
-
-    [auth]
-    disable_login_form = true
-
-    [auth.anonymous]
-    enabled = true
-    org_role = Editor
-
-    [auth.basic]
-    enabled = false
-
-    [analytics]
-    check_for_updates = false
-
+  # This file already exists in the grafana-perf Docker image. We include it
+  # here also in case the user wants to change the default `l5d-perf` namespace
+  # without rebuilding the grafana-perf Docker image.
   datasources.yaml: |-
     apiVersion: 1
     datasources:
@@ -413,31 +426,18 @@ data:
       type: prometheus
       access: proxy
       orgId: 1
-      url: http://prometheus.perf-baseline.svc.cluster.local:9090
+      url: http://prometheus.l5d-perf.svc.cluster.local:9090
       isDefault: true
       jsonData:
         timeInterval: "5s"
       version: 1
       editable: true
-
-  dashboards.yaml: |-
-    apiVersion: 1
-    providers:
-    - name: 'default'
-      orgId: 1
-      folder: ''
-      type: file
-      disableDeletion: true
-      editable: true
-      options:
-        path: /var/lib/grafana/dashboards
-        homeDashboardId: grafana-proxy-challenge
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
-  namespace: perf-baseline
+  namespace: l5d-perf
   labels:
     app: grafana
 spec:
@@ -450,24 +450,20 @@ spec:
         app: grafana
     spec:
       containers:
-      - image: gcr.io/linkerd-io/grafana:proxy-challenge
+      - image: gcr.io/linkerd-io/grafana-perf:latest
         imagePullPolicy: Always
         name: grafana
         ports:
         - containerPort: 3000
           name: http
         volumeMounts:
-        - mountPath: /etc/grafana
-          name: grafana-config
+        - name: grafana-datasources
+          mountPath: /etc/grafana/provisioning/datasources
           readOnly: true
       volumes:
-      - configMap:
+      - name: grafana-datasources
+        configMap:
+          name: grafana-datasources
           items:
-          - key: grafana.ini
-            path: grafana.ini
           - key: datasources.yaml
-            path: provisioning/datasources/datasources.yaml
-          - key: dashboards.yaml
-            path: provisioning/dashboards/dashboards.yaml
-          name: grafana-config
-        name: grafana-config
+            path: datasources.yaml
