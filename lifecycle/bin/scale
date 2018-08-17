@@ -2,12 +2,60 @@
 
 set -e
 
-NAMESPACES=${1:-1}
-REPLICAS=${2:-1}
+usage() {
+  cat <<EOM
+Usage: $0 [NAMESPACES] [REPLICAS] [options]
 
-function scale() {
+Arguments:
+  NAMESPACES                The number of namespaces to scale. [default 1]
+  REPLICAS                  The desired number of replicas to scale to [default 1]
+
+Options:
+  -n, --ns-prefix <PREFIX>  The prefix of the namespaces to scale. [default 'lifecycle']
+  -h, --help                Show this message.
+EOM
+}
+
+NAMESPACES=1
+REPLICAS=1
+NS_PREFIX="lifecycle"
+NUM_NUMERICS=0
+
+while [ "$1" != "" ]; do
+  case $1 in
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    -n | --ns-prefix)
+      shift
+      NS_PREFIX="${1:-$NS_PREFIX}"
+      ;;
+    *[!0-9]*)
+      echo "Error: Unknown argument '$1'" >&2
+      usage
+      exit 1
+      ;;
+    *)
+      case "$NUM_NUMERICS" in
+        0) NAMESPACES="$1"
+           ;;
+        1) REPLICAS="$1"
+           ;;
+        *) echo "Error: Too many numeric arguments (expected a maximum of 2)" >&2
+           usage
+           exit 1
+           ;;
+      esac
+      NUM_NUMERICS=$(($NUM_NUMERICS + 1))
+      ;;
+  esac
+  shift
+done
+
+scale() {
   echo "\nScaling $1 to $REPLICAS replicas..."
-  kubectl -n $1 scale --replicas=$REPLICAS deploy/bb-broadcast deploy/bb-p2p deploy/bb-terminus
+  kubectl -n "$1" scale --replicas="$REPLICAS" deploy/bb-broadcast deploy/bb-p2p deploy/bb-terminus
 }
 
 if [ "$NAMESPACES" -gt 100 ]; then
@@ -22,9 +70,9 @@ fi
 
 echo "Scaling $NAMESPACES injected, TLS, and baseline namespaces to $REPLICAS replicas..."
 
-for i in `seq 1 $NAMESPACES`;
+for i in $(seq 1 "$NAMESPACES");
 do
-  NS=lifecycle$i
+  NS="$NS_PREFIX""$i"
 
   scale "$NS"
   scale "$NS-tls"
