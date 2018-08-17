@@ -12,8 +12,8 @@ of time in a dynamically-scheduled environment in order to exercise:
 
 ## First time setup
 
-[`lifecycle.yml`](lifecycle.yml) creates a `ClusterRole`, which requires your
-user to have this ability.
+This environment creates a `ClusterRole`, which requires your user to have this
+ability.
 
 ```bash
 kubectl create clusterrolebinding cluster-admin-binding-$USER \

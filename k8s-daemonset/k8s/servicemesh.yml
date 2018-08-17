@@ -231,7 +231,7 @@ data:
           tls:
             commonName: "{service}"
 
-    - label: gprc-incoming
+    - label: grpc-incoming
       protocol: h2
       servers:
       - port: 4341
