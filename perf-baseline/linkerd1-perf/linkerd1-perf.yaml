@@ -2,87 +2,87 @@ kind: Namespace
 apiVersion: v1
 metadata:
   name: linkerd1-perf
----
-#
-# baseline-h1
-#
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: baseline-h1
-  namespace: linkerd1-perf
-spec:
-  selector:
-    matchLabels:
-      app: baseline-h1
-  template:
-    metadata:
-      labels:
-        app: baseline-h1
-    spec:
-      containers:
-      - name: slow-cooker
-        image: buoyantio/slow_cooker:1.2.0
-        args:
-        - "-metric-addr=0.0.0.0:9998"
-        - "-qps=100"
-        - "-concurrency=10"
-        - "-interval=10s"
-        - "http://localhost:8080"
-        ports:
-        - name: slow-cooker
-          containerPort: 9998
-      - name: helloworld
-        image: buoyantio/helloworld:0.1.6
-        args:
-        - -addr=:8080
-        - -text=Hello
-        ports:
-        - name: http
-          containerPort: 8080
----
-#
-# baseline-h2
-#
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: baseline-h2
-  namespace: linkerd1-perf
-spec:
-  selector:
-    matchLabels:
-      app: baseline-h2
-  template:
-    metadata:
-      labels:
-        app: baseline-h2
-    spec:
-      containers:
-      - name: strest-server
-        image: buoyantio/strest-grpc:0.0.7
-        args:
-        - server
-        - --address=0.0.0.0:8080
-        - --metricAddr=0.0.0.0:9998
-        ports:
-        - name: grpc
-          containerPort: 8080
-        - name: strest-server
-          containerPort: 9998
-      - name: strest-client
-        image: buoyantio/strest-grpc:0.0.7
-        args:
-        - client
-        - --totalTargetRps=1000
-        - --address=localhost:8080
-        - --connections=10
-        - --streams=1
-        - --interval=10s
-        - --metricAddr=0.0.0.0:9999
-        ports:
-        - name: strest-client
-          containerPort: 9999
+# ---
+# #
+# # baseline-h1
+# #
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: baseline-h1
+#   namespace: linkerd1-perf
+# spec:
+#   selector:
+#     matchLabels:
+#       app: baseline-h1
+#   template:
+#     metadata:
+#       labels:
+#         app: baseline-h1
+#     spec:
+#       containers:
+#       - name: slow-cooker
+#         image: buoyantio/slow_cooker:1.2.0
+#         args:
+#         - "-metric-addr=0.0.0.0:9998"
+#         - "-qps=100"
+#         - "-concurrency=10"
+#         - "-interval=10s"
+#         - "http://localhost:8080"
+#         ports:
+#         - name: slow-cooker
+#           containerPort: 9998
+#       - name: helloworld
+#         image: buoyantio/helloworld:0.1.6
+#         args:
+#         - -addr=:8080
+#         - -text=Hello
+#         ports:
+#         - name: http
+#           containerPort: 8080
+# ---
+# #
+# # baseline-h2
+# #
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: baseline-h2
+#   namespace: linkerd1-perf
+# spec:
+#   selector:
+#     matchLabels:
+#       app: baseline-h2
+#   template:
+#     metadata:
+#       labels:
+#         app: baseline-h2
+#     spec:
+#       containers:
+#       - name: strest-server
+#         image: buoyantio/strest-grpc:0.0.7
+#         args:
+#         - server
+#         - --address=0.0.0.0:8080
+#         - --metricAddr=0.0.0.0:9998
+#         ports:
+#         - name: grpc
+#           containerPort: 8080
+#         - name: strest-server
+#           containerPort: 9998
+#       - name: strest-client
+#         image: buoyantio/strest-grpc:0.0.7
+#         args:
+#         - client
+#         - --totalTargetRps=1000
+#         - --address=localhost:8080
+#         - --connections=10
+#         - --streams=1
+#         - --interval=10s
+#         - --metricAddr=0.0.0.0:9999
+#         ports:
+#         - name: strest-client
+#           containerPort: 9999
 ---
 #
 # linkerd-h1-config
@@ -126,6 +126,15 @@ spec:
       labels:
         app:  linkerd-h1-release
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - node3
       volumes:
       - configMap:
           name: linkerd-h1-config
@@ -133,6 +142,18 @@ spec:
       containers:
       - image: buoyantio/linkerd:1.4.6
         name:  linkerd-h1-release
+        resources:
+          limits:
+            cpu: "16"
+          requests:
+            cpu: "16"
+        env:
+        - name: JVM_HEAP_MIN
+          value: 1024M
+        - name: JVM_HEAP_MAX
+          value: 1024M
+        - name: FINAGLE_WORKERS
+          value: "32"
         args:
         - /linkerd-h1-config/linkerd.yml
         ports:
@@ -148,9 +169,10 @@ spec:
         image: buoyantio/slow_cooker:1.2.0
         args:
         - "-metric-addr=0.0.0.0:9998"
-        - "-qps=100"
+        - "-qps=10"
         - "-concurrency=10"
         - "-interval=10s"
+        - "--latencyUnit=us"
         - "http://localhost:4143"
         ports:
         - name: slow-cooker
@@ -163,63 +185,63 @@ spec:
         ports:
         - name: http
           containerPort: 8080
----
-#
-# linkerd-h1 openj9
-#
-apiVersion: apps/v1
-kind: Deployment
-metadata:
- name: linkerd-h1-openj9
- namespace: linkerd1-perf
- labels:
-   proxy: challenge
-spec:
-  selector:
-    matchLabels:
-      app:  linkerd-h1-openj9
-  template:
-    metadata:
-      labels:
-        app:  linkerd-h1-openj9
-    spec:
-      volumes:
-      - configMap:
-          name: linkerd-h1-config
-        name: linkerd-h1-config
-      containers:
-      - image: buoyantio/linkerd:1.4.6-openj9-experimental
-        name:  linkerd-h1-openj9
-        args:
-        - /linkerd-h1-config/linkerd.yml
-        ports:
-        - containerPort: 4143
-          name: linkerd
-        - containerPort: 4191
-          name: linkerd-metrics
-        volumeMounts:
-        - mountPath: /linkerd-h1-config
-          name: linkerd-h1-config
-          readOnly: true
-      - name: slow-cooker
-        image: buoyantio/slow_cooker:1.2.0
-        args:
-        - "-metric-addr=0.0.0.0:9998"
-        - "-qps=100"
-        - "-concurrency=10"
-        - "-interval=10s"
-        - "http://localhost:4143"
-        ports:
-        - name: slow-cooker
-          containerPort: 9998
-      - name: helloworld
-        image: buoyantio/helloworld:0.1.6
-        args:
-        - -addr=:8080
-        - -text=Hello
-        ports:
-        - name: http
-          containerPort: 8080
+# ---
+# #
+# # linkerd-h1 openj9
+# #
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#  name: linkerd-h1-openj9
+#  namespace: linkerd1-perf
+#  labels:
+#    proxy: challenge
+# spec:
+#   selector:
+#     matchLabels:
+#       app:  linkerd-h1-openj9
+#   template:
+#     metadata:
+#       labels:
+#         app:  linkerd-h1-openj9
+#     spec:
+#       volumes:
+#       - configMap:
+#           name: linkerd-h1-config
+#         name: linkerd-h1-config
+#       containers:
+#       - image: buoyantio/linkerd:1.4.6-openj9-experimental
+#         name:  linkerd-h1-openj9
+#         args:
+#         - /linkerd-h1-config/linkerd.yml
+#         ports:
+#         - containerPort: 4143
+#           name: linkerd
+#         - containerPort: 4191
+#           name: linkerd-metrics
+#         volumeMounts:
+#         - mountPath: /linkerd-h1-config
+#           name: linkerd-h1-config
+#           readOnly: true
+#       - name: slow-cooker
+#         image: buoyantio/slow_cooker:1.2.0
+#         args:
+#         - "-metric-addr=0.0.0.0:9998"
+#         - "-qps=100"
+#         - "-concurrency=10"
+#         - "-interval=10s"
+#         - "http://localhost:4143"
+#         ports:
+#         - name: slow-cooker
+#           containerPort: 9998
+#       - name: helloworld
+#         image: buoyantio/helloworld:0.1.6
+#         args:
+#         - -addr=:8080
+#         - -text=Hello
+#         ports:
+#         - name: http
+#           containerPort: 8080
 ---
 #
 # linkerd-h2-config
@@ -263,6 +285,15 @@ spec:
       labels:
         app:  linkerd-h2-release
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - node3
       volumes:
       - configMap:
           name: linkerd-h2-config
@@ -270,6 +301,18 @@ spec:
       containers:
       - image: buoyantio/linkerd:1.4.6
         name:  linkerd-h2-release
+        resources:
+          limits:
+            cpu: "16"
+          requests:
+            cpu: "16"
+        env:
+        - name: JVM_HEAP_MIN
+          value: 1024M
+        - name: JVM_HEAP_MAX
+          value: 1024M
+        - name: FINAGLE_WORKERS
+          value: "32"
         args:
         - /linkerd-h2-config/linkerd.yml
         ports:
@@ -296,77 +339,78 @@ spec:
         image: buoyantio/strest-grpc:0.0.7
         args:
         - client
-        - --totalTargetRps=1000
+        - --totalTargetRps=100
         - --address=localhost:4143
         - --connections=10
         - --streams=1
         - --interval=10s
         - --metricAddr=0.0.0.0:9999
+        - --latencyUnit=us
         ports:
         - name: strest-client
           containerPort: 9999
----
-#
-# linkerd-h2 openj9
-#
-apiVersion: apps/v1
-kind: Deployment
-metadata:
- name: linkerd-h2-openj9
- namespace: linkerd1-perf
- labels:
-   proxy: challenge
-spec:
-  selector:
-    matchLabels:
-      app:  linkerd-h2-openj9
-  template:
-    metadata:
-      labels:
-        app:  linkerd-h2-openj9
-    spec:
-      volumes:
-      - configMap:
-          name: linkerd-h2-config
-        name: linkerd-h2-config
-      containers:
-      - image: buoyantio/linkerd:1.4.6-openj9-experimental
-        name:  linkerd-h2-openj9
-        args:
-        - /linkerd-h2-config/linkerd.yml
-        ports:
-        - containerPort: 4143
-          name: linkerd
-        - containerPort: 4191
-          name: linkerd-metrics
-        volumeMounts:
-        - mountPath: /linkerd-h2-config
-          name: linkerd-h2-config
-          readOnly: true
-      - name: strest-server
-        image: buoyantio/strest-grpc:0.0.7
-        args:
-        - server
-        - --address=0.0.0.0:8080
-        - --metricAddr=0.0.0.0:9998
-        ports:
-        - name: grpc
-          containerPort: 8080
-        - name: strest-server
-          containerPort: 9998
-      - name: strest-client
-        image: buoyantio/strest-grpc:0.0.7
-        args:
-        - client
-        - --totalTargetRps=1000
-        - --address=localhost:4143
-        - --connections=10
-        - --streams=1
-        - --interval=10s
-        - --metricAddr=0.0.0.0:9999
-        ports:
-        - name: strest-client
-          containerPort: 9999
+# ---
+# #
+# # linkerd-h2 openj9
+# #
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#  name: linkerd-h2-openj9
+#  namespace: linkerd1-perf
+#  labels:
+#    proxy: challenge
+# spec:
+#   selector:
+#     matchLabels:
+#       app:  linkerd-h2-openj9
+#   template:
+#     metadata:
+#       labels:
+#         app:  linkerd-h2-openj9
+#     spec:
+#       volumes:
+#       - configMap:
+#           name: linkerd-h2-config
+#         name: linkerd-h2-config
+#       containers:
+#       - image: buoyantio/linkerd:1.4.6-openj9-experimental
+#         name:  linkerd-h2-openj9
+#         args:
+#         - /linkerd-h2-config/linkerd.yml
+#         ports:
+#         - containerPort: 4143
+#           name: linkerd
+#         - containerPort: 4191
+#           name: linkerd-metrics
+#         volumeMounts:
+#         - mountPath: /linkerd-h2-config
+#           name: linkerd-h2-config
+#           readOnly: true
+#       - name: strest-server
+#         image: buoyantio/strest-grpc:0.0.7
+#         args:
+#         - server
+#         - --address=0.0.0.0:8080
+#         - --metricAddr=0.0.0.0:9998
+#         ports:
+#         - name: grpc
+#           containerPort: 8080
+#         - name: strest-server
+#           containerPort: 9998
+#       - name: strest-client
+#         image: buoyantio/strest-grpc:0.0.7
+#         args:
+#         - client
+#         - --totalTargetRps=1000
+#         - --address=localhost:4143
+#         - --connections=10
+#         - --streams=1
+#         - --interval=10s
+#         - --metricAddr=0.0.0.0:9999
+#         ports:
+#         - name: strest-client
+#           containerPort: 9999
 ---
 #
 # Prometheus
@@ -425,9 +469,9 @@ metadata:
 data:
   prometheus.yml: |-
     global:
-      scrape_interval: 15s
-      scrape_timeout: 15s
-      evaluation_interval: 15s
+      scrape_interval: 5s
+      scrape_timeout: 5s
+      evaluation_interval: 5s
 
     scrape_configs:
     - job_name: 'prometheus'
@@ -468,6 +512,7 @@ data:
         - namespace
         action: keep
         regex: ^linkerd1-perf$
+
     - job_name: 'strest-server'
       kubernetes_sd_configs:
       - role: pod
