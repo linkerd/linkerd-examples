@@ -108,7 +108,7 @@ services:
     - "-redis.addr=redis://redis2:6379"
 
   linkerd-viz:
-    image: buoyantio/linkerd-viz:0.1.8
+    image: buoyantio/linkerd-viz:0.2.0
     environment:
     - SCRAPE_INTERVAL=5s
     ports:
@@ -117,12 +117,12 @@ services:
     volumes:
     - ./prometheus.yml:/etc/prometheus/prometheus-local.yml:ro
     - ./grafana.json:/usr/share/grafana/public/dashboards/home.json:ro
-    - ./grafana.json:/usr/share/grafana/public/dashboards/linkerd-tcp-dashboard.json:ro
+    - ./grafana.json:/etc/grafana/provisioning/dashboards/linkerd-tcp-dashboard.json:ro
     command:
     - "local"
 
   slow_cooker:
-    image: buoyantio/slow_cooker:1.0.1
+    image: buoyantio/slow_cooker:1.2.0
     environment:
     - http_proxy=http://linkerd:4140
     entrypoint: /bin/sh

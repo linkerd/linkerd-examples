@@ -53,7 +53,7 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
 
   grafana_bootstrap:
-    image: buoyantio/slow_cooker:1.1.0
+    image: buoyantio/slow_cooker:1.2.0
     entrypoint: /bin/sh
     volumes:
     - ./grafana-bootstrap.sh:/grafana-bootstrap.sh:ro
@@ -62,7 +62,7 @@ services:
 
   # sends requests to linkerd1 at 100qps
   slow_cooker1:
-    image: buoyantio/slow_cooker:1.1.0
+    image: buoyantio/slow_cooker:1.2.0
     environment:
     - http_proxy=http://linkerd1:4140
     entrypoint: /bin/sh
@@ -71,7 +71,7 @@ services:
 
   # sends requests to linkerd2 at 200qps
   slow_cooker2:
-    image: buoyantio/slow_cooker:1.1.0
+    image: buoyantio/slow_cooker:1.2.0
     environment:
     - http_proxy=http://linkerd2:4140
     entrypoint: /bin/sh

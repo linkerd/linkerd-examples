@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: slow-cooker
-        image: buoyantio/slow_cooker:1.1.1
+        image: buoyantio/slow_cooker:1.2.0
         args:
         - "-metric-addr=0.0.0.0:9998"
         - "-qps=100"
@@ -60,7 +60,7 @@ spec:
     spec:
       containers:
       - name: strest-server
-        image: buoyantio/strest-grpc:0.0.6
+        image: buoyantio/strest-grpc:0.0.7
         args:
         - server
         - --address=0.0.0.0:8080
@@ -71,7 +71,7 @@ spec:
         - name: strest-server
           containerPort: 9998
       - name: strest-client
-        image: buoyantio/strest-grpc:0.0.6
+        image: buoyantio/strest-grpc:0.0.7
         args:
         - client
         - --totalTargetRps=1000
@@ -145,7 +145,7 @@ spec:
           name: linkerd-h1-config
           readOnly: true
       - name: slow-cooker
-        image: buoyantio/slow_cooker:1.1.1
+        image: buoyantio/slow_cooker:1.2.0
         args:
         - "-metric-addr=0.0.0.0:9998"
         - "-qps=100"
@@ -202,7 +202,7 @@ spec:
           name: linkerd-h1-config
           readOnly: true
       - name: slow-cooker
-        image: buoyantio/slow_cooker:1.1.1
+        image: buoyantio/slow_cooker:1.2.0
         args:
         - "-metric-addr=0.0.0.0:9998"
         - "-qps=100"
@@ -282,7 +282,7 @@ spec:
           name: linkerd-h2-config
           readOnly: true
       - name: strest-server
-        image: buoyantio/strest-grpc:0.0.6
+        image: buoyantio/strest-grpc:0.0.7
         args:
         - server
         - --address=0.0.0.0:8080
@@ -293,7 +293,7 @@ spec:
         - name: strest-server
           containerPort: 9998
       - name: strest-client
-        image: buoyantio/strest-grpc:0.0.6
+        image: buoyantio/strest-grpc:0.0.7
         args:
         - client
         - --totalTargetRps=1000
@@ -344,7 +344,7 @@ spec:
           name: linkerd-h2-config
           readOnly: true
       - name: strest-server
-        image: buoyantio/strest-grpc:0.0.6
+        image: buoyantio/strest-grpc:0.0.7
         args:
         - server
         - --address=0.0.0.0:8080
@@ -355,7 +355,7 @@ spec:
         - name: strest-server
           containerPort: 9998
       - name: strest-client
-        image: buoyantio/strest-grpc:0.0.6
+        image: buoyantio/strest-grpc:0.0.7
         args:
         - client
         - --totalTargetRps=1000
