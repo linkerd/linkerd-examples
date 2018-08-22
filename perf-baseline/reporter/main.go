@@ -55,6 +55,8 @@ var (
 func main() {
 	namespace = flag.String("namespace", "l5d-perf", "namespace where the performance test is running")
 	logLevel := flag.String("log-level", log.InfoLevel.String(), "log level, must be one of: panic, fatal, error, warn, info, debug")
+	warmupTime := flag.Duration("warmup-time", 7*time.Minute, "Time to wait before starting to report numbers")
+	reportInterval := flag.Duration("report-interval", 1*time.Minute, "Interval at which statistics are dumped")
 	flag.Parse()
 
 	level, err := log.ParseLevel(*logLevel)
@@ -63,28 +65,30 @@ func main() {
 	}
 	log.SetLevel(level)
 
-	// wait 7 minutes prior to first report (2 minutes for warmup, 5 minutes for test)
-	// publish report every minute after that
-	log.Infof("Waiting 7 minutes to publish first report for namespace %s...", *namespace)
-	<-time.After(7 * time.Minute)
+	// wait for a duration of <warmupTime> before the first report
+	// publish report every <reportInterval> durations
+	log.Infof("Waiting %s to publish first report for namespace %s...", warmupTime, *namespace)
+	<-time.After(*warmupTime)
 
 	err = publishReport()
 	if err != nil {
 		log.Errorf("Failed to publish report: %s", err)
 	}
-
-	for range time.Tick(time.Minute) {
+	idx := 0
+	for range time.Tick(*reportInterval) {
+		log.Infof("### Iteration %d ###", idx)
 		err := publishReport()
 		if err != nil {
 			log.Errorf("Failed to publish report: %s", err)
 		}
+		idx++
 	}
 }
 
 func publishReport() error {
 	report, err := getStats()
 	if err != nil {
-		log.Errorf("Failed to retreive stats: %s", err)
+		log.Errorf("Failed to retrieve stats: %s", err)
 		return err
 	}
 
