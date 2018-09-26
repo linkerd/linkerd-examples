@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -e
+
+NAMESPACES=${1:-1}
+
+if [ "$NAMESPACES" -gt 100 ]; then
+  echo "Don't deploy more than 100 namespaces"
+  exit 1
+fi
+
+echo "Deploying $NAMESPACES daemonset-enabled namespaces..."
+
+for i in `seq 1 $NAMESPACES`;
+do
+  NS=lifecycle$i
+
+  echo "\nDeploying $NS..."
+  kubectl create ns $NS
+  cat lifecycle.yml |
+    kubectl -n $NS apply -f -
+done

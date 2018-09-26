@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+NAMESPACES=${1:-1}
+
+echo "Tearing down $NAMESPACES daemonset-enabled namespaces...\n"
+
+for i in `seq 1 $NAMESPACES`;
+do
+  NS=lifecycle$i
+
+  kubectl delete ns $NS || true
+done

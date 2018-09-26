@@ -256,7 +256,8 @@ We change lines 33 and 46 to `linkerd` so that the default account gets RBAC
 permissions for the `linkerd` namespace. We then apply the file:
 
 ```bash
-kubectl -n linkerd apply -f linkerd-rbac.yml
+sed 's/namespace: default/namespace: linkerd/g' linkerd-rbac.yml |
+  kubectl -n linkerd apply -f -
 ```
 
 Next, install Linkerd 1.x servicemesh config to the `linkerd` namespace.
