@@ -104,11 +104,12 @@ spec:
         - "-c"
         - |
           exec \
-          /out/bb point-to-point-channel \
+          /out/bb broadcast-channel \
           --downstream-timeout 60s \
           --log-level debug \
           --h1-server-port=7070 \
-          --grpc-downstream-server=bb-broadcast.$LIFECYCLE_NS \
+          --grpc-downstream-server=bb-terminus1.$LIFECYCLE_NS \
+          --grpc-downstream-server=bb-terminus2.$LIFECYCLE_NS \
           --grpc-proxy=$HOST_IP:4340
         ports:
         - containerPort: 7070
@@ -388,7 +389,7 @@ data:
       echo "found ${POD_COUNT} running pods"
 
       # restart each pod every minute
-      SLEEP_TIME=$(( 60 / $POD_COUNT ))
+      SLEEP_TIME=$(( 30 / $POD_COUNT ))
       if [ $SLEEP_TIME = 0 ]; then
         SLEEP_TIME=1
       fi
@@ -397,29 +398,29 @@ data:
         kubectl -n $LIFECYCLE_NS delete po $POD
 
         # bounce services every 30 seconds
-        NOW=$(date +%s)
-        if [ $(( NOW - LAST )) -gt 30 ]; then
-          echo "bouncing services..."
-          for i in `seq 1 10`; do
-            SVC=$(kubectl -n $LIFECYCLE_NS get svc/bb-terminus$i -o json)
-            kubectl -n $LIFECYCLE_NS delete svc/bb-terminus$i
-            echo $SVC | kubectl -n $LIFECYCLE_NS apply -f -
-          done
-          LAST=NOW
-        fi
+        # NOW=$(date +%s)
+        # if [ $(( NOW - LAST )) -gt 30 ]; then
+        #   echo "bouncing services..."
+        #   for i in `seq 1 30`; do
+        #     SVC=$(kubectl -n $LIFECYCLE_NS get svc/bb-terminus$i -o json)
+        #     kubectl -n $LIFECYCLE_NS delete svc/bb-terminus$i
+        #     echo $SVC | kubectl -n $LIFECYCLE_NS apply -f -
+        #   done
+        #   LAST=NOW
+        # fi
 
         echo "sleeping for ${SLEEP_TIME} seconds..."
         sleep $SLEEP_TIME
       done
 
-      # redeploy the whole bb-terminus deployment
-      echo "redeploying bb-terminus deployment"
-      DEPLOY=$(kubectl -n $LIFECYCLE_NS get deploy/bb-terminus -o json)
-      echo $DEPLOY | sed -E 's/BANANA[0-9]+/BANANA'$(date +'%s')'/g' | kubectl -n $LIFECYCLE_NS apply -f -
+      # # redeploy the whole bb-terminus deployment
+      # echo "redeploying bb-terminus deployment"
+      # DEPLOY=$(kubectl -n $LIFECYCLE_NS get deploy/bb-terminus -o json)
+      # echo $DEPLOY | sed -E 's/BANANA[0-9]+/BANANA'$(date +'%s')'/g' | kubectl -n $LIFECYCLE_NS apply -f -
 
-      # give the new deployment time to roll out, before we start deleting pods again
-      echo "sleeping for 60 seconds..."
-      sleep 60
+      # # give the new deployment time to roll out, before we start deleting pods again
+      # echo "sleeping for 60 seconds..."
+      # sleep 60
     done
 ---
 apiVersion: extensions/v1beta1

@@ -149,6 +149,7 @@ spec:
             fieldRef:
               fieldPath: status.podIP
         args:
+        - -log.level=DEBUG
         - /io.buoyant/linkerd/config/config.yaml
         ports:
         - name: linkerd-metrics
