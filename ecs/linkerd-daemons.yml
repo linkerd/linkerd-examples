@@ -5,18 +5,34 @@ Parameters:
     Type: String
     Default: production
     Description: The name of the environment to add this Linkerd stack to
-  IPCidr:
-    Type: String
-    Default: 127.0.0.1/32
-    Description: "Your IP address CIDR to allow access to the admin UIs. If not sure what
-                 to enter here type 'Whats my IP?' into Google, take the IP address it gives
-                 you then add this to the end: /32"
   ECSAMI:
     Description: AMI ID
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
     Default: /aws/service/ecs/optimized-ami/amazon-linux/recommended/image_id
     Description: The Amazon Machine Image ID used for the cluster, leave it as the default value to get the latest AMI
 Resources:
+
+  EcsSecurityGroupIngressForSSHIpv4:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Allow incoming connections for SSH over IPv4
+      GroupId:
+        Fn::ImportValue: !Sub ${EnvironmentName}:ContainerSecurityGroup
+      FromPort: 22
+      ToPort: 22
+      IpProtocol: tcp
+      CidrIp: '0.0.0.0/0'
+
+  EcsSecurityGroupIngressForSSHIpv6:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Allow incoming connections for SSH over IPv6
+      GroupId:
+        Fn::ImportValue: !Sub ${EnvironmentName}:ContainerSecurityGroup
+      FromPort: 22
+      ToPort: 22
+      IpProtocol: tcp
+      CidrIpv6: '::/0'
 
   EcsSecurityGroupIngressToLinkerd:
     Type: AWS::EC2::SecurityGroupIngress
@@ -29,28 +45,6 @@ Resources:
       IpProtocol: tcp
       SourceSecurityGroupId:
         Fn::ImportValue: !Sub ${EnvironmentName}:ContainerSecurityGroup
-
-  EcsSecurityGroupIngressToConsul:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      Description: Allow incoming connections for consul-agent and consul-server
-      GroupId:
-        Fn::ImportValue: !Sub ${EnvironmentName}:ContainerSecurityGroup
-      FromPort: 8500
-      ToPort: 8500
-      IpProtocol: tcp
-      CidrIp: !Ref 'IPCidr'
-
-  EcsSecurityGroupIngressToLinkerdAdminUi:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      Description: Allow incoming connections for Linkerd admin UI
-      GroupId:
-        Fn::ImportValue: !Sub ${EnvironmentName}:ContainerSecurityGroup
-      FromPort: 9990
-      ToPort: 9990
-      IpProtocol: tcp
-      CidrIp: !Ref 'IPCidr'
 
   EcsSecurityGroupIngressToLinkerdViz:
     Type: AWS::EC2::SecurityGroupIngress
@@ -100,7 +94,7 @@ Resources:
             -v /opt/consul/data:/consul/data -v /opt/consul/config:/consul/config \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -h $EC2_INSTANCE_ID --name consul-server -e CONSUL_ALLOW_PRIVILEGED_PORTS=1 \
-            -l service_name=consul-server consul:0.8.5 agent -server \
+            -l service_name=consul-server consul:1.2.3 agent -server \
             -bootstrap-expect 1 -advertise $EC2_INSTANCE_IP_ADDRESS -client 0.0.0.0 -ui
           yum install -y aws-cfn-bootstrap
           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ConsulInstance --region ${AWS::Region}
@@ -213,7 +207,7 @@ Resources:
           Name: consul-docker
       ContainerDefinitions:
         - Name: consul-agent
-          Image: docker.io/consul:0.8.5
+          Image: docker.io/consul:1.2.3
           Command: [
             "consul", "agent", "-ui",
             "-config-file", "/etc/consul/consul-agent.json",

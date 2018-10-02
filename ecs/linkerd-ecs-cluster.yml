@@ -1,6 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: EC2 ECS cluster running containers in a public subnet. Only supports
-             public facing load balancer, and public service discovery namespaces.
+Description: EC2 ECS cluster running containers in a public subnet
 Parameters:
   EnvironmentName:
     Type: String
@@ -24,6 +23,9 @@ Parameters:
     Type: Number
     Default: '6'
     Description: Maximum number of EC2 instances that can be launched in your ECS cluster.
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: The name of an SSH key that will be used to access the underlying hosts in the cluster. If none appear here you need to create and download an SSH key
   ECSAMI:
     Description: AMI ID
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
@@ -158,6 +160,7 @@ Resources:
       SecurityGroups: [!Ref 'ContainerSecurityGroup']
       InstanceType: !Ref 'InstanceType'
       IamInstanceProfile: !Ref 'EC2InstanceProfile'
+      KeyName: !Ref 'KeyName'
       UserData:
         # The following literal block is a script which runs on
         # each EC2 instance in the autoscaling group on boot to
@@ -213,10 +216,9 @@ Resources:
                   "advertise_addr": "${EC2_INSTANCE_IP_ADDRESS}",
                   "client_addr": "0.0.0.0",
                   "node_name": "${EC2_INSTANCE_ID}",
-                  "retry_join_ec2": {
-                    "tag_key": "Name",
-                    "tag_value": "l5d-demo-consul-server"
-                  }
+                  "retry_join": [
+                   "provider=aws tag_key=Name tag_value=l5d-demo-consul-server"
+                  ]
                 }
                 EOF
 
