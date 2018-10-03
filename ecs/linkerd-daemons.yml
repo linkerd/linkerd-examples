@@ -1,0 +1,314 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Resources to setup Linkerd for routing traffic in cluster
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: production
+    Description: The name of the environment to add this Linkerd stack to
+  ECSAMI:
+    Description: AMI ID
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ecs/optimized-ami/amazon-linux/recommended/image_id
+    Description: The Amazon Machine Image ID used for the cluster, leave it as the default value to get the latest AMI
+Resources:
+
+  EcsSecurityGroupIngressForSSHIpv4:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Allow incoming connections for SSH over IPv4
+      GroupId:
+        Fn::ImportValue: !Sub ${EnvironmentName}:ContainerSecurityGroup
+      FromPort: 22
+      ToPort: 22
+      IpProtocol: tcp
+      CidrIp: '0.0.0.0/0'
+
+  EcsSecurityGroupIngressForSSHIpv6:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Allow incoming connections for SSH over IPv6
+      GroupId:
+        Fn::ImportValue: !Sub ${EnvironmentName}:ContainerSecurityGroup
+      FromPort: 22
+      ToPort: 22
+      IpProtocol: tcp
+      CidrIpv6: '::/0'
+
+  EcsSecurityGroupIngressToLinkerd:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Allow incoming connections for linkerd
+      GroupId:
+        Fn::ImportValue: !Sub ${EnvironmentName}:ContainerSecurityGroup
+      FromPort: 4140
+      ToPort: 4140
+      IpProtocol: tcp
+      SourceSecurityGroupId:
+        Fn::ImportValue: !Sub ${EnvironmentName}:ContainerSecurityGroup
+
+  EcsSecurityGroupIngressToLinkerdViz:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Allow incoming connections for linkerd-viz
+      GroupId:
+        Fn::ImportValue: !Sub ${EnvironmentName}:ContainerSecurityGroup
+      FromPort: 3000
+      ToPort: 3000
+      IpProtocol: tcp
+      SourceSecurityGroupId:
+        Fn::ImportValue: !Sub ${EnvironmentName}:ContainerSecurityGroup
+
+  EcsSecurityGroupIngressFromCluster:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Allow incoming connections for Linkerd admin UI
+      GroupId:
+        Fn::ImportValue: !Sub ${EnvironmentName}:ContainerSecurityGroup
+      IpProtocol: -1
+      SourceSecurityGroupId:
+        Fn::ImportValue: !Sub ${EnvironmentName}:ContainerSecurityGroup
+
+  # Consul instance (Note that this is a single standalone instance but
+  # should be HA for production, and potentially deployed in the ECS
+  # cluster as well)
+  ConsulInstance:
+    Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+    Properties:
+      SubnetId:
+        Fn::ImportValue: !Sub ${EnvironmentName}:PublicSubnetOne
+      ImageId: !Ref 'ECSAMI'
+      InstanceType: m4.xlarge
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -x
+          usermod -a -G docker ec2-user
+          EC2_INSTANCE_IP_ADDRESS=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+          EC2_INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+          mkdir -p /opt/consul/data
+          mkdir -p /opt/consul/config
+          docker run -d --net=host -p 8300:8300 -p 8301:8301 -p 8301:8301/udp -p 8302:8302 \
+            -p 8302:8302/udp -p 8400:8400 -p 8500:8500 -p 53:53/udp \
+            -v /opt/consul/data:/consul/data -v /opt/consul/config:/consul/config \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -h $EC2_INSTANCE_ID --name consul-server -e CONSUL_ALLOW_PRIVILEGED_PORTS=1 \
+            -l service_name=consul-server consul:1.2.3 agent -server \
+            -bootstrap-expect 1 -advertise $EC2_INSTANCE_IP_ADDRESS -client 0.0.0.0 -ui
+          yum install -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ConsulInstance --region ${AWS::Region}
+
+      SecurityGroupIds:
+        - Fn::ImportValue: !Sub ${EnvironmentName}:ContainerSecurityGroup
+      Tags:
+        - Key: Name
+          Value: l5d-demo-consul-server
+
+  # A log group for storing the std logs
+  LinkerdLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub ${EnvironmentName}-daemon-linkerd
+
+  # Define the linkerd task
+  LinkerdTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: linkerd
+      Volumes:
+        - Host:
+            SourcePath: '/etc/linkerd'
+          Name: linkerd-config
+      ContainerDefinitions:
+        - Name: linkerd
+          Image: docker.io/buoyantio/linkerd:1.4.6
+          Command:
+            - "-log.level=DEBUG"
+            - "/etc/linkerd/linkerd.yaml"
+          Memory: 1024
+          PortMappings:
+            - HostPort: 4140
+              ContainerPort: 4140
+              Protocol: tcp
+            - HostPort: 4141
+              ContainerPort: 4141
+              Protocol: tcp
+            - HostPort: 9990
+              ContainerPort: 9990
+              Protocol: tcp
+          Essential: true
+          MountPoints:
+            - ContainerPath: '/etc/linkerd'
+              SourceVolume: 'linkerd-config'
+              ReadOnly: true
+          Environment:
+            - Name: SERVICE_9990_NAME
+              Value: linkerd
+          LogConfiguration:
+            LogDriver: 'awslogs'
+            Options:
+              awslogs-group: !Sub ${EnvironmentName}-daemon-linkerd
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: 'linkerd'
+
+  # Linkerd daemon
+  LinkerdDaemon:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: 'linkerd'
+      Cluster:
+        Fn::ImportValue: !Sub ${EnvironmentName}:ClusterName
+      TaskDefinition: !Ref 'LinkerdTaskDefinition'
+      SchedulingStrategy: 'DAEMON'
+
+  # A log group for storing the std logs
+  ConsulAgentLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub ${EnvironmentName}-daemon-consul-agent
+
+  # Consul agent role. This role authorizes the Consul daemon to query the list of EC2 instances
+  # by tag in order to locate the Consul server.
+  ConsulAgentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: "ecs-tasks.amazonaws.com"
+          Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+      - PolicyName: query-ec2-instances
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+              - 'ec2:DescribeInstances'
+            Resource: '*'
+
+  # Define the consul agent task
+  ConsulAgentTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: consul-agent
+      TaskRoleArn: !GetAtt 'ConsulAgentRole.Arn'
+      Volumes:
+        - Host:
+            SourcePath: /opt/consul/config
+          Name: consul-config
+        - Host:
+            SourcePath: /opt/consul/data
+          Name: consul-data
+        - Host:
+            SourcePath: /var/run/docker.sock
+          Name: consul-docker
+      ContainerDefinitions:
+        - Name: consul-agent
+          Image: docker.io/consul:1.2.3
+          Command: [
+            "consul", "agent", "-ui",
+            "-config-file", "/etc/consul/consul-agent.json",
+            "-data-dir", "/consul/data"
+          ]
+          Memory: 128
+          PortMappings:
+            - HostPort: 8301
+              ContainerPort: 8301
+              Protocol: tcp
+            - HostPort: 8301
+              ContainerPort: 8301
+              Protocol: udp
+            - HostPort: 8400
+              ContainerPort: 8400
+              Protocol: tcp
+            - HostPort: 8500
+              ContainerPort: 8500
+              Protocol: tcp
+            - HostPort: 53
+              ContainerPort: 53
+              Protocol: udp
+          Essential: true
+          MountPoints:
+            - ContainerPath: /etc/consul
+              SourceVolume: consul-config
+              ReadOnly: true
+            - ContainerPath: /consul/data
+              SourceVolume: consul-data
+              ReadOnly: false
+            - ContainerPath: /var/run/docker.sock
+              SourceVolume: consul-docker
+              ReadOnly: true
+          LogConfiguration:
+            LogDriver: 'awslogs'
+            Options:
+              awslogs-group: !Sub ${EnvironmentName}-daemon-consul-agent
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: 'consul-agent'
+
+  # Consul agent daemon
+  ConsulAgentDaemon:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: 'consul-agent'
+      Cluster:
+        Fn::ImportValue: !Sub ${EnvironmentName}:ClusterName
+      TaskDefinition: !Ref 'ConsulAgentTaskDefinition'
+      SchedulingStrategy: 'DAEMON'
+
+  # A log group for storing the std logs
+  ConsulRegistratorLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub ${EnvironmentName}-daemon-consul-registrator
+
+  # Define the consul registrator task
+  ConsulRegistratorTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: consul-registrator
+      Volumes:
+        - Host:
+            SourcePath: /opt/consul-registrator/bin
+          Name: consul-registrator-bin
+        - Host:
+            SourcePath: /var/run/docker.sock
+          Name: consul-registrator-docker
+      NetworkMode: host
+      ContainerDefinitions:
+        - Name: consul-registrator
+          Image: "gliderlabs/registrator:v7"
+          EntryPoint:
+            - /bin/consul-registrator/start.sh
+          Memory: 128
+          Essential: true
+          MountPoints:
+            - ContainerPath: /bin/consul-registrator
+              SourceVolume: consul-registrator-bin
+              ReadOnly: true
+            - ContainerPath: /tmp/docker.sock
+              SourceVolume: consul-registrator-docker
+              ReadOnly: true
+          LogConfiguration:
+            LogDriver: 'awslogs'
+            Options:
+              awslogs-group: !Sub ${EnvironmentName}-daemon-consul-registrator
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: 'consul-registrator'
+
+  # Consul registrator daemon
+  ConsulRegistratorDaemon:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: 'consul-registrator'
+      Cluster:
+        Fn::ImportValue: !Sub ${EnvironmentName}:ClusterName
+      TaskDefinition: !Ref 'ConsulRegistratorTaskDefinition'
+      SchedulingStrategy: 'DAEMON'
+
+Outputs:
+  ConsulDashboard:
+    Description: The address of the Consul admin dashboard
+    Value: !Join [ '', [ 'http://', !GetAtt 'ConsulInstance.PublicDnsName', ':8500' ]]

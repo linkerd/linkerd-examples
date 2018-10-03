@@ -1,4 +1,5 @@
 target/
 .sbt-launch.jar
 .*.swp
+.DS_Store
 
