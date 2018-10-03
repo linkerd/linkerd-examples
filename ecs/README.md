@@ -36,7 +36,7 @@ The following components make up the system:
 ## Initial Setup
 
 First, launch a cluster of EC2 instances orchestrated by ECS. You can use a
-CloudFormation template to create a VPC, security group, an autoscaling group
+CloudFormation template to create a VPC, security group, and autoscaling group
 for launching EC2 instances configured to connect to ECS. You can download or
 clone the [linkerd-examples repo](https://github.com/linkerd/linkerd-examples/tree/master/ecs)
 to get the template.
@@ -44,23 +44,25 @@ to get the template.
 Open the CloudFormation console and deploy the `linkerd-ecs-cluster.yml` template
 or if you have the AWS CLI installed and configured run:
 
-```
+```bash
+KEY_PAIR=<MY KEY PAIR NAME>
+
 aws cloudformation deploy \
   --stack-name linkerd-ecs-cluster \
   --template-file linkerd-ecs-cluster.yml \
-  --parameter-overrides KeyName=<your SSH key name> \
-  --capabilities CAPABILITY_IAM 
+  --parameter-overrides KeyName=$KEY_PAIR \
+  --capabilities CAPABILITY_IAM
 ```
 
 The next thing needed is a Consul server, and the `linkerd`, `consul-agent`,
 and `consul-registrator` daemons. These can be deployed using the
 `linkerd-daemons.yml` template:
 
-```
+```bash
 aws cloudformation deploy \
   --stack-name linkerd-daemons \
   --template-file linkerd-daemons.yml \
-  --capabilities CAPABILITY_IAM 
+  --capabilities CAPABILITY_IAM
 ```
 
 ### Register Task Definitions
@@ -92,19 +94,21 @@ Note that we have deployed two instances of `hello-world`, which results in two
 
 ## Test everything worked
 
-First we need to create an SSH tunnel to the cluster. The following commands will
-choose one of the EC2 hosts, and forward traffic on three local ports to three
-remote ports on the EC2 host:
+First we need to create an SSH tunnel to the cluster. The following commands
+will choose one of the EC2 hosts, and forward traffic on three local ports to
+three remote ports on the EC2 host:
 
-- Traffic to `localhost:9990` will go to the Linkerd dashboard on the remote host
-- Traffic to `localhost:8500` will go to the Consul admin dashboard on the remote host
-- Traffic to `localhost:4140` will go to the Linkerd HTTP proxy on the remote host
-- Traffic to `localhost:3000` will go to the Linkerd visualizer on the remote host (will launch this later)
+- Traffic to `localhost:9990` will go to the Linkerd dashboard on the remote
+  host
+- Traffic to `localhost:8500` will go to the Consul admin dashboard on the
+  remote host
+- Traffic to `localhost:4140` will go to the Linkerd HTTP proxy on the remote
+  host
 
 Note that if one of these four ports is already in use on your local machine
 you will either have to stop whatever software if using that port, or you can
-eliminate the port collision by replace the local port number with another unused
-port number in the SSH tunnel command as well as all subsequent commands.
+eliminate the port collision by replace the local port number with another
+unused port number in the SSH tunnel command as well as all subsequent commands.
 
 ```bash
 # Select an ECS node
@@ -115,33 +119,26 @@ ECS_NODE=$( \
     --output text \
 )
 
-ssh -f -i "~/.ssh/<your key name here>.pem" \
+ssh -i "~/.ssh/$KEY_PAIR.pem" \
     -L 127.0.0.1:4140:$ECS_NODE:4140 \
     -L 127.0.0.1:9990:$ECS_NODE:9990 \
-    -L 127.0.0.1:3000:$ECS_NODE:3000 \
     -L 127.0.0.1:8500:$ECS_NODE:8500 ec2-user@$ECS_NODE -N
 ```
 
-The SSH tunnel is now launched, and forked into the background. As long as it runs
-you will be able to access the remote Linkerd HTTP proxy, Linkerd Dashboard, and
-Consul dashboard as if they were on your local host:
+The SSH tunnel is now launched. As long as it runs you will be able to access
+the remote Linkerd HTTP proxy, Linkerd Dashboard, and Consul dashboard as if
+they were on your local host:
 
-```
+```bash
 # view Linkerd and Consul UIs (osx)
 open http://localhost:9990
 open http://localhost:8500
 ```
 
-You can kill this SSH tunnel process later using: 
+Lets use the tunnel to send some requests to the `helloworld` service via the
+Linkerd HTTP proxy:
 
 ```bash
-pkill -f ssh
-```
-
-For now though, lets use the tunnel to send some requests to the `helloworld`
-service via the Linkerd HTTP proxy:
-
-```
 # test routing via Linkerd
 http_proxy=localhost:4140 curl hello
 Hello (172.31.20.160) World (172.31.19.35)!!
@@ -162,7 +159,8 @@ http_proxy=localhost:4140 curl -H 'l5d-dtab: /svc/world => /svc/world-v2' hello
 Hello (172.31.20.160) World-V2 (172.31.19.35)!!
 ```
 
-By setting the `l5d-dtab` header, we instructed Linkerd to dynamically route all requests destined for `world` to `world-v2`.
+By setting the `l5d-dtab` header, we instructed Linkerd to dynamically route all
+requests destined for `world` to `world-v2`.
 
 ## linkerd-viz
 
@@ -183,7 +181,9 @@ aws ecs run-task --cluster l5d-demo --task-definition linkerd-viz --count 1
 TASK_ID=$(aws ecs list-tasks --cluster l5d-demo --family linkerd-viz --desired-status RUNNING --query taskArns[0] --output text)
 CONTAINER_INSTANCE=$(aws ecs describe-tasks --cluster l5d-demo --tasks $TASK_ID --query tasks[0].containerInstanceArn --output text)
 INSTANCE_ID=$(aws ecs describe-container-instances --cluster l5d-demo --container-instances $CONTAINER_INSTANCE --query containerInstances[0].ec2InstanceId --output text)
-ECS_NODE=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query Reservations[*].Instances[0].PublicDnsName --output text)
+VIZ_NODE=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query Reservations[*].Instances[0].PublicDnsName --output text)
+
+ssh -i "~/.ssh/$KEY_PAIR.pem" -L 127.0.0.1:3000:$VIZ_NODE:3000 ec2-user@$VIZ_NODE -N
 
 # view linkerd-viz (osx)
 open http://localhost:3000
