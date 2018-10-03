@@ -107,7 +107,7 @@ three remote ports on the EC2 host:
 
 Note that if one of these four ports is already in use on your local machine
 you will either have to stop whatever software if using that port, or you can
-eliminate the port collision by replace the local port number with another
+eliminate the port collision by replacing the local port number with another
 unused port number in the SSH tunnel command as well as all subsequent commands.
 
 ```bash
