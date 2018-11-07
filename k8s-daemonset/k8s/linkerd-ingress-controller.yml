@@ -62,7 +62,7 @@ spec:
           readOnly: true
 
       - name: kubectl
-        image: buoyantio/kubectl:v1.8.5
+        image: buoyantio/kubectl:v1.12.2
         args: ["proxy", "-p", "8001"]
 ---
 apiVersion: v1
