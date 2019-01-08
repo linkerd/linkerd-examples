@@ -1,7 +1,7 @@
 package io.buoyant.http.identifiers
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.twitter.finagle.{Dtab, Path}
+import com.twitter.finagle.{Dtab, Path, Stack}
 import com.twitter.finagle.http.Request
 import io.buoyant.linkerd.protocol.HttpIdentifierConfig
 import io.buoyant.router.RoutingFactory.Identifier
@@ -12,7 +12,7 @@ class HelloWorldIdentifierConfig extends HttpIdentifierConfig{
   var name: String = null
 
   @JsonIgnore
-  override def newIdentifier(prefix: Path, baseDtab: () => Dtab): Identifier[Request] = {
+  override def newIdentifier(prefix: Path, baseDtab: () => Dtab, routerParams: Stack.Params = Stack.Params.empty): Identifier[Request] = {
     new HelloWorldIdentifier(prefix, name, baseDtab)
   }
 }
