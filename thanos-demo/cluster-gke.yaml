@@ -1,0 +1,43 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: linkerd
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: thanos-sidecar
+  namespace: linkerd
+spec:
+  type: LoadBalancer
+  # loadBalancerIP: XXX
+  selector:
+    linkerd.io/control-plane-component: prometheus
+  ports:
+  - port: 10901
+    targetPort: grpc
+    name: grpc
+  - port: 10911
+    targetPort: store-grpc
+    name: store-grpc
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: thanos-demo-creds
+  namespace: linkerd
+data:
+  thanos-demo-creds.json: [GOOGLE_APPLICATION_CREDENTIALS]
+type: Opaque
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: thanos-config
+  namespace: linkerd
+data:
+  bucket.yml: |-
+    type: GCS
+    config:
+      bucket: "thanos-demo"
