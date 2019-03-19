@@ -1,0 +1,44 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: linkerd
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: thanos-sidecar
+  namespace: linkerd
+spec:
+  type: LoadBalancer
+  # loadBalancerIP: XXX.us-east-1.elb.amazonaws.com
+  selector:
+    linkerd.io/control-plane-component: prometheus
+  ports:
+  - port: 10901
+    targetPort: grpc
+    name: grpc
+  - port: 10911
+    targetPort: store-grpc
+    name: store-grpc
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: thanos-config
+  namespace: linkerd
+data:
+  bucket.yml: |-
+    type: S3
+    config:
+      bucket: "thanos-demo"
+      endpoint: "s3.amazonaws.com"
+      access_key: [EKS_ACCESS_KEY]
+      secret_key: [EKS_SECRET_KEY]
+      insecure: false
+      signature_version2: false
+      encrypt_sse: false
+      put_user_metadata: {}
+      http_config:
+        idle_conn_timeout: 0s
+        insecure_skip_verify: false

@@ -1,0 +1,36 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: linkerd
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: thanos-sidecar
+  namespace: linkerd
+spec:
+  type: LoadBalancer
+  # loadBalancerIP: XXX
+  selector:
+    linkerd.io/control-plane-component: prometheus
+  ports:
+  - port: 10901
+    targetPort: grpc
+    name: grpc
+  - port: 10911
+    targetPort: store-grpc
+    name: store-grpc
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: thanos-config
+  namespace: linkerd
+data:
+  bucket.yml: |-
+    type: AZURE
+    config:
+      storage_account: [AKS_ACCOUNT]
+      storage_account_key: [AKS_KEY]
+      container: thanos-demo
