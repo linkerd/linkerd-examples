@@ -1,4 +1,6 @@
-FROM grafana/grafana:3.1.1
+FROM grafana/grafana:5.4.3
+
+USER root
 
 RUN apt-get update && \
     apt-get -y --no-install-recommends install curl
