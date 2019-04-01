@@ -42,9 +42,8 @@ TO_DELETE=""
 for i in $(seq 1 "$NAMESPACES");
 do
   NS="$NS_PREFIX""$i"
-  NS_TLS="$NS"-tls
   NS_BASELINE="$NS"-baseline
 
-  TO_DELETE="$TO_DELETE $NS $NS_TLS $NS_BASELINE"
+  TO_DELETE="$TO_DELETE $NS $NS_BASELINE"
 done
 kubectl delete ns $TO_DELETE || true

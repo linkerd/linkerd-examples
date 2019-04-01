@@ -26,7 +26,6 @@ Deploy 3 lifecycle environments:
 
 ```bash
 linkerd install --linkerd-namespace linkerd-lifecycle | kubectl apply -f -
-linkerd install --linkerd-namespace linkerd-lifecycle-tls --tls optional | kubectl apply -f -
 bin/deploy 3
 ```
 
@@ -37,7 +36,7 @@ Scale 3 lifecycle environments to 3 replicas of `bb-broadcast`, `bb-p2p`, and
 bin/scale 3 3
 ```
 
-Total mesh-enabled pod count == (1 linkerd ns + 1 linkerd tls ns) * (3*replicas+2)
+Total mesh-enabled pod count == 1 linkerd ns * (3*replicas+2)
 
 Teardown 3 lifecycle environments:
 
@@ -45,7 +44,6 @@ Teardown 3 lifecycle environments:
 bin/teardown 3
 
 kubectl delete ns linkerd-lifecycle
-kubectl delete ns linkerd-lifecycle-tls
 ```
 
 ## Individual Deploy / Scale / Teardown
