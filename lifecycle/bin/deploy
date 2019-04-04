@@ -57,7 +57,6 @@ echo "Deploying $NAMESPACES injected, TLS, and baseline namespaces..."
 for i in $(seq 1 "$NAMESPACES");
 do
   NS="$NS_PREFIX""$i"
-  NS_TLS="$NS"-tls
   NS_BASELINE="$NS"-baseline
 
   echo "\nDeploying $NS..."
@@ -65,12 +64,6 @@ do
   cat lifecycle.yml |
     linkerd inject --linkerd-namespace "$CTRL_NS_PREFIX" $INJECT_ARGS - |
     kubectl -n "$NS" apply -f -
-
-  echo "\nDeploying $NS_TLS..."
-  kubectl create ns "$NS_TLS"
-  cat lifecycle.yml |
-    linkerd inject --linkerd-namespace "$CTRL_NS_PREFIX"-tls --tls optional $INJECT_ARGS - |
-    kubectl -n "$NS_TLS" apply -f -
 
   echo "\nDeploying $NS_BASELINE..."
   kubectl create ns "$NS_BASELINE"

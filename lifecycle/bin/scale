@@ -75,6 +75,5 @@ do
   NS="$NS_PREFIX""$i"
 
   scale "$NS"
-  scale "$NS-tls"
   scale "$NS-baseline"
 done

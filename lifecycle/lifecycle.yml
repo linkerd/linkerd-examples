@@ -29,7 +29,6 @@ spec:
     spec:
       containers:
       - image: buoyantio/slow_cooker:1.2.0
-        imagePullPolicy: IfNotPresent
         name: slow-cooker
         command:
         - "/bin/sh"
@@ -77,8 +76,7 @@ spec:
         app: bb-p2p
     spec:
       containers:
-      - image: buoyantio/bb:v0.0.3
-        imagePullPolicy: IfNotPresent
+      - image: buoyantio/bb:v0.0.5
         name: bb-p2p
         command:
         - "/bin/bash"
@@ -123,8 +121,7 @@ spec:
         app: bb-broadcast
     spec:
       containers:
-      - image: buoyantio/bb:v0.0.3
-        imagePullPolicy: IfNotPresent
+      - image: buoyantio/bb:v0.0.5
         name: bb-broadcast
         command:
         - "/bin/bash"
@@ -286,8 +283,7 @@ spec:
         app: bb-terminus
     spec:
       containers:
-      - image: buoyantio/bb:v0.0.3
-        imagePullPolicy: IfNotPresent
+      - image: buoyantio/bb:v0.0.5
         name: bb-terminus
         command:
         - "/bin/bash"
@@ -405,8 +401,7 @@ spec:
     spec:
       serviceAccount: redeployer
       containers:
-      - image: lachlanevenson/k8s-kubectl:v1.10.3
-        imagePullPolicy: IfNotPresent
+      - image: lachlanevenson/k8s-kubectl:v1.14.0
         name: redeployer
         command:
         - "/data/redeployer"
