@@ -3,6 +3,8 @@ kind: Namespace
 apiVersion: v1
 metadata:
   name: linkerd
+  annotations:
+    linkerd.io/inject: disabled
 ---
 kind: Service
 apiVersion: v1

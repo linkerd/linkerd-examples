@@ -1,0 +1,100 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: strest
+---
+#
+# strest-server
+#
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: strest-server
+  namespace: strest
+spec:
+  selector:
+    app: strest-server
+  ports:
+  - name: grpc
+    port: 11111
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: strest-server
+  namespace: strest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: strest-server
+  template:
+    metadata:
+      labels:
+        app: strest-server
+    spec:
+      containers:
+      - name: strest-server
+        image: buoyantio/strest-grpc:0.0.7
+        args:
+        - "server"
+        - "--address=:11111"
+        ports:
+        - name: grpc
+          containerPort: 11111
+---
+#
+# strest-client
+#
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: strest-client
+  namespace: strest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: strest-client
+  template:
+    metadata:
+      labels:
+        app: strest-client
+    spec:
+      containers:
+      - name: strest-client
+        image: buoyantio/strest-grpc:0.0.7
+        args:
+        - "client"
+        - "--address=strest-server:11111"
+        - "--connections=5"
+        - "--totalTargetRps=100"
+        - "--streams=5"
+---
+#
+# strest-server HorizontalPodAutoscaler
+#
+---
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2beta1
+metadata:
+  name: strest
+  namespace: strest
+spec:
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: strest-server
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Object
+    object:
+      metricName: response_latency_ms_p99
+      target:
+        apiVersion: extensions/v1beta1
+        kind: Deployment
+        name: strest-server
+      targetValue: 10000m # 10ms

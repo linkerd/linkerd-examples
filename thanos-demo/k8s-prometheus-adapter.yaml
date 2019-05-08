@@ -1,0 +1,198 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: custom-metrics
+---
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1beta1.custom.metrics.k8s.io
+spec:
+  service:
+    name: custom-metrics-apiserver
+    namespace: custom-metrics
+  group: custom.metrics.k8s.io
+  version: v1beta1
+  insecureSkipTLSVerify: true
+  groupPriorityMinimum: 100
+  versionPriority: 100
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: custom-metrics:system:auth-delegator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: custom-metrics-apiserver
+  namespace: custom-metrics
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: custom-metrics-auth-reader
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+- kind: ServiceAccount
+  name: custom-metrics-apiserver
+  namespace: custom-metrics
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: custom-metrics-resource-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: custom-metrics-resource-reader
+subjects:
+- kind: ServiceAccount
+  name: custom-metrics-apiserver
+  namespace: custom-metrics
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: custom-metrics-resource-reader
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  - pods
+  - services
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - "extensions"
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: custom-metrics-apiserver
+  namespace: custom-metrics
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hpa-controller-custom-metrics
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: custom-metrics-server-resources
+subjects:
+- kind: ServiceAccount
+  name: horizontal-pod-autoscaler
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: custom-metrics-server-resources
+rules:
+- apiGroups:
+  - custom.metrics.k8s.io
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cm-adapter-serving-certs
+  namespace: custom-metrics
+data:
+  serving.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURZRENDQWtpZ0F3SUJBZ0lVZjg4a1cxNHp3cXNjR0d2TEpmMzV1N3BSTEhJd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0RURUxNQWtHQTFVRUF3d0NZMkV3SGhjTk1Ua3dOVEE0TVRVeU56QXdXaGNOTWpRd05UQTJNVFV5TnpBdwpXakFqTVNFd0h3WURWUVFERXhoamRYTjBiMjB0YldWMGNtbGpjeTFoY0dselpYSjJaWEl3Z2dFaU1BMEdDU3FHClNJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUROSzg3VVZLMGp6OEFqU25pbkJMcnQ2dy9xVFlnV1FuemYKcUtwT21OZzVhbEZnN3NJSks3czVBSWg3YkpIYmplaUdWSHczRm1GT3JsSFVzSmhyYUR2OUswbEZpSmVaQ2dTawpTTlIrQ0JhTWJxeTVQbXVLNlBHU0htUkFmeGRoa2U3UGExRnc0UTBsTmFGNitndW5XVFlGRFJycWg3Vlpud3V5CmxKNEg5a2xsa2YwbEtycGtiWWN0MVRhT2Y3MXhuNzFBd0I5OFFCZkpQcDNHZnprQklVS080aW5pVHNhMW02ck4KR3pmVXFrbCtKbko1ZlRvSHcwRmplSVJ0OHpMWlc5LzhwK0hEdW9xczVvUFZZOHY5OCtKZW9IaVFqM3prYS9iUwpQcndobUZsaDc1NEttbERucjVQZnBldjFBbkNxQW5rVDJ1Vk1jSDNpMXZUcnMwbGx0c1V2QWdNQkFBR2pnYUV3CmdaNHdEZ1lEVlIwUEFRSC9CQVFEQWdXZ01Bd0dBMVVkRXdFQi93UUNNQUF3SFFZRFZSME9CQllFRkpUTDNDZVoKVDFaZ0pXUm1ldzNpc3REMnNvK09NRjhHQTFVZEVRUllNRmFDSjJOMWMzUnZiUzF0WlhSeWFXTnpMV0Z3YVhObApjblpsY2k1amRYTjBiMjB0YldWMGNtbGpjNElyWTNWemRHOXRMVzFsZEhKcFkzTXRZWEJwYzJWeWRtVnlMbU4xCmMzUnZiUzF0WlhSeWFXTnpMbk4yWXpBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQUd2Wk9KNXo3amNvNVVnL1YKYzdlUUZ2OFVBNnh4RVhDVnFyVmgyS0dmYmViU3ZtQnNRaW1VZkVuOHAvT2FqZkNOVXRIZW50R3pMOFdINzAzNQpHd2NUckIzbTVZTVJkRU5UM2hDRnUxTTNnT1dGbURNaGFQRDhZdFY1MGsxbVBUamU1bGhvNkhUNEx6a1J1N3l5CmJsb0dQSEt3UFNMV082WktyTFBjRFk0a0hxRk5MaGhBNVFTNUUyd0J2Nm1XODlaQ0Rrd1dpeGxBa3JLOVU1MCsKV3M2eEQ4dUU4RnJVbEJ3RkY0SUYvSm5lOUJHYjVYSm9NZ0xickpRc0pwNCs5blk0WGxWK0Rwall4VFBmTDBoegpQd2ZYN1VKSENnV0lSc1puaU9xQnBjZUVFVlNpV21hN2RnSVhTZWl0cGFlREc4TVlnSWl2V0dja1BPS0RQT1FlCm5WMTRtUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  serving.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBelN2TzFGU3RJOC9BSTBwNHB3UzY3ZXNQNmsySUZrSjgzNmlxVHBqWU9XcFJZTzdDCkNTdTdPUUNJZTJ5UjI0M29obFI4TnhaaFRxNVIxTENZYTJnNy9TdEpSWWlYbVFvRXBFalVmZ2dXakc2c3VUNXIKaXVqeGtoNWtRSDhYWVpIdXoydFJjT0VOSlRXaGV2b0xwMWsyQlEwYTZvZTFXWjhMc3BTZUIvWkpaWkg5SlNxNgpaRzJITGRVMmpuKzljWis5UU1BZmZFQVh5VDZkeG44NUFTRkNqdUlwNGs3R3RadXF6UnMzMUtwSmZpWnllWDA2CkI4TkJZM2lFYmZNeTJWdmYvS2ZodzdxS3JPYUQxV1BML2ZQaVhxQjRrSTk4NUd2MjBqNjhJWmhaWWUrZUNwcFEKNTYrVDM2WHI5UUp3cWdKNUU5cmxUSEI5NHRiMDY3TkpaYmJGTHdJREFRQUJBb0lCQUVQbkxjckVRNUZJbnJTUApYeU1YdzY0ZVQrUWh5TnBsSXVMNjlYS1J6MjRoSzlIQzgyRUpvaXNaYkJJOU9vREpsSjF3dExPZXFwSFp5NmR5CjB0OHBYa0ZKNURRcEl0TTVwNU9mcndRUE5UZEJJZFVsUFg1NTNnbVlHV0huTGh2U3FwRG5XY3JjRVBleHFrSUQKSTN3OVlFMkhxdExZRzBNUUNsVU9Mc2MvMGNiVlZFSk9kYUw2eUJ0c21aY0VNUXVZMkU5ZWhFdkpoc3VoZ3BpWgpsRzNESlNCL0k1RXZmbVBmUGthWmxIZ1drbG5vYmhxN3RyRFdhcWVjUGs2LzNBaTBISGdQSVRVQTlNQmMrcEtSClJ0cUN3cUtFektxMi9jVXBMZUJOM2xrUVJEV1Y3Z1Fob2JKR25lM2ZYL2VRYVlsQjlJMFFtWTFocjVIUlN1dVAKVHBUME1ERUNnWUVBOVExV2ZGZ0R3by9nWXByMTVDeDFsSVNIeUtMRXBMOXJjaDVxQzA3dXV4WFRIU3RDeGkzUgorU1g0bjFFSngvS1MwTFRPWEtKVnBlL1p4OWNxbHFjM0ZSZFdXaHhRR3laUkNpZlQ3cGtuZnV5ZEtlMkJEQzFpCkh1a1lFOHhFQm41UE43eEhySm1xT20zbFdKZ2hPU1d4ck14TkJtbG90eE1MOFRIc2twY0pKS3NDZ1lFQTFsWloKNVlMdVFJVGhEdXdJMkVIMHBacmhLeTBTSTVlOGs5bHFjOVhZczBua1pPQ09ZU0dJcU5PSjIwWWxlRU05blNiSgovb0lNWWY3enEzQ1dsTWJ6T3lrcVBGUGw2d2wwZ3QybDJTVzBzdUxJUjZIREhDS2UwLytVUDk1Zjhqb2RheExSCllZYTlxRlBnUjQ0Um5sSnhpblNzak9IUDJDVFZPaG96am9LS3VZMENnWUI4R2lNZ21kcGRvRXU4NUVsL0l0engKT0NVa0FQcWhqS2UzaFp1aTJuaWdtcTd0Nk1qS1lNNGo1WTBCOGlLSDlsdFFBeUUzWEtjUGdHYkVoRDEzU252awozSXJJMituZHRndjRucTcvK09ROXJVcnl2dXRKNVhuNXVZYU9FRGFyS3pDblExenhGbWxWYWU1cWJiRDFwaGRUCk1hd1lnUzJjK2JKa2xpbi9HeXB3UFFLQmdFNWxpVDRVZE5hdWc2ODBrRXVoWEQyU2Q5ZVdCYk4xRmFteWRXaG4KQ0hzVGhQR00zU2NUMyt0NGJFMEN6RU8vdkhLVnRINWR6Tyt2RkN0WjVBb0k5d0JsbnlndnU4SUxWRTFsaXZydworcllQa3hmNFIrZ3JsWktQUWdkV2JCdXFQQVprL0tiQ1pPNkR0MTRVemNidCtzK2N1MXhRWC9oOENHM1hGWktECmx3QWxBb0dCQUpwODFVTGF0b05OZzcrUVBPdmdSY09LWVRvUGs1MSt5YlBwQi9DTmR6S1BjczRlYXF0RStMakMKWUo0bmhhRFFGMEx6WjEvK1VhVmtmQ3hSQm9ORThkUkRDUnNOdVB3cW9oZkpFY3VVZ1FaYVpWQllIQ3h2ZWJmWAo1NVgwYmtsall3dVpVTkh5dDM5clJ2ZEUybWE3V1VOUkQ4M2dYYm1oTUtuUUFXbms1a3luCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: adapter-config
+  namespace: custom-metrics
+data:
+  config.yaml: |
+    rules:
+    - seriesQuery: 'response_latency_ms_bucket{namespace="strest", deployment="strest-server", direction="inbound"}'
+      resources:
+        template: <<.Resource>>
+      name:
+        matches: "^(.*)_bucket"
+        as: "${1}_p99"
+      metricsQuery: 'histogram_quantile(0.99, sum(irate(<<.Series>>{namespace="strest", deployment="strest-server", direction="inbound"}[30s])) by (le, <<.GroupBy>>))'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: custom-metrics-apiserver
+  namespace: custom-metrics
+spec:
+  ports:
+  - port: 443
+    targetPort: 6443
+  selector:
+    app: custom-metrics-apiserver
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: custom-metrics-apiserver
+  name: custom-metrics-apiserver
+  namespace: custom-metrics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: custom-metrics-apiserver
+  template:
+    metadata:
+      labels:
+        app: custom-metrics-apiserver
+      name: custom-metrics-apiserver
+    spec:
+      serviceAccountName: custom-metrics-apiserver
+      containers:
+      - name: custom-metrics-apiserver
+        image: directxman12/k8s-prometheus-adapter-amd64:v0.5.0
+        args:
+        - --secure-port=6443
+        - --tls-cert-file=/var/run/serving-cert/serving.crt
+        - --tls-private-key-file=/var/run/serving-cert/serving.key
+        - --logtostderr=true
+        - --prometheus-url=http://[THANOS_QUERIER_IP]:10902/
+        - --metrics-relist-interval=1m
+        - --config=/etc/adapter/config.yaml
+        ports:
+        - containerPort: 6443
+        volumeMounts:
+        - mountPath: /var/run/serving-cert
+          name: volume-serving-cert
+          readOnly: true
+        - mountPath: /etc/adapter/
+          name: config
+          readOnly: true
+        - mountPath: /tmp
+          name: tmp-vol
+      volumes:
+      - name: volume-serving-cert
+        secret:
+          secretName: cm-adapter-serving-certs
+      - name: config
+        configMap:
+          name: adapter-config
+      - name: tmp-vol
+        emptyDir: {}

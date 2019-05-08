@@ -1,8 +1,9 @@
 # Thanos Demo
 
 This environment demonstrates deploying [Linkerd](https://linkerd.io) and sample
-apps across 4 cluster providers, and aggregating metrics into a single
-[Thanos](https://github.com/improbable-eng/thanos) Querier.
+apps across 4 cluster providers, aggregating metrics into a single
+[Thanos](https://github.com/improbable-eng/thanos) Querier, and autoscaling the
+sample apps when global latency increases.
 
 These configs assume the following:
 - Working Kubernetes clusters in 4 cloud providers:
@@ -12,6 +13,10 @@ These configs assume the following:
   - Google Kubernetes Engine (GKE)
 - Block storage configured and accessible from each Kubernetes cluster
 
+This demo was given at Kubecon Barcelona in 2019:
+- https://sched.co/MPbU
+- https://youtu.be/qTxunwzYO0g
+
 ## Config files
 
 - `cluster-*.yaml`: `Namespace`, `Service`, and `ConfigMap` objects
@@ -20,9 +25,14 @@ These configs assume the following:
   [Object Storage](https://github.com/improbable-eng/thanos/blob/master/docs/storage.md)
   in the [Thanos repo](https://github.com/improbable-eng/thanos).
 - `linkerd-install-*.yaml`: modified `linkerd install` configs to support Thanos
-   integration.
+  integration.
 - [`thanos-querier.yaml`](thanos-querier.yaml): The Thanos Querier and Grafana,
   to aggregate metrics from all clusters.
+- [`k8s-prometheus-adapter.yaml`](k8s-prometheus-adapter.yaml):
+  [k8s-prometheus-adapter](https://github.com/DirectXMan12/k8s-prometheus-adapter),
+  to query metrics from Thanos and serve them to the HorizontalPodAutoscaler.
+- [`strest.yaml`](strest.yaml):
+  [strest-grpc](https://github.com/BuoyantIO/strest-grpc) sample application.
 
 ### Linkerd / Thanos integration
 
@@ -163,40 +173,24 @@ done
 linkerd --context $AKS check
 ```
 
-## Install sample apps
+## Install sample apps, inject Linkerd
 
 ```bash
 for CLUSTER in $AKS $DO $EKS $GKE
 do
-  curl -s https://run.linkerd.io/emojivoto.yml |
+  cat strest.yaml |
+    linkerd --context $CLUSTER inject - |
     kubectl --context $CLUSTER apply -f -
 done
 ```
 
-### View sample app
-
-```bash
-kubectl --context $AKS -n emojivoto port-forward svc/web-svc 8080:80
-```
-
-### Inject sample apps with Linkerd
-
-```bash
-for CLUSTER in $AKS $DO $EKS $GKE
-do
-  curl -s https://run.linkerd.io/emojivoto.yml |
-    linkerd inject - |
-    kubectl --context $CLUSTER apply -f -
-done
-```
-
-Validate proxy injected
+### Validate proxy injected
 
 ```bash
 for CLUSTER in $AKS $DO $EKS $GKE
 do
   printf "\n$CLUSTER\n"
-  linkerd --context $CLUSTER -n emojivoto stat deploy
+  linkerd --context $CLUSTER -n strest stat deploy
 done
 ```
 
@@ -277,4 +271,47 @@ kubectl --context $AKS -n thanos-demo port-forward svc/thanos-querier 10902
 
 ```bash
 kubectl --context $AKS -n thanos-demo port-forward svc/grafana 3000
+```
+
+#### Autoscaling
+
+[`k8s-prometheus-adapter.yaml`](k8s-prometheus-adapter.yaml) runs in each
+cluster, queries Thanos for global metrics, and provides those metrics to a
+HorizontalPodAutoscaler. The adapter must be provided a Thanos IP address, which
+was created via a LoadBalancer in [`thanos-querier.yaml`](thanos-querier.yaml).
+
+Obtain static addresses for Thanos Querier:
+
+```bash
+kubectl --context $AKS -n thanos-demo get svc/thanos-querier -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+```
+
+Substitute IP address in
+[`k8s-prometheus-adapter.yaml`](k8s-prometheus-adapter.yaml):
+
+```yaml
+containers:
+- name: custom-metrics-apiserver
+  image: directxman12/k8s-prometheus-adapter-amd64:v0.5.0
+  args:
+  ...
+  - --prometheus-url=http://[THANOS_QUERIER_IP]:10902/
+```
+
+```bash
+for CLUSTER in $AKS $DO $EKS $GKE
+do
+  cat k8s-prometheus-adapter.yaml | kubectl --context $CLUSTER apply -f -
+done
+
+# verify
+kubectl --context $AKS get --raw /apis/custom.metrics.k8s.io/v1beta1
+kubectl --context $AKS get --raw /apis/custom.metrics.k8s.io/v1beta1/namespaces/strest/deployments/*/response_latency_ms_p99
+kubectl --context $AKS -n strest describe hpa/strest
+```
+
+##### Scale up one strest-client
+
+```bash
+kubectl --context $GKE -n strest scale --replicas=20 deploy/strest-client
 ```
