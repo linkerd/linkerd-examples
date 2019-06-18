@@ -9,7 +9,7 @@ directory so that it can be included in the image. Pull it out of the latest
 buoyantio/kubectl docker image:
 
 ```bash
-$ docker run --name kubectl -d buoyantio/kubectl:v1.12.2
+$ docker run --name kubectl -d buoyantio/kubectl:v1.14.3
 $ docker cp kubectl:/kubectl .
 $ docker rm -vf kubectl
 ```
