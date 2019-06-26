@@ -97,15 +97,6 @@ Sets up a demo environment that configures a
 linkerd, Telegraf, InfluxDB, and Grafana. Provides helpful configuration files
 and dashboards for all components.
 
-## Istio
-
-* [`istio/`](istio/)
-
-Provides common configurations for deploying linkerd to Istio. More information:
-
-* [Getting Started: Running with Istio](https://linkerd.io/getting-started/istio/)
-* [Linkerd and Istio: Like Peanut Butter and Jelly](https://buoyant.io/2017/07/11/linkerd-istio/)
-
 ## A Service Mesh for Kubernetes
 
 * [`k8s-daemonset/`](k8s-daemonset/)
