@@ -1,7 +1,8 @@
 # Thanos Demo
 
-This environment demonstrates deploying [Linkerd](https://linkerd.io) and sample
-apps across 4 cluster providers, aggregating metrics into a single
+This environment demonstrates deploying
+[Linkerd2](https://github.com/linkerd/linkerd2) and sample apps across 4 cluster
+providers, aggregating metrics into a single
 [Thanos](https://github.com/improbable-eng/thanos) Querier, and autoscaling the
 sample apps when global latency increases.
 
