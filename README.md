@@ -129,6 +129,11 @@ Provides helpful configuration files and dashboards for all components.
 Demonstrates running linkerd and a sample hello world app on Mesos and Marathon,
 without DC/OS.
 
+## OPA
+
+Demonstrates running Linkerd with [OPA Gatekeeper](https://github.com/open-policy-agent/gatekeeper/)
+to enforce mTLS policies.
+
 ## Perf baseline
 
 * [`perf-baseline/`](perf-baseline/)

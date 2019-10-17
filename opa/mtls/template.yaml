@@ -1,0 +1,69 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: linkerdmutualtls
+  labels:
+    policy.linkerd.io: mtls
+spec:
+  crd:
+    spec:
+      names:
+        kind: LinkerdMutualTLS
+        plural: mtls
+        singular: mtls
+        shortNames: ["mtls"]
+      validation:
+        openAPIV3Schema:
+          properties:
+            labels:
+              type: array
+              items: string
+  targets:
+  - target: admission.k8s.gatekeeper.sh
+    rego: |
+      package linkerd.io
+
+      meta = input.review.object.metadata
+      spec = input.review.object.spec
+      parameters = input.parameters
+
+      violation[{"msg":msg, "details":{}}] {
+        containers := spec.containers
+        not proxy(containers, parameters)
+        msg := sprintf("Missing proxy sidecar container: %v", [parameters.proxy.name])
+      }
+
+      violation[{"msg":msg, "details":{}}]{
+        containers := spec.containers
+        annotation := { annotation |
+          parameters.metadata.annotations[key] == meta.annotations[key]
+          annotation := parameters.metadata.annotations[key]
+        }
+        count(annotation) == 0
+        msg := sprintf("Missing required annotation %v=%v", [key, parameters.metadata.annotations[key]])
+      }
+
+      violation[{"msg":msg, "details":{}}] {
+        containers := spec.containers
+        env := { variable |
+          proxy := find_proxy(containers, parameters)
+          parameters.env[j].name == proxy.env[k].name
+          variable := parameters.env[j].name
+        }
+        count(env) == 0
+        msg := sprintf("Missing required environment variable: %v", [parameters.env[j].name])
+      }
+
+      violation[{"msg":msg, "details":{}}] {
+        spec.automountServiceAccountToken != true
+        msg := "automountServiceAccountToken must be set to 'true' to enable mTLS identity"
+      }
+
+      proxy(containers, parameters) {
+        spec.containers[_].name == parameters.proxy.name
+      }
+
+      find_proxy(containers, parameters) = proxy {
+        spec.containers[i].name == parameters.proxy.name
+        proxy := spec.containers[i]
+      }
