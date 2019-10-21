@@ -30,7 +30,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: default
-    namespace: default
+    namespace: linkerd
 roleRef:
   kind: ClusterRole
   name: linkerd-endpoints-reader
@@ -43,7 +43,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: default
-    namespace: default
+    namespace: linkerd
 roleRef:
   kind: ClusterRole
   name: namerd-dtab-storage
