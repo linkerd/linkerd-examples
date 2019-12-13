@@ -10,6 +10,12 @@
 This repo contains subdirectories with various examples for how to use linkerd
 and namerd. Each of the subdirectories is described below.
 
+All examples and documents in this repo refer to
+[Linkerd 1.x](https://github.com/linkerd/linkerd) unless explicitly called out
+as a [Linkerd2](https://github.com/linkerd/linkerd2) example. For more
+information on getting started with Linkerd2, head over to the
+[Linkerd2 Getting Started Guide](https://linkerd.io/2/getting-started/).
+
 ## Getting started
 
 * [`getting-started/`](getting-started/)

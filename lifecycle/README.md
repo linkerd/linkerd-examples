@@ -1,6 +1,7 @@
 # Linkerd lifecycle test configuration
 
-Production testing Linkerd2's discovery & caching.
+Production testing [Linkerd2's](https://github.com/linkerd/linkerd2) discovery &
+caching.
 
 The goal of this test suite is to run an outbound proxy for a prolonged amount
 of time in a dynamically-scheduled environment in order to exercise:
