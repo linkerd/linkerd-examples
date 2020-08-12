@@ -1,10 +1,12 @@
 ##### build stage ###########################################################
-FROM golang:1.9.2-alpine as golang
+ARG BUILDPLATFORM=linux/amd64
+
+FROM --platform=$BUILDPLATFORM golang:1.9.2-alpine as golang
 
 ADD . /go/src/github.com/linkerd/linkerd-examples/docker/helloworld/
-
-RUN go build -o /go/bin/helloworld        /go/src/github.com/linkerd/linkerd-examples/docker/helloworld/main.go
-RUN go build -o /go/bin/helloworld-client /go/src/github.com/linkerd/linkerd-examples/docker/helloworld/helloworld-client/main.go
+ARG TARGETARCH
+RUN GOOS=linux GOARCH=$TARGETARCH go build -o /go/bin/helloworld        /go/src/github.com/linkerd/linkerd-examples/docker/helloworld/main.go
+RUN GOOS=linux GOARCH=$TARGETARCH go build -o /go/bin/helloworld-client /go/src/github.com/linkerd/linkerd-examples/docker/helloworld/helloworld-client/main.go
 
 ##### run stage #############################################################
 FROM alpine:3.6

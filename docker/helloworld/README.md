@@ -14,6 +14,25 @@ Docker image, run:
 $ docker build -t buoyantio/helloworld:<tag-name> .
 ```
 
+Build Multi-Arch Images with Buildx
+
+Create the builder instance:
+
+```bash
+$ docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+$ docker buildx create --name=multiarch-builder --driver=docker-container --use
+$ docker buildx inspect multiarch-builder --bootstrap
+```
+
+Build the images:
+
+```bash
+$ docker buildx build . \
+    --platform linux/amd64,linux/arm64,linux/arm/v7 \
+    --push \
+    --tag buoyantio/helloworld:<tag-name>
+```
+
 Where `<tag-name>` is the tag of the image that you want to build.
 
 To regenerate the protobuf gRPC bindings in the proto directory, run:
