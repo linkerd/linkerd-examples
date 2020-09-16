@@ -1,0 +1,6 @@
+- op: add
+  path: /spec/template/metadata/annotations
+  value: {}
+- op: add
+  path: /spec/template/metadata/annotations/linkerd.io~1inject
+  value: enabled

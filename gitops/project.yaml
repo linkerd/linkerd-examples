@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: demo
+  namespace: argocd
+spec:
+  clusterResourceWhitelist:
+  - group: admissionregistration.k8s.io
+    kind: MutatingWebhookConfiguration
+  - group: admissionregistration.k8s.io
+    kind: ValidatingWebhookConfiguration
+  - group: apiextensions.k8s.io
+    kind: CustomResourceDefinition
+  - group: apiregistration.k8s.io
+    kind: APIService
+  - group: ""
+    kind: Namespace
+  - group: policy
+    kind: PodSecurityPolicy
+  - group: rbac.authorization.k8s.io
+    kind: ClusterRole
+  - group: rbac.authorization.k8s.io
+    kind: ClusterRoleBinding
+  destinations:
+  - namespace: argocd
+    server: https://kubernetes.default.svc
+  - namespace: cert-manager
+    server: https://kubernetes.default.svc
+  - namespace: emojivoto
+    server: https://kubernetes.default.svc
+  - namespace: kube-system
+    server: https://kubernetes.default.svc
+  - namespace: linkerd
+    server: https://kubernetes.default.svc
+  sourceRepos:
+  - git://git-server.scm:9418/linkerd-examples.git
+  - https://charts.jetstack.io
+  - https://github.com/BuoyantIO/emojivoto.git
+  - https://helm.linkerd.io/stable
+  - https://kubernetes-charts.storage.googleapis.com

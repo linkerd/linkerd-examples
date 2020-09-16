@@ -1,0 +1,13 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: main
+  namespace: argocd
+spec:
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  project: demo
+  source:
+    path: ./gitops/argo-apps
+    repoURL: git://git-server.scm:9418/linkerd-examples.git

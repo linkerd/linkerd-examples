@@ -1,0 +1,58 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: linkerd
+  namespace: argocd
+spec:
+  project: demo
+  source:
+    chart: linkerd2
+    repoURL: https://helm.linkerd.io/stable
+    targetRevision: 2.8.0
+    helm:
+      parameters:
+      - name: global.identityTrustAnchorsPEM
+        value: |
+          -----BEGIN CERTIFICATE-----
+          -----END CERTIFICATE-----
+      - name: identity.issuer.scheme
+        value: kubernetes.io/tls
+      - name: installNamespace
+        value: "false"
+  destination:
+    namespace: linkerd
+    server: https://kubernetes.default.svc
+  ignoreDifferences:
+  - group: ""
+    kind: Secret
+    name:  linkerd-proxy-injector-tls
+    jsonPointers:
+    - /data/crt.pem
+    - /data/key.pem
+  - group: ""
+    kind: Secret
+    name:  linkerd-sp-validator-tls
+    jsonPointers:
+    - /data/crt.pem
+    - /data/key.pem
+  - group: ""
+    kind: Secret
+    name:  linkerd-tap-tls
+    jsonPointers:
+    - /data/crt.pem
+    - /data/key.pem
+  - group: admissionregistration.k8s.io/v1beta1
+    kind: MutatingWebhookConfiguration
+    name:  linkerd-proxy-injector-webhook-config
+    jsonPointers:
+    - /webhooks/0/clientConfig/caBundle
+  - group: admissionregistration.k8s.io/v1beta1
+    kind: ValidatingWebhookConfiguration
+    name:  linkerd-sp-validator-webhook-config
+    jsonPointers:
+    - /webhooks/0/clientConfig/caBundle
+  - group: apiregistration.k8s.io/v1
+    kind: APIService
+    name: v1alpha1.tap.linkerd.io
+    jsonPointers:
+    - /spec/caBundle
