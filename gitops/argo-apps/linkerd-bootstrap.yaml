@@ -1,0 +1,13 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: linkerd-bootstrap
+  namespace: argocd
+spec:
+  destination:
+    namespace: linkerd
+    server: https://kubernetes.default.svc
+  project: demo
+  source:
+    path: gitops/resources/linkerd
+    repoURL: git://git-server.scm:9418/linkerd-examples.git

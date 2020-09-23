@@ -1,0 +1,13 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: emojivoto
+  namespace: argocd
+spec:
+  destination:
+    namespace: emojivoto
+    server: https://kubernetes.default.svc
+  project: demo
+  source:
+    path: gitops/resources/emojivoto
+    repoURL: git://git-server.scm:9418/linkerd-examples.git
