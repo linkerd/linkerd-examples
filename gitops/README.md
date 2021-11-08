@@ -9,7 +9,7 @@ The scripts and commands are tested with the following software:
 1. [kind](https://kind.sigs.k8s.io/) v0.8.1
 1. [Linkerd](https://linkerd.io/) 2.8.1
 1. [Argo CD](https://argoproj.github.io/argo-cd/) v1.6.1
-1. [cert-manager](https://cert-manager.io) 0.15.0
+1. [cert-manager](https://cert-manager.io) 1.0.4
 1. [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) 0.12.4
 
 ## Highlights
