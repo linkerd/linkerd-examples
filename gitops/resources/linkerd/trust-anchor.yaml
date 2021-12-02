@@ -11,8 +11,7 @@ spec:
   template:
     metadata:
       annotations:
-        linkerd.io/created-by: linkerd/cli stable-2.8.1
-        linkerd.io/identity-issuer-expiry: "2021-07-19T20:51:01Z"
+        linkerd.io/created-by: linkerd/cli stable-2.11.1
       creationTimestamp: null
       labels:
         linkerd.io/control-plane-component: identity
