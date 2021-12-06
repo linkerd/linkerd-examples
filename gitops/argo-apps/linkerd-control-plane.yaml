@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: linkerd-control-plane
+  namespace: argocd
+spec:
+  project: demo
+  source:
+    chart: linkerd-control-plane
+    repoURL: https://helm.linkerd.io/stable
+    targetRevision: 2.12.0
+    helm:
+      parameters:
+      - name: identityTrustAnchorsPEM
+        value: |
+          -----BEGIN CERTIFICATE-----
+          -----END CERTIFICATE-----
+      - name: identity.issuer.scheme
+        value: kubernetes.io/tls
+  destination:
+    namespace: linkerd
+    server: https://kubernetes.default.svc
