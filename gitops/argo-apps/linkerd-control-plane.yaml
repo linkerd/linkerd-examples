@@ -20,3 +20,37 @@ spec:
   destination:
     namespace: linkerd
     server: https://kubernetes.default.svc
+  ignoreDifferences:
+  - group: ""
+    kind: Secret
+    name:  linkerd-proxy-injector-k8s-tls
+    jsonPointers:
+    - /data/tls.crt
+    - /data/tls.key
+  - group: ""
+    kind: Secret
+    name:  linkerd-sp-validator-k8s-tls
+    jsonPointers:
+    - /data/tls.crt
+    - /data/tls.key
+  - group: ""
+    kind: Secret
+    name:  linkerd-policy-validator-k8s-tls
+    jsonPointers:
+    - /data/tls.crt
+    - /data/tls.key
+  - group: admissionregistration.k8s.io/v1
+    kind: MutatingWebhookConfiguration
+    name:  linkerd-proxy-injector-webhook-config
+    jsonPointers:
+    - /webhooks/0/clientConfig/caBundle
+  - group: admissionregistration.k8s.io/v1
+    kind: ValidatingWebhookConfiguration
+    name:  linkerd-sp-validator-webhook-config
+    jsonPointers:
+    - /webhooks/0/clientConfig/caBundle
+  - group: admissionregistration.k8s.io/v1
+    kind: ValidatingWebhookConfiguration
+    name:  linkerd-policy-validator-webhook-config
+    jsonPointers:
+    - /webhooks/0/clientConfig/caBundle
