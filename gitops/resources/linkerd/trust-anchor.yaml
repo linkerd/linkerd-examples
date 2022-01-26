@@ -11,7 +11,7 @@ spec:
   template:
     metadata:
       annotations:
-        linkerd.io/created-by: linkerd/cli stable-2.11.1
+        linkerd.io/created-by: linkerd/cli stable-2.11.0
       creationTimestamp: null
       labels:
         linkerd.io/control-plane-component: identity
