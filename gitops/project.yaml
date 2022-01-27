@@ -37,4 +37,4 @@ spec:
   - https://charts.jetstack.io
   - https://github.com/BuoyantIO/emojivoto.git
   - https://helm.linkerd.io/stable
-  - https://kubernetes-charts.storage.googleapis.com
+  - https://bitnami-labs.github.io/sealed-secrets
