@@ -76,7 +76,7 @@ information:
 Provides a self-contained docker-compose environment that can be used to test
 various failure accrual settings. More information:
 
-* [Making microservices more resilient with advanced circuit breaking](https://blog.buoyant.io/2017/01/13/making-microservices-more-resilient-with-circuit-breaking/)
+* [Making microservices more resilient with advanced circuit breaking](https://linkerd.io/2017/01/14/making-microservices-more-resilient-with-circuit-breaking/)
 
 ## Gob's microservice
 
