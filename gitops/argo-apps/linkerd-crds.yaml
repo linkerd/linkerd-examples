@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: linkerd-crds
+  namespace: argocd
+spec:
+  project: demo
+  source:
+    chart: linkerd-crds
+    repoURL: https://helm.linkerd.io/stable
+    targetRevision: 1.0.0
+    helm:
+  destination:
+    namespace: linkerd
+    server: https://kubernetes.default.svc
