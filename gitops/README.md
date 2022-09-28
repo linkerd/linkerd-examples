@@ -6,11 +6,11 @@ This project contains scripts and instructions to manage
 
 The scripts and commands are tested with the following software:
 
-1. [kind](https://kind.sigs.k8s.io/) v0.8.1
-1. [Linkerd](https://linkerd.io/) 2.8.1
-1. [Argo CD](https://argoproj.github.io/argo-cd/) v1.6.1
-1. [cert-manager](https://cert-manager.io) 1.0.4
-1. [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) 0.12.4
+1. [k3d](https://k3d.io/) v5.4.6
+1. [Linkerd](https://linkerd.io/) 2.12.0
+1. [Argo CD](https://argoproj.github.io/argo-cd/) v2.4.12
+1. [cert-manager](https://cert-manager.io) 1.9.1
+1. [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) 0.18.5
 
 ## Highlights
 
