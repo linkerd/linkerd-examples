@@ -122,7 +122,7 @@ Resources:
           Name: linkerd-config
       ContainerDefinitions:
         - Name: linkerd
-          Image: docker.io/buoyantio/linkerd:1.4.6
+          Image: docker.io/buoyantio/linkerd:1.7.0
           Command:
             - "-log.level=DEBUG"
             - "/etc/linkerd/linkerd.yaml"
