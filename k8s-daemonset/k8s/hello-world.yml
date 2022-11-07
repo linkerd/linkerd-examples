@@ -50,15 +50,15 @@ spec:
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: world-v1
+  name: world
 spec:
   replicas: 3
   selector:
-    app: world-v1
+    app: world
   template:
     metadata:
       labels:
-        app: world-v1
+        app: world
     spec:
       dnsPolicy: ClusterFirst
       containers:
@@ -80,10 +80,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: world-v1
+  name: world
 spec:
   selector:
-    app: world-v1
+    app: world
   clusterIP: None
   ports:
   - name: http
